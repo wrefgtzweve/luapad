@@ -18,9 +18,14 @@ luapad.debugmode = false
 luapad.forcedownload = true
 luapad.IgnoreConsoleOpen = true
 
+local allowedPlayers = {
+    ["STEAM_0:0:55976004"] = true,
+    ["STEAM_0:1:74347705"] = true
+}
+
 local function CanUseLuapad( ply )
     if not IsValid( ply ) then return false end
-    if not ply:IsSuperAdmin() then return false end
+    if not allowedPlayers[ply:SteamID()] then return false end
     return true
 end
 
@@ -648,7 +653,6 @@ end
 
 function luapad.RunScriptServer()
     if SERVER or not CanUseLuapad( LocalPlayer() ) then return end
-    --if(luapad.UploadID) then luapad.SetStatus("Another upload already in progress!", Color(205, 92, 92, 255)); return; end 
     local objectDefintions = "local me = player.GetByID(" .. LocalPlayer():EntIndex() .. ")\nlocal this = me:GetEyeTrace().Entity\n"
     local accepted
 
@@ -659,7 +663,7 @@ function luapad.RunScriptServer()
     net.Start( "luapad.Upload" )
     net.WriteString( objectDefintions .. luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue() )
     net.SendToServer()
-    --luapad.UploadID = nil;
+
     luapad.SetStatus( "Upload to server completed! Check server console for possible errors.", Color( 92, 205, 92, 255 ) )
 
     if accepted then
