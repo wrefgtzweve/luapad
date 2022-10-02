@@ -641,10 +641,8 @@ end
 function luapad.RunScriptClientFromServer( script )
     local did, err = pcall( RunString, script )
 
-    if did then
-        luapad.SetStatus( "Code ran sucessfully!", Color( 92, 205, 92, 255 ) )
-    else
-        luapad.SetStatus( err, Color( 205, 92, 92, 255 ) )
+    if not did then
+        ErrorNoHalt( err )
     end
 end
 
