@@ -287,13 +287,7 @@ function luapad.Toggle()
 
         luapad.PropertySheet:InvalidateLayout()
 
-        if file.Exists( "luapad/savedtabs.txt", "DATA" ) then
-        elseif file.Exists( "luapad/_welcome.txt", "DATA" ) then
-            --[[
-			for k,v in pairs(glon.decode(file.Read("luapad/savedtabs.txt", "DATA"))) do
-				luapad.AddTab(v.name, file.Read(v.location, "DATA"), v.prename)
-			end
-			]]
+        if file.Exists( "luapad/_welcome.txt", "DATA" ) then
             luapad.AddTab( "_welcome.txt", file.Read( "luapad/_welcome.txt", "DATA" ), "data/luapad/" )
         else
             luapad.NewTab()
@@ -363,7 +357,7 @@ function luapad.SetStatus( str, clr )
         msg:SetTextColor( Color( col.r, col.g, col.b, col.a ) )
 
         if col.a == 0 then
-            timer.Destroy( "luapad.Statusbar.Fade" )
+            timer.Remove( "luapad.Statusbar.Fade" )
         end
     end )
 
