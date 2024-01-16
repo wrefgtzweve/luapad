@@ -278,15 +278,10 @@ function luapad.OpenScript()
     luapad.OpenTree:SetPos( x + luapad.PropertySheet:GetWide() - luapad.PropertySheet:GetWide() / 4, y + 22 )
     luapad.OpenTree:SetSize( luapad.PropertySheet:GetWide() / 4, luapad.PropertySheet:GetTall() - 23 )
 
-    luapad.OpenTree.DoClick = function()
-        local node = luapad.OpenTree:GetSelectedItem()
-        local format = string.Explode( ".", node.Label:GetValue() )[#string.Explode( ".", node.Label:GetValue() )]
-
-        if #string.Explode( ".", node.Label:GetValue() ) ~= 1 and format == "txt" then
-            Msg( node.Path )
-            luapad.AddTab( node.Label:GetValue(), file.Read( string.gsub( node.Path, "data/", "" ) .. node.Label:GetValue(), "DATA" ), node.Path )
-            luapad.OpenTree:Remove()
-        end
+    function luapad.OpenTree:DoClick( node )
+        local fileName = node:GetFileName()
+        if not fileName then return end
+        luapad.AddTab( node.Label:GetValue(), file.Read( fileName, "GAME" ), node.Path )
     end
 
     luapad.OpenCloseButton = vgui.Create( "DButton", luapad.OpenTree )
@@ -299,97 +294,22 @@ function luapad.OpenScript()
         luapad.OpenTree:Remove()
     end
 
-    local node = luapad.OpenTree:AddNode( "garrysmod\\data" ) -- TODO: luapad.CreateFolder() function for this
+    local node = luapad.OpenTree:AddNode( "garrysmod\\data" )
     node.RootFolder = "data"
     node:MakeFolder( "data", "GAME", true )
     node.Icon:SetImage( "icon16/computer.png" )
 
-    node.AddNode = function( self, strName )
-        self:CreateChildNodes()
-        local pNode = vgui.Create( "DTree_Node", self )
-        pNode:SetText( strName )
-        pNode:SetParentNode( self )
-        pNode:SetRoot( self:GetRoot() )
-        pNode.AddNode = self.AddNode
-        pNode.Folder = pNode:GetParentNode()
-        pNode.Path = ""
-        local folder = pNode.Folder
-
-        while folder do
-            if folder.Label then
-                --TODO: luapad.CreateFolder() function for this
-                if folder.Label:GetValue() ~= "garrysmod\\data" and folder.Label:GetValue() ~= "garrysmod\\lua" and folder.Label:GetValue() ~= "garrysmod\\addons" and folder.Label:GetValue() ~= "garrysmod\\gamemodes" and folder.Label:GetValue() ~= "" then
-                    --Don't really know what I'm doing here, but it seems to work...
-                    pNode.Path = folder.Label:GetValue() .. "/" .. pNode.Path
-                end
-            else
-                break
-            end
-
-            folder = folder:GetParentNode()
-        end
-
-        local ffolder = pNode.Folder
-        local root = self.RootFolder
-
-        while ffolder and not root do
-            if ffolder.RootFolder then
-                root = ffolder.RootFolder
-                break
-            end
-
-            ffolder = ffolder:GetParentNode()
-        end
-
-        pNode.Path = root .. "/" .. pNode.Path
-
-        if table.HasValue( luapad.RestrictedFiles, pNode.Path .. pNode.Label:GetValue() ) then
-            pNode:Remove()
-
-            return
-        end
-
-        local format = string.Explode( ".", strName )[#string.Explode( ".", strName )]
-
-        if format == strName then
-            pNode.Icon:SetImage( "icon16/folder.png" )
-        elseif format == "txt" then
-            pNode.Icon:SetImage( "icon16/page_white.png" )
-        else
-            pNode.Icon:SetImage( "icon16/page_white_delete.png" )
-        end
-
-        self.ChildNodes:Add( pNode )
-        self:InvalidateLayout()
-
-        return pNode
-    end
-    --[[	--Some weird shit is happening with these, so don't really care unless people really need them...
-	local node2 = luapad.OpenTree:AddNode("garrysmod\\lua"); -- TODO: luapad.CreateFolder() function for this
-	node2.RootFolder = "lua";
-	node2:MakeFolder("lua", "GAME", true);
-	node2.Icon:SetImage("icon16/folder_page_white.png");
-	node2.AddNode = node.AddNode;
-	
-	local node2 = luapad.OpenTree:AddNode("garrysmod\\addons"); -- TODO: luapad.CreateFolder() function for this
-	node2.RootFolder = "addons";
-	node2:MakeFolder("addons", "GAME", true);
-	node2.Icon:SetImage("icon16/box.png");
-	node2.AddNode = node.AddNode;
-	
-	local node2 = luapad.OpenTree:AddNode("garrysmod\\gamemodes"); -- TODO: luapad.CreateFolder() function for this
-	node2.RootFolder = "gamemodes";
-	node2:MakeFolder("gamemodes", "GAME", true);
-	node2.Icon:SetImage("icon16/folder_page_white.png");
-	node2.AddNode = node.AddNode;
-	]]
+    local node2 = luapad.OpenTree:AddNode( "luapad" )
+    node2.RootFolder = "data/luapad";
+    node2:MakeFolder( "data/luapad", "GAME", true );
+    node2.Icon:SetImage( "icon16/folder_page_white.png" );
 end
 
 function luapad.SaveScript()
     local contents = luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue() or ""
     contents = string.gsub( contents, "   	", "\t" )
-    local path = string.gsub( luapad.PropertySheet:GetActiveTab():GetPanel().path, "data/", "", 1 )
-    Msg( "data/" .. path .. luapad.PropertySheet:GetActiveTab():GetPanel().name )
+    local path = string.gsub( luapad.PropertySheet:GetActiveTab():GetPanel().path, "data/luapad", "", 1 )
+    Msg( "data/luapad" .. path .. luapad.PropertySheet:GetActiveTab():GetPanel().name )
 
     if not file.Exists( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, "DATA" ) then
         luapad.SaveAsScript()
