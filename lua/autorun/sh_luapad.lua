@@ -1,9 +1,7 @@
 luapad = {}
 luapad.OpenFiles = {}
 
-luapad.RestrictedFiles = { "data/luapad/_server_globals.txt", "data/luapad/_cached_server_globals.txt", "addons/Luapad/data/luapad/_server_globals.txt", "addons/Luapad/data/luapad/_cached_server_globals.txt" }
 luapad.debugmode = false
-luapad.IgnoreConsoleOpen = true
 
 local allowedPlayers = {
     ["STEAM_0:0:55976004"] = true,

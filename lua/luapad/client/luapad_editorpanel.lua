@@ -672,7 +672,7 @@ function PANEL:_OnTextChanged()
     local ctrlv = false
     local text = self.TextEntry:GetValue()
     self.TextEntry:SetText( "" )
-    if input.IsKeyDown( KEY_BACKQUOTE ) and luapad.IgnoreConsoleOpen then return end
+    if input.IsKeyDown( KEY_BACKQUOTE ) and not input.IsKeyDown( KEY_LSHIFT ) then return end
 
     if ( input.IsKeyDown( KEY_LCONTROL ) or input.IsKeyDown( KEY_RCONTROL ) ) and not ( input.IsKeyDown( KEY_LALT ) or input.IsKeyDown( KEY_RALT ) ) then
         -- ctrl+[shift+]key
