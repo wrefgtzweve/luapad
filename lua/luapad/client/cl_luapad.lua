@@ -1,164 +1,8 @@
--- Luapad
--- An in-game scripting environment
--- by DarKSunrise aka Assassini
--- Ported to GMod 13 by SparkZ
---[[	  I have no idea what _E is supposed to be, but it was causing problems
-  		as of Update 39 so I added checks to make sure _E was valid before using 
-  		it. I'm pretty sure it's not even being used at all now, but AFAIK it 
-  		hasn't affected anything negatively. It's just for syntax highlighting 
-  		anyway... I think.
- ]]
-luapad = {}
-luapad.OpenFiles = {}
-
---luapad.GModRoot = string.gsub(string.gsub(util.RelativePathToFull("gameinfo.txt"), "gameinfo.txt", ""), "\\", "/");	--I'm pretty sure we won't need this
-luapad.RestrictedFiles = { "data/luapad/_server_globals.txt", "data/luapad/_cached_server_globals.txt", "addons/Luapad/data/luapad/_server_globals.txt", "addons/Luapad/data/luapad/_cached_server_globals.txt" }
-
-luapad.debugmode = false
-luapad.forcedownload = true
-luapad.IgnoreConsoleOpen = true
-
-local allowedPlayers = {
-    ["STEAM_0:0:55976004"] = true,
-    ["STEAM_0:1:74347705"] = true
-}
-
-local function CanUseLuapad( ply )
-    if not IsValid( ply ) then return false end
-    if not allowedPlayers[ply:SteamID()] then return false end
-    return true
+function luapad.DownloadRunClient()
+    luapad.RunScriptClientFromServer( net.ReadString() )
 end
 
-if SERVER then
-    util.AddNetworkString( "luapad.Upload" )
-    util.AddNetworkString( "luapad.UploadCallback" )
-    util.AddNetworkString( "luapad.UploadClient" )
-    util.AddNetworkString( "luapad.UploadClientCallback" )
-    util.AddNetworkString( "luapad.DownloadRunClient" )
-
-    --They can still do cs lua if you don't have 'sv_allowcslua 0'!!!
-    if luapad.forcedownload then
-        AddCSLuaFile( "autorun/luapad.lua" )
-        AddCSLuaFile( "autorun/luapad_editor.lua" )
-    end
-
-    local content = "-- This is an automatically generated cache file for serverside global functions, meta-tables, and enumerations\n-- Don't touch it, or you'll probably mess up your syntax highlighting\n\nluapad._sG = {};\n"
-    local endcontent = ""
-
-    for k, v in pairs( _G ) do
-        if type( v ) == "function" or type( v ) == "table" then
-            if type( v ) == "function" then
-                content = content .. "luapad._sG[\"" .. k .. "\"] = \"f\";\n"
-            else
-                local hasfunc = false
-
-                for _, v in pairs( v ) do
-                    if type( v ) == "function" then
-                        hasfunc = true
-                        break
-                    end
-                end
-
-                if hasfunc then
-                    content = content .. "luapad._sG[\"" .. k .. "\"] = {};\n"
-
-                    for k2, v2 in pairs( v ) do
-                        if type( v2 ) == "function" then
-                            endcontent = endcontent .. "luapad._sG[\"" .. k .. "\"]" .. "[\"" .. k2 .. "\"] = \"f\";\n"
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    content = content .. endcontent
-    local content = content .. "\n\n-- Enumerations\n\n"
-
-    if _E then
-        for k, v in pairs( _E ) do
-            if ( type( v ) ~= "function" or type( v ) ~= "table" ) and string.upper( k ) == k then
-                content = content .. "luapad._sG[\"" .. k .. "\"] = \"e\";\n"
-            end
-        end
-    end
-
-    local content = content .. "\n\n-- Meta-tables\n\n"
-
-    for _, v in pairs( debug.getregistry() ) do
-        if type( v ) == "table" then
-            local hasfunc = false
-
-            for _, v in pairs( v ) do
-                if type( v ) == "function" then
-                    hasfunc = true
-                    break
-                end
-            end
-
-            if hasfunc then
-                for k2, v2 in pairs( v ) do
-                    if type( v2 ) == "function" and not string.find( content, "luapad._sG[\"" .. k2 .. "\"] = \"m\";" ) then
-                        content = content .. "luapad._sG[\"" .. k2 .. "\"] = \"m\";\n"
-                    end
-                end
-            end
-        end
-    end
-
-    --file.Write("luapad/_server_globals.txt", content);
-    --resource.AddFile("data/luapad/_server_globals.txt");
-    --resource.AddFile("data/luapad/_welcome.txt");
-    --resource.AddFile("data/luapad/_about.txt");
-    function luapad.Upload( _, ply )
-        if not CanUseLuapad( ply ) then return end
-        local str = net.ReadString()
-
-        if str and CanUseLuapad( ply ) then
-            RunString( str )
-        end
-
-        net.Start( "luapad.UploadCallback" )
-        net.Send( ply )
-    end
-
-    net.Receive( "luapad.Upload", luapad.Upload )
-
-    function luapad.UploadClient( _, ply )
-        if not CanUseLuapad( ply ) then return end
-        local str = net.ReadString()
-
-        if str and CanUseLuapad( ply ) then
-            net.Start( "luapad.DownloadRunClient" )
-            net.WriteString( str )
-            net.Send( player.GetAll() )
-        end
-
-        net.Start( "luapad.UploadClientCallback" )
-        net.Send( ply )
-    end
-
-    net.Receive( "luapad.UploadClient", luapad.UploadClient )
-
-    local function AcceptStream( ply, handler )
-        if CanUseLuapad( ply ) and ( handler == "luapad.Upload" or handler == "luapad.UploadClient" ) then return true end
-        if not ply:IsAdmin() and ( handler == "luapad.Upload" or handler == "luapad.UploadClient" ) then return false end
-    end
-
-    hook.Add( "AcceptStream", "luapad.AcceptStream", AcceptStream )
-
-    return
-end
-
-if CLIENT then
-    function luapad.DownloadRunClient()
-        luapad.RunScriptClientFromServer( net.ReadString() )
-    end
-
-    net.Receive( "luapad.DownloadRunClient", luapad.DownloadRunClient )
-end
-
-include( "server_globals.lua" )
+net.Receive( "luapad.DownloadRunClient", luapad.DownloadRunClient )
 
 function luapad.About()
     if not file.Exists( "luapad/_about.txt", "DATA" ) then return end
@@ -213,7 +57,7 @@ function luapad.OnPlayerQuit()
 end
 
 function luapad.Toggle()
-    if SERVER or not CanUseLuapad( LocalPlayer() ) then return end
+    if SERVER or not luapad.CanUseLuapad( LocalPlayer() ) then return end
 
     if not luapad.Frame then
         -- Build it, if it doesn't exist
@@ -625,7 +469,7 @@ function luapad.SaveAsScript()
 end
 
 function luapad.RunScriptClient()
-    if not CanUseLuapad( LocalPlayer() ) then return end
+    if not luapad.CanUseLuapad( LocalPlayer() ) then return end
     local playerIndex = LocalPlayer():EntIndex()
     local objectDefintions = [===[local me = player.GetByID(]===] .. playerIndex .. [===[);local this = me:GetEyeTrace().Entity;]===]
     local did, err = pcall( RunString, objectDefintions .. luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue() )
@@ -646,7 +490,7 @@ function luapad.RunScriptClientFromServer( script )
 end
 
 function luapad.RunScriptServer()
-    if SERVER or not CanUseLuapad( LocalPlayer() ) then return end
+    if SERVER or not luapad.CanUseLuapad( LocalPlayer() ) then return end
     local objectDefintions = "local me = player.GetByID(" .. LocalPlayer():EntIndex() .. ")\nlocal this = me:GetEyeTrace().Entity\n"
     local accepted
 
@@ -668,7 +512,7 @@ function luapad.RunScriptServer()
 end
 
 function luapad.RunScriptServerClient()
-    if SERVER or not CanUseLuapad( LocalPlayer() ) then return end
+    if SERVER or not luapad.CanUseLuapad( LocalPlayer() ) then return end
     --if(luapad.UploadID) then luapad.SetStatus("Another upload already in progress!", Color(205, 92, 92, 255)); return; end 
     local objectDefintions = "local me = player.GetByID(" .. LocalPlayer():EntIndex() .. ")\nlocal this = me:GetEyeTrace().Entity\n"
     local accepted
