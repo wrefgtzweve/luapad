@@ -27,6 +27,8 @@ function luapad.CheckGlobal( func )
 end
 
 function luapad.SaveTabs()
+    if not luapad.Frame then return end
+
     local store = {
         activetab = luapad.PropertySheet:GetActiveTab().name,
         tabs = {}
