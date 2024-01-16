@@ -26,21 +26,43 @@ function luapad.CheckGlobal( func )
     return false
 end
 
-function luapad.OnPlayerQuit()
-    local tbl = luapad.OpenFiles or {}
-    local savtbl = {}
+function luapad.SaveTabs()
+    local store = {
+        activetab = luapad.PropertySheet:GetActiveTab().name,
+        tabs = {}
+    }
 
-    for k, v in ipairs( tbl ) do
-        local strTbl = string.Explode( "/", v )
-        savtbl[k] = {}
-        savtbl[k].name = strTbl[#strTbl]
-        savtbl[k].prename = string.Left( v, string.len( v ) - string.len( strTbl[#strTbl] ) )
-        savtbl[k].location = "../" .. v
+    for _, v in pairs( luapad.PropertySheet.Items ) do
+        local panel = v["Panel"]
+        local name = panel.name
+        local path = panel.path
+        local content = panel:GetItems()[1]:GetValue()
+        table.insert( store.tabs, { name = name, path = path, content = content } )
+    end
+
+    file.Write( "luapad/_tabs.txt", "luapad " .. util.Compress( util.TableToJSON( store ) ) )
+end
+hook.Add( "ShutDown", "luapad.SaveTabs", luapad.SaveTabs )
+
+function luapad.LoadSavedTabs()
+    if not file.Exists( "luapad/_tabs.txt", "DATA" ) then return end
+    local store = util.JSONToTable( util.Decompress( file.Read( "luapad/_tabs.txt", "DATA" ):sub( 8 ) ) )
+
+    if store then
+        for _, v in pairs( store.tabs ) do
+            luapad.AddTab( v.name, v.content, v.path )
+        end
+
+        for _, v in pairs( luapad.PropertySheet.Items ) do
+            if v["Name"] == store.activetab then
+                luapad.PropertySheet:SetActiveTab( v["Tab"] )
+            end
+        end
     end
 end
 
 function luapad.Toggle()
-    if SERVER or not luapad.CanUseLuapad( LocalPlayer() ) then return end
+    if not luapad.CanUseLuapad( LocalPlayer() ) then return end
 
     if not luapad.Frame then
         -- Build it, if it doesn't exist
@@ -54,7 +76,7 @@ function luapad.Toggle()
         --Thanks Microosoft -SparkZ
         luapad.Frame.btnClose.DoClick = function()
             luapad.Toggle()
-            luapad.OnPlayerQuit()
+            luapad.SaveTabs()
         end
 
         luapad.Toolbar = vgui.Create( "DPanelList", luapad.Frame )
@@ -114,11 +136,7 @@ function luapad.Toggle()
 
         luapad.PropertySheet:InvalidateLayout()
 
-        if file.Exists( "luapad/_welcome.txt", "DATA" ) then
-            luapad.AddTab( "_welcome.txt", file.Read( "luapad/_welcome.txt", "DATA" ), "data/luapad/" )
-        else
-            luapad.NewTab()
-        end
+        luapad.NewTab()
 
         luapad.Statusbar = vgui.Create( "DPanelList", luapad.Frame )
         luapad.Statusbar:SetPos( 3, luapad.Frame:GetTall() - 25 )
@@ -148,6 +166,8 @@ function luapad.Toggle()
             menu:AddOption( "Run on all clients", luapad.RunScriptServerClient )
             menu:Open()
         end )
+
+        luapad.LoadSavedTabs()
     else
         luapad.Frame:SetVisible( not luapad.Frame:IsVisible() )
     end
@@ -214,7 +234,6 @@ end
 function luapad.NewTab( content )
     local n
 
-    --nobody likes nil.
     if type( content ) ~= "string" then
         content = ""
     end
@@ -265,6 +284,8 @@ function luapad.CloseActiveTab()
     for _, v in pairs( tabs ) do
         luapad.AddTab( v.name, v:GetItems()[1]:GetValue(), v.path )
     end
+
+    luapad.SaveTabs()
 end
 
 function luapad.OpenScript()
@@ -314,12 +335,6 @@ function luapad.SaveScript()
     if not file.Exists( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, "DATA" ) then
         luapad.SaveAsScript()
     else
-        if table.HasValue( luapad.RestrictedFiles, luapad.PropertySheet:GetActiveTab():GetPanel().path .. luapad.PropertySheet:GetActiveTab():GetPanel().name ) then
-            luapad.SetStatus( "Save failed! (this file is marked as restricted)", Color( 205, 72, 72, 255 ) )
-
-            return
-        end
-
         file.Write( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, contents )
 
         if file.Exists( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, "DATA" ) then
@@ -332,12 +347,6 @@ end
 
 function luapad.SaveAsScript()
     Derma_StringRequest( "Luapad", "You are about to save a file, please enter the desired filename.", luapad.PropertySheet:GetActiveTab():GetPanel().path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, function( filename )
-        if table.HasValue( luapad.RestrictedFiles, filename ) then
-            luapad.SetStatus( "Save failed! (this file is marked as restricted)", Color( 205, 72, 72, 255 ) )
-
-            return
-        end
-
         local contents = luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue() or ""
 
         --I really do hate how '.' is a wildcard...
