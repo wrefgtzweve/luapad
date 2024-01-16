@@ -1,14 +1,3 @@
-function luapad.DownloadRunClient()
-    luapad.RunScriptClientFromServer( net.ReadString() )
-end
-
-net.Receive( "luapad.DownloadRunClient", luapad.DownloadRunClient )
-
-function luapad.About()
-    if not file.Exists( "luapad/_about.txt", "DATA" ) then return end
-    luapad.AddTab( "_about.txt", file.Read( "luapad/_about.txt", "DATA" ), "data/luapad/" )
-end
-
 function luapad.CheckGlobal( func )
     if luapad._sG[func] ~= nil then
         if luapad.debugmode then
@@ -37,7 +26,6 @@ function luapad.CheckGlobal( func )
     return false
 end
 
---save my open tabs you bastard!
 function luapad.OnPlayerQuit()
     local tbl = luapad.OpenFiles or {}
     local savtbl = {}
@@ -49,11 +37,6 @@ function luapad.OnPlayerQuit()
         savtbl[k].prename = string.Left( v, string.len( v ) - string.len( strTbl[#strTbl] ) )
         savtbl[k].location = "../" .. v
     end
-    --[[
-	if savtbl and savtbl != {} then
-		file.Write("luapad/savedtabs.txt",glon.encode(savtbl))
-	end
-	]]
 end
 
 function luapad.Toggle()
@@ -194,11 +177,11 @@ function luapad.SetStatus( str, clr )
     msg:SetTextColor( clr )
     msg:SizeToContents()
 
-    timer.Create( "luapad.Statusbar.Fade", 0.01, 0, function( clr )
-        local msg = luapad.Statusbar:GetItems()[1]
-        local col = msg:GetTextColor()
+    timer.Create( "luapad.Statusbar.Fade", 0.01, 0, function()
+        local statusMsg = luapad.Statusbar:GetItems()[1]
+        local col = statusMsg:GetTextColor()
         col.a = math.Clamp( col.a - 1, 0, 255 )
-        msg:SetTextColor( Color( col.r, col.g, col.b, col.a ) )
+        statusMsg:SetTextColor( Color( col.r, col.g, col.b, col.a ) )
 
         if col.a == 0 then
             timer.Remove( "luapad.Statusbar.Fade" )
@@ -468,20 +451,32 @@ function luapad.SaveAsScript()
     end, nil, "Save", "Cancel" )
 end
 
+local function getObjectDefines()
+    return "local me = player.GetByID(" .. LocalPlayer():EntIndex() .. ") local this = me:GetEyeTrace().Entity "
+end
+
 function luapad.RunScriptClient()
     if not luapad.CanUseLuapad( LocalPlayer() ) then return end
-    local playerIndex = LocalPlayer():EntIndex()
-    local objectDefintions = [===[local me = player.GetByID(]===] .. playerIndex .. [===[);local this = me:GetEyeTrace().Entity;]===]
-    local did, err = pcall( RunString, objectDefintions .. luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue() )
+    local source = "Luapad[" .. LocalPlayer():SteamID() .. "]" .. LocalPlayer():Nick() .. ".lua"
+    local func = CompileString( getObjectDefines() .. luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue(), source, false )
 
-    if did then
+    if isstring( func ) then
+        luapad.SetStatus( func, Color( 205, 72, 72, 255 ) )
+    end
+
+    local errCatch = function() return debug.traceback() end
+    local success, err = xpcall( func, errCatch )
+
+    if success then
         luapad.SetStatus( "Code ran sucessfully!", Color( 72, 205, 72, 255 ) )
     else
-        luapad.SetStatus( err, Color( 205, 72, 72, 255 ) )
+        luapad.SetStatus( "Code execution failed! Check console for more details.", Color( 205, 72, 72, 255 ) )
+        MsgC( Color( 255, 222, 102 ), err .. "\n" )
     end
 end
 
-function luapad.RunScriptClientFromServer( script )
+local function runScriptClientFromServer()
+    local script = net.ReadString()
     local did, err = pcall( RunString, script )
 
     if not did then
@@ -489,49 +484,38 @@ function luapad.RunScriptClientFromServer( script )
     end
 end
 
-function luapad.RunScriptServer()
-    if SERVER or not luapad.CanUseLuapad( LocalPlayer() ) then return end
-    local objectDefintions = "local me = player.GetByID(" .. LocalPlayer():EntIndex() .. ")\nlocal this = me:GetEyeTrace().Entity\n"
-    local accepted
+net.Receive( "luapad.DownloadRunClient", runScriptClientFromServer )
 
-    net.Receive( "luapad.UploadCallback", function()
-        accepted = true
-    end )
+function luapad.RunScriptServer()
+    if not luapad.CanUseLuapad( LocalPlayer() ) then return end
 
     net.Start( "luapad.Upload" )
-    net.WriteString( objectDefintions .. luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue() )
+    net.WriteString( getObjectDefines() .. luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue() )
     net.SendToServer()
-
-    luapad.SetStatus( "Upload to server completed! Check server console for possible errors.", Color( 92, 205, 92, 255 ) )
-
-    if accepted then
-        luapad.SetStatus( "Upload accepted, now uploading..", Color( 92, 205, 92, 255 ) )
-    else
-        luapad.SetStatus( "Upload denied by server! This could be due you not being an admin.", Color( 205, 92, 92, 255 ) )
-    end
 end
+
+net.Receive( "luapad.Upload", function()
+    local success = net.ReadBool()
+    if success then
+        luapad.SetStatus( "Code executed on server succesfully.", Color( 92, 205, 92, 255 ) )
+        return
+    end
+
+    local err = net.ReadString()
+    luapad.SetStatus( "Code execution on server failed! Check console for more details.", Color( 205, 92, 92, 255 ) )
+    MsgC( Color( 145, 219, 232 ), err .. "\n" )
+end )
 
 function luapad.RunScriptServerClient()
-    if SERVER or not luapad.CanUseLuapad( LocalPlayer() ) then return end
-    --if(luapad.UploadID) then luapad.SetStatus("Another upload already in progress!", Color(205, 92, 92, 255)); return; end 
-    local objectDefintions = "local me = player.GetByID(" .. LocalPlayer():EntIndex() .. ")\nlocal this = me:GetEyeTrace().Entity\n"
-    local accepted
-
-    net.Receive( "luapad.UploadClientCallback", function()
-        accepted = true
-    end )
+    if not luapad.CanUseLuapad( LocalPlayer() ) then return end
 
     net.Start( "luapad.UploadClient" )
-    net.WriteString( objectDefintions .. luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue() )
+    net.WriteString( getObjectDefines() .. luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue() )
     net.SendToServer()
-    --luapad.UploadID = nil;
-    luapad.SetStatus( "Upload to client completed!", Color( 92, 205, 92, 255 ) )
-
-    if accepted then
-        luapad.SetStatus( "Upload accepted, now uploading..", Color( 92, 205, 92, 255 ) )
-    else
-        luapad.SetStatus( "Upload denied by server! This could be due you not being an admin.", Color( 205, 92, 92, 255 ) )
-    end
 end
+
+net.Receive( "luapad.UploadClient", function()
+    luapad.SetStatus( "Scrip ran.", Color( 92, 205, 92, 255 ) )
+end )
 
 concommand.Add( "luapad", luapad.Toggle )
