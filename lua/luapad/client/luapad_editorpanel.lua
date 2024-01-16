@@ -44,15 +44,15 @@ function PANEL:Init()
     self.TextEntry:SetAllowNonAsciiCharacters( true )
     self.TextEntry:SetSize( 0, 0 )
 
-    self.TextEntry.OnLoseFocus = function( self )
+    function self.TextEntry:OnLoseFocus()
         self.Parent:_OnLoseFocus()
     end
 
-    self.TextEntry.OnTextChanged = function( self )
+    function self.TextEntry:OnTextChanged()
         self.Parent:_OnTextChanged()
     end
 
-    self.TextEntry.OnKeyCodeTyped = function( self, code )
+    function self.TextEntry:OnKeyCodeTyped( code )
         self.Parent:_OnKeyCodeTyped( code )
     end
 
@@ -394,10 +394,10 @@ function PANEL:PaintLine( row )
     draw.SimpleText( tostring( row ), "LuapadEditor", width * 3, ( row - self.Scroll[1] ) * height, Color( 128, 128, 128, 255 ), TEXT_ALIGN_RIGHT )
     local offset = -self.Scroll[2] + 1
 
-    for i, cell in ipairs( self.PaintRows[row] ) do
+    for _, cell in ipairs( self.PaintRows[row] ) do
         if offset < 0 then
             if string.len( cell[1] ) > -offset then
-                line = string.sub( cell[1], -offset + 1 )
+                local line = string.sub( cell[1], -offset + 1 )
                 offset = string.len( line )
 
                 if cell[2][2] then
@@ -419,13 +419,9 @@ function PANEL:PaintLine( row )
         end
     end
 
-    if row == self.Caret[1] and self.TextEntry:HasFocus() then
-        if ( RealTime() - self.Blink ) % 0.8 < 0.4 then
-            if self.Caret[2] - self.Scroll[2] >= 0 then
-                surface.SetDrawColor( 72, 61, 139, 255 )
-                surface.DrawRect( ( self.Caret[2] - self.Scroll[2] ) * width + width * 3 + 6, ( self.Caret[1] - self.Scroll[1] ) * height, 1, height )
-            end
-        end
+    if row == self.Caret[1] and self.TextEntry:HasFocus() and ( RealTime() - self.Blink ) % 0.8 < 0.4 and self.Caret[2] - self.Scroll[2] >= 0 then
+        surface.SetDrawColor( 72, 61, 139, 255 )
+        surface.DrawRect( ( self.Caret[2] - self.Scroll[2] ) * width + width * 3 + 6, ( self.Caret[1] - self.Scroll[1] ) * height, 1, height )
     end
 end
 
@@ -437,7 +433,7 @@ function PANEL:PerformLayout()
     self.ScrollBar:SetUp( self.Size[1], #self.Rows - 1 )
 end
 
-function PANEL:Paint( w, h )
+function PANEL:Paint()
     if not input.IsMouseDown( MOUSE_LEFT ) then
         self:OnMouseReleased( MOUSE_LEFT )
     end
@@ -474,7 +470,7 @@ function PANEL:CopyPosition( caret )
 end
 
 function PANEL:MovePosition( caret, offset )
-    local caret = { caret[1], caret[2] }
+    caret = { caret[1], caret[2] }
 
     if offset > 0 then
         while true do
@@ -559,7 +555,7 @@ function PANEL:SetArea( selection, text, isundo, isredo, before, after )
         self.Rows[start[1]] = string.sub( self.Rows[start[1]], 1, start[2] - 1 ) .. string.sub( self.Rows[stop[1]], stop[2] )
         self.PaintRows[start[1]] = false
 
-        for i = start[1] + 1, stop[1] do
+        for _ = start[1] + 1, stop[1] do
             table.remove( self.Rows, start[1] + 1 )
             table.remove( self.PaintRows, start[1] + 1 )
             self.PaintRows = {} -- TODO: fix for cache errors
@@ -615,7 +611,7 @@ function PANEL:SetArea( selection, text, isundo, isredo, before, after )
         self.PaintRows = {} -- TODO: fix for cache errors
     end
 
-    local stop = { start[1] + #rows - 1, string.len( self.Rows[start[1] + #rows - 1] ) + 1 }
+    stop = { start[1] + #rows - 1, string.len( self.Rows[start[1] + #rows - 1] ) + 1 }
 
     self.Rows[stop[1]] = self.Rows[stop[1]] .. remainder
     self.PaintRows[stop[1]] = false
@@ -691,12 +687,8 @@ function PANEL:_OnTextChanged()
 
     if text == "" then return end
 
-    if not ctrlv then
-        if text == "\n" then return end
-
-        if text == "end" then
-            local row = self.Rows[self.Caret[1]]
-        end
+    if not ctrlv and text == "\n" then
+        return
     end
 
     self:SetSelection( text )
@@ -752,7 +744,7 @@ function PANEL:ScrollCaret()
     self.ScrollBar:SetScroll( self.Scroll[1] - 1 )
 end
 
-function unindent( line )
+local function unindent( line )
     local i = line:find( "%S" )
 
     if i == nil or i > 5 then
@@ -1100,8 +1092,7 @@ function PANEL:getWordStart( caret )
             return { caret[1], caret[2] - i + 1 }
         end
 
-        if line[caret[2] - i] >= "a" and line[caret[2] - i] <= "z" or line[caret[2] - i] >= "A" and line[caret[2] - i] <= "Z" or line[caret[2] - i] >= "0" and line[caret[2] - i] <= "9" then
-        else
+        if not ( line[caret[2] - i] >= "a" and line[caret[2] - i] <= "z" or line[caret[2] - i] >= "A" and line[caret[2] - i] <= "Z" or line[caret[2] - i] >= "0" and line[caret[2] - i] <= "9" ) then
             return { caret[1], caret[2] - i + 1 }
         end
     end
@@ -1118,8 +1109,7 @@ function PANEL:getWordEnd( caret )
             return { caret[1], i }
         end
 
-        if line[i] >= "a" and line[i] <= "z" or line[i] >= "A" and line[i] <= "Z" or line[i] >= "0" and line[i] <= "9" then
-        else
+        if not ( line[i] >= "a" and line[i] <= "z" or line[i] >= "A" and line[i] <= "Z" or line[i] >= "0" and line[i] <= "9" ) then
             return { caret[1], i }
         end
     end
