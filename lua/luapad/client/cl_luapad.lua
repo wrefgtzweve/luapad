@@ -234,21 +234,15 @@ function luapad.AddTab( name, content, path )
     luapad.PropertySheet:InvalidateLayout()
 end
 
+local newTabNum = 1
 function luapad.NewTab( content )
-    local n
-
-    if type( content ) ~= "string" then
+    if not isstring( content ) then
         content = ""
     end
 
-    for i = 1, 1000 do
-        if not file.Exists( "luapad/untitled" .. i .. ".txt", "DATA" ) and not table.HasValue( luapad.OpenFiles, "luapad/untitled" .. i .. ".txt" ) then
-            n = i
-            break
-        end
-    end
+    luapad.AddTab( "untitled" .. newTabNum .. ".txt", content, "data/luapad/" )
 
-    luapad.AddTab( "untitled" .. n .. ".txt", content, "data/luapad/" )
+    newTabNum = newTabNum + 1
 end
 
 function luapad.CloseActiveTab()
