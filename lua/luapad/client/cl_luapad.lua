@@ -39,6 +39,7 @@ function luapad.SaveTabs()
         local name = panel.name
         local path = panel.path
         local content = panel:GetItems()[1]:GetValue()
+        if content == "" then continue end
         table.insert( store.tabs, { name = name, path = path, content = content } )
     end
 
