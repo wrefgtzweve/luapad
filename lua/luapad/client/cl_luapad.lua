@@ -76,7 +76,6 @@ function luapad.Toggle()
         luapad.Frame:ShowCloseButton( true )
         luapad.Frame:MakePopup()
 
-        --Thanks Microosoft -SparkZ
         luapad.Frame.btnClose.DoClick = function()
             luapad.Toggle()
             luapad.SaveTabs()
@@ -384,15 +383,8 @@ end
 function luapad.RunScriptClient()
     if not luapad.CanUseLuapad( LocalPlayer() ) then return end
     local source = "Luapad[" .. LocalPlayer():SteamID() .. "]" .. LocalPlayer():Nick() .. ".lua"
-    local func = CompileString( getObjectDefines() .. luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue(), source, false )
-
-    if isstring( func ) then
-        luapad.SetStatus( func, Color( 205, 72, 72, 255 ) )
-    end
-
-    local errCatch = function() return debug.traceback() end
-    local success, err = xpcall( func, errCatch )
-
+    local code = getObjectDefines() .. luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue()
+    local success, err = luapad.Execute( code, source )
     if success then
         luapad.SetStatus( "Code ran sucessfully!", Color( 72, 205, 72, 255 ) )
     else

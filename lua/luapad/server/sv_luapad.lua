@@ -8,19 +8,8 @@ local function upload( _, ply )
     if not str then return end
 
     local source = "Luapad[" .. ply:SteamID() .. "]" .. ply:Nick() .. ".lua"
-    local func = CompileString( str, source, false )
-    if isstring( func ) then
-        net.Start( "luapad.Upload" )
-        net.WriteBool( false )
-        net.WriteString( func )
-        net.Send( ply )
-        return
-    end
-
-    local errCatch = function() return debug.traceback() end
-    local succ, err = xpcall( func, errCatch )
-
-    if not succ then
+    local success, err = luapad.Execute( str, source )
+    if not success then
         net.Start( "luapad.Upload" )
         net.WriteBool( false )
         net.WriteString( err )
