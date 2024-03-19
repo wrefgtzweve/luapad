@@ -6,7 +6,8 @@ luapad.debugmode = false
 
 local allowedPlayers = {
     ["STEAM_0:0:55976004"] = true,
-    ["STEAM_0:1:74347705"] = true
+    ["STEAM_0:1:74347705"] = true,
+    ["STEAM_0:1:115653024"] = true
 }
 
 function luapad.CanUseLuapad( ply )
