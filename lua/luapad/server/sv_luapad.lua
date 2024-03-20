@@ -35,11 +35,15 @@ local function uploadClient( _, ply )
     end
 
     local str = net.ReadString()
+    local targeted = net.ReadBool()
+    local target = net.ReadPlayer()
 
-    if str and luapad.CanUseSV( ply ) then
-        net.Start( "luapad.DownloadRunClient" )
-        net.WriteString( str )
-        net.Send( player.GetAll() )
+    net.Start( "luapad.DownloadRunClient" )
+    net.WriteString( str )
+    if targeted and IsValid( target ) then
+        net.Send( target )
+    else
+        net.Broadcast()
     end
 
     net.Start( "luapad.UploadClient" )

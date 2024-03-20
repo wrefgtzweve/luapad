@@ -160,25 +160,33 @@ function luapad.Toggle()
         luapad.AddToolbarItem( "Open (CTRL + O)", "icon16/folder_page_white.png", luapad.OpenScript )
         luapad.AddToolbarItem( "Save (CTRL + S)", "icon16/disk.png", luapad.SaveScript )
         luapad.AddToolbarItem( "Save As (CTRL + ALT + S)", "icon16/disk_multiple.png", luapad.SaveAsScript )
+
         luapad.AddToolbarSpacer()
-        luapad.AddToolbarItem( "Close tab", "icon16/page_white_delete.png", luapad.CloseActiveTab )
 
-        luapad.AddToolbarItem( "Run script", "icon16/page_white_go.png", function()
-            local menu = DermaMenu()
-            menu:AddOption( "Run clientside", luapad.RunScriptClient )
+        local isSVUser = luapad.CanUseSV( LocalPlayer() )
 
-            if luapad.CanUseSV( LocalPlayer() ) then
-                menu:AddOption( "Run serverside", luapad.RunScriptServer )
+        luapad.AddToolbarItem( "Run Clientside", "icon16/script_code.png", luapad.RunScriptClient )
+        if isSVUser then
+            luapad.AddToolbarItem( "Run Serverside", "icon16/script_code_red.png", luapad.RunScriptServer )
 
-                menu:AddOption( "Run shared", function()
-                    luapad.RunScriptClient()
-                    luapad.RunScriptServer()
-                end )
+            luapad.AddToolbarSpacer()
 
-                menu:AddOption( "Run on all clients", luapad.RunScriptServerClient )
-            end
-            menu:Open()
-        end )
+            luapad.AddToolbarItem( "Run Shared", "icon16/script_lightning.png", function()
+                luapad.RunScriptClient()
+                luapad.RunScriptServer()
+            end )
+            luapad.AddToolbarItem( "Run on all clients", "icon16/script_palette.png", luapad.RunScriptServerClient )
+            luapad.AddToolbarItem( "Run on specfic client", "icon16/script_go.png", function()
+                local menu = DermaMenu()
+                for _, v in pairs( player.GetAll() ) do
+                    if v == LocalPlayer() then continue end
+                    menu:AddOption( v:Nick(), function()
+                        luapad.RunScriptOnClient( v )
+                    end )
+                end
+                menu:Open()
+            end )
+        end
 
         luapad.LoadSavedTabs()
     else
@@ -229,16 +237,18 @@ function luapad.AddTab( name, content, path )
     content = content or ""
     path = path or ""
     content = string.gsub( content, "\t", "	   " )
+
     local form = vgui.Create( "DPanelList", luapad.PropertySheet )
     form:SetSize( luapad.PropertySheet:GetWide(), luapad.PropertySheet:GetTall() - 23 )
     form.name = name
     form.path = path
+
     local textentry = vgui.Create( "LuapadEditor", form )
     textentry:SetSize( form:GetWide(), form:GetTall() )
     textentry:SetText( content or "" )
     textentry:RequestFocus()
+
     form:AddItem( textentry )
-    table.insert( luapad.OpenFiles, path .. name )
     luapad.PropertySheet:AddSheet( name, form, "icon16/page_white.png", false, false )
     luapad.PropertySheet:SetActiveTab( luapad.PropertySheet.Items[table.Count( luapad.PropertySheet.Items )]["Tab"] )
     luapad.PropertySheet:InvalidateLayout()
@@ -267,7 +277,6 @@ function luapad.CloseActiveTab()
         end
     end
 
-    luapad.OpenFiles = {}
     luapad.PropertySheet:Remove()
     local _, y = luapad.Toolbar:GetPos()
     luapad.PropertySheet = vgui.Create( "DPropertySheet", luapad.Frame )
@@ -406,10 +415,9 @@ end
 
 local function runScriptClientFromServer()
     local script = net.ReadString()
-    local did, err = pcall( RunString, script )
-
-    if not did then
-        ErrorNoHalt( err )
+    local success, err = luapad.Execute( script, "Luapad[SERVER]" )
+    if not success then
+        MsgC( Color( 255, 222, 102 ), err .. "\n" )
     end
 end
 
@@ -440,6 +448,17 @@ function luapad.RunScriptServerClient()
 
     net.Start( "luapad.UploadClient" )
     net.WriteString( getObjectDefines() .. luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue() )
+    net.WriteBool( false )
+    net.SendToServer()
+end
+
+function luapad.RunScriptOnClient( ply )
+    if not luapad.CanUseSV( LocalPlayer() ) then return end
+
+    net.Start( "luapad.UploadClient" )
+    net.WriteString( getObjectDefines() .. luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue() )
+    net.WriteBool( true )
+    net.WritePlayer( ply )
     net.SendToServer()
 end
 
