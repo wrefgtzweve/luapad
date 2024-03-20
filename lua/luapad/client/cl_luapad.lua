@@ -72,7 +72,7 @@ function luapad.Toggle()
         luapad.Frame:ShowCloseButton( true )
         luapad.Frame:MakePopup()
 
-        luapad.Frame.btnClose.DoClick = function()
+        function luapad.Frame.btnClose:DoClick()
             luapad.Toggle()
             luapad.SaveTabs()
         end
@@ -84,7 +84,7 @@ function luapad.Toggle()
         luapad.Toolbar:EnableHorizontal( true )
         luapad.Toolbar:EnableVerticalScrollbar( false )
 
-        luapad.Toolbar.PerformLayout = function( self )
+        function luapad.Toolbar:PerformLayout()
             local Wide = self:GetWide()
             local YPos = 3
 
@@ -121,10 +121,10 @@ function luapad.Toggle()
         luapad.PropertySheet:SetSize( luapad.Frame:GetWide() - 6, luapad.Frame:GetTall() - 82 )
         luapad.PropertySheet:SetPadding( 1 )
         luapad.PropertySheet:SetFadeTime( 0 )
-        luapad.PropertySheet.____SetActiveTab = luapad.PropertySheet.SetActiveTab
 
-        luapad.PropertySheet.SetActiveTab = function( ... )
-            luapad.PropertySheet.____SetActiveTab( ... )
+        luapad.PropertySheet.____SetActiveTab = luapad.PropertySheet.SetActiveTab
+        function luapad.PropertySheet:SetActiveTab( ... )
+            luapad.PropertySheet:____SetActiveTab( ... )
 
             if luapad.PropertySheet:GetActiveTab() then
                 local panel = luapad.PropertySheet:GetActiveTab():GetPanel()
@@ -237,7 +237,43 @@ function luapad.AddTab( name, content, path )
     textentry:RequestFocus()
 
     form:AddItem( textentry )
-    luapad.PropertySheet:AddSheet( name, form, "icon16/page_white.png", false, false )
+    local sheet = luapad.PropertySheet:AddSheet( name, form, "icon16/page_white.png", false, false )
+    local dtab = sheet.Tab
+    function dtab:DoRightClick()
+        local menu = DermaMenu()
+        menu:AddOption( "Close", function()
+            local tabCount = table.Count( luapad.PropertySheet.Items )
+            if tabCount == 1 then
+                luapad.NewTab()
+                luapad.PropertySheet:CloseTab( self, true )
+                return
+            end
+
+            luapad.PropertySheet:CloseTab( self, true )
+        end ):SetIcon( "icon16/cross.png" )
+
+        menu:AddOption( "Save", function()
+            luapad.SaveScript()
+        end ):SetIcon( "icon16/disk.png" )
+
+        menu:AddSpacer()
+
+        menu:AddOption( "Close all but this", function()
+            for _, v in pairs( luapad.PropertySheet.Items ) do
+                if v["Tab"] == self then continue end
+                luapad.PropertySheet:CloseTab( v["Tab"], true )
+            end
+        end ):SetIcon( "icon16/cross.png" )
+
+        menu:AddOption( "Close all", function()
+            for _, v in pairs( luapad.PropertySheet.Items ) do
+                luapad.PropertySheet:CloseTab( v["Tab"], true )
+            end
+        end ):SetIcon( "icon16/cross.png" )
+
+        menu:Open()
+    end
+
     luapad.PropertySheet:SetActiveTab( luapad.PropertySheet.Items[table.Count( luapad.PropertySheet.Items )]["Tab"] )
     luapad.PropertySheet:InvalidateLayout()
 end
@@ -251,45 +287,6 @@ function luapad.NewTab( content )
     luapad.AddTab( "untitled" .. newTabNum .. ".txt", content, "data/luapad/" )
 
     newTabNum = newTabNum + 1
-end
-
-function luapad.CloseActiveTab()
-    if table.Count( luapad.PropertySheet.Items ) == 1 then return end
-    local tabs = {}
-
-    for _, v in pairs( luapad.PropertySheet.Items ) do
-        if v["Tab"] ~= luapad.PropertySheet:GetActiveTab() then
-            table.insert( tabs, v["Panel"] )
-            v["Tab"]:Remove()
-            v["Panel"]:Remove()
-        end
-    end
-
-    luapad.PropertySheet:Remove()
-    local _, y = luapad.Toolbar:GetPos()
-    luapad.PropertySheet = vgui.Create( "DPropertySheet", luapad.Frame )
-    luapad.PropertySheet:SetPos( 3, y + luapad.Toolbar:GetTall() + 5 )
-    luapad.PropertySheet:SetSize( luapad.Frame:GetWide() - 6, luapad.Frame:GetTall() - 82 )
-    luapad.PropertySheet:SetPadding( 1 )
-    luapad.PropertySheet:SetFadeTime( 0 )
-    luapad.PropertySheet.____SetActiveTab = luapad.PropertySheet.SetActiveTab
-
-    luapad.PropertySheet.SetActiveTab = function( ... )
-        luapad.PropertySheet.____SetActiveTab( ... )
-
-        if luapad.PropertySheet:GetActiveTab() then
-            local panel = luapad.PropertySheet:GetActiveTab():GetPanel()
-            luapad.Frame:SetTitle( "Luapad - " .. panel.path .. panel.name )
-        end
-    end
-
-    luapad.PropertySheet:InvalidateLayout()
-
-    for _, v in pairs( tabs ) do
-        luapad.AddTab( v.name, v:GetItems()[1]:GetValue(), v.path )
-    end
-
-    luapad.SaveTabs()
 end
 
 function luapad.OpenScript()
@@ -315,7 +312,7 @@ function luapad.OpenScript()
     luapad.OpenCloseButton:SetText( "X" )
     luapad.OpenCloseButton:SetTooltip( "Close" )
 
-    luapad.OpenCloseButton.DoClick = function()
+    function luapad.OpenCloseButton:DoClick()
         luapad.OpenTree:Remove()
     end
 
