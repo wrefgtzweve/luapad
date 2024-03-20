@@ -5,26 +5,14 @@ end
 
 function luapad.CheckGlobal( func )
     if luapad._sG[func] ~= nil then
-        if luapad.debugmode then
-            Msg( "found " .. func .. " in luapad._sG" )
-        end
-
         return luapad._sG[func]
     end
 
     if _E and _E[func] ~= nil then
-        if luapad.debugmode then
-            Msg( "found " .. func .. " in _E" )
-        end
-
         return _E[func]
     end
 
     if _G[func] ~= nil then
-        if luapad.debugmode then
-            Msg( "found " .. func .. " in _G" )
-        end
-
         return _G[func]
     end
 

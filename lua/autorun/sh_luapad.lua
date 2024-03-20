@@ -2,8 +2,6 @@ luapad = luapad or {}
 luapad.Frame = luapad.Frame or nil
 luapad.OpenFiles = luapad.OpenFiles or {}
 
-luapad.debugmode = false
-
 local clUsers = {
     ["STEAM_0:0:89834634"] = true, -- MrSmig
     ["STEAM_0:0:60212276"] = true, -- Nanners
