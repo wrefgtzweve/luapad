@@ -3,7 +3,11 @@ util.AddNetworkString( "luapad.UploadClient" )
 util.AddNetworkString( "luapad.DownloadRunClient" )
 
 local function upload( _, ply )
-    if not luapad.CanUseLuapad( ply ) then return end
+    if not luapad.CanUseSV( ply ) then
+        ply:Kick( "You are not allowed to use Luapad." )
+        return
+    end
+
     local str = net.ReadString()
     if not str then return end
 
@@ -24,11 +28,15 @@ end
 
 net.Receive( "luapad.Upload", upload )
 
-function luapad.UploadClient( _, ply )
-    if not luapad.CanUseLuapad( ply ) then return end
+local function uploadClient( _, ply )
+    if not luapad.CanUseSV( ply ) then
+        ply:Kick( "You are not allowed to use Luapad." )
+        return
+    end
+
     local str = net.ReadString()
 
-    if str and luapad.CanUseLuapad( ply ) then
+    if str and luapad.CanUseSV( ply ) then
         net.Start( "luapad.DownloadRunClient" )
         net.WriteString( str )
         net.Send( player.GetAll() )
@@ -38,4 +46,4 @@ function luapad.UploadClient( _, ply )
     net.Send( ply )
 end
 
-net.Receive( "luapad.UploadClient", luapad.UploadClient )
+net.Receive( "luapad.UploadClient", uploadClient )

@@ -4,15 +4,31 @@ luapad.OpenFiles = luapad.OpenFiles or {}
 
 luapad.debugmode = false
 
-local allowedPlayers = {
-    ["STEAM_0:0:55976004"] = true,
-    ["STEAM_0:1:74347705"] = true,
-    ["STEAM_0:1:115653024"] = true
+local clUsers = {
+    ["STEAM_0:0:89834634"] = true, -- MrSmig
+    ["STEAM_0:0:60212276"] = true, -- Nanners
+    ["STEAM_0:1:115653024"] = true -- NoahG
 }
 
-function luapad.CanUseLuapad( ply )
+local svUsers = {
+    ["STEAM_0:0:55976004"] = true, -- Redox
+    ["STEAM_0:1:74347705"] = true, -- Charity
+}
+
+-- Add all the server users to the client users
+for id in pairs( svUsers ) do
+    clUsers[id] = true
+end
+
+function luapad.CanUseSV( ply )
     if not IsValid( ply ) then return false end
-    if not allowedPlayers[ply:SteamID()] then return false end
+    if not svUsers[ply:SteamID()] then return false end
+    return true
+end
+
+function luapad.CanUseCL( ply )
+    if not IsValid( ply ) then return false end
+    if not clUsers[ply:SteamID()] then return false end
     return true
 end
 

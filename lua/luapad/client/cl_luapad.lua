@@ -1,3 +1,8 @@
+-- Autorefresh support
+if IsValid( luapad.Frame ) then
+    luapad.Frame:Remove()
+end
+
 function luapad.CheckGlobal( func )
     if luapad._sG[func] ~= nil then
         if luapad.debugmode then
@@ -65,9 +70,12 @@ function luapad.LoadSavedTabs()
 end
 
 function luapad.Toggle()
-    if not luapad.CanUseLuapad( LocalPlayer() ) then return end
+    if not luapad.CanUseCL( LocalPlayer() ) then
+        print( "You don't have permission to use Luapad." )
+        return
+    end
 
-    if not luapad.Frame then
+    if not IsValid( luapad.Frame ) then
         -- Build it, if it doesn't exist
         luapad.Frame = vgui.Create( "DFrame" )
         luapad.Frame:SetSize( ScrW() * 2 / 3, ScrH() * 2 / 3 )
@@ -158,14 +166,17 @@ function luapad.Toggle()
         luapad.AddToolbarItem( "Run script", "icon16/page_white_go.png", function()
             local menu = DermaMenu()
             menu:AddOption( "Run clientside", luapad.RunScriptClient )
-            menu:AddOption( "Run serverside", luapad.RunScriptServer )
 
-            menu:AddOption( "Run shared", function()
-                luapad.RunScriptClient()
-                luapad.RunScriptServer()
-            end )
+            if luapad.CanUseSV( LocalPlayer() ) then
+                menu:AddOption( "Run serverside", luapad.RunScriptServer )
 
-            menu:AddOption( "Run on all clients", luapad.RunScriptServerClient )
+                menu:AddOption( "Run shared", function()
+                    luapad.RunScriptClient()
+                    luapad.RunScriptServer()
+                end )
+
+                menu:AddOption( "Run on all clients", luapad.RunScriptServerClient )
+            end
             menu:Open()
         end )
 
@@ -381,7 +392,7 @@ local function getObjectDefines()
 end
 
 function luapad.RunScriptClient()
-    if not luapad.CanUseLuapad( LocalPlayer() ) then return end
+    if not luapad.CanUseCL( LocalPlayer() ) then return end
     local source = "Luapad[" .. LocalPlayer():SteamID() .. "]" .. LocalPlayer():Nick() .. ".lua"
     local code = getObjectDefines() .. luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue()
     local success, err = luapad.Execute( code, source )
@@ -405,7 +416,7 @@ end
 net.Receive( "luapad.DownloadRunClient", runScriptClientFromServer )
 
 function luapad.RunScriptServer()
-    if not luapad.CanUseLuapad( LocalPlayer() ) then return end
+    if not luapad.CanUseSV( LocalPlayer() ) then return end
 
     net.Start( "luapad.Upload" )
     net.WriteString( getObjectDefines() .. luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue() )
@@ -425,7 +436,7 @@ net.Receive( "luapad.Upload", function()
 end )
 
 function luapad.RunScriptServerClient()
-    if not luapad.CanUseLuapad( LocalPlayer() ) then return end
+    if not luapad.CanUseSV( LocalPlayer() ) then return end
 
     net.Start( "luapad.UploadClient" )
     net.WriteString( getObjectDefines() .. luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue() )
