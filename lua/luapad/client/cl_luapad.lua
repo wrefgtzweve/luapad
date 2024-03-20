@@ -3,20 +3,58 @@ if IsValid( luapad.Frame ) then
     luapad.Frame:Remove()
 end
 
-function luapad.CheckGlobal( func )
-    if luapad._sG[func] ~= nil then
-        return luapad._sG[func]
-    end
+function luapad.SaveScript()
+    local contents = luapad.getCurrentScript()
+    contents = string.gsub( contents, "   	", "\t" )
+    local path = string.gsub( luapad.PropertySheet:GetActiveTab():GetPanel().path, "data/luapad", "", 1 )
+    Msg( "data/luapad" .. path .. luapad.PropertySheet:GetActiveTab():GetPanel().name )
 
-    if _E and _E[func] ~= nil then
-        return _E[func]
-    end
+    if not file.Exists( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, "DATA" ) then
+        luapad.SaveAsScript()
+    else
+        file.Write( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, contents )
 
-    if _G[func] ~= nil then
-        return _G[func]
+        if file.Exists( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, "DATA" ) then
+            luapad.SetStatus( "File succesfully saved!", Color( 72, 205, 72, 255 ) )
+        else
+            luapad.SetStatus( "Save failed! (check your filename for illegal characters)", Color( 205, 72, 72, 255 ) )
+        end
     end
+end
 
-    return false
+function luapad.SaveAsScript()
+    Derma_StringRequest( "Luapad", "You are about to save a file, please enter the desired filename.", luapad.PropertySheet:GetActiveTab():GetPanel().path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, function( filename )
+        local contents = luapad.getCurrentScript()
+
+        --I really do hate how '.' is a wildcard...
+        if string.find( filename, "../" ) == 1 then
+            filename = string.gsub( filename, "../", "", 1 )
+        end
+
+        local dirs = string.Explode( "/", string.gsub( filename, "data/", "", 1 ) )
+        local d = ""
+
+        for k, v in ipairs( dirs ) do
+            if k == #dirs then break end --don't make a directory for the filename
+            d = d .. v .. "/"
+
+            if not file.IsDir( d, "DATA" ) then
+                file.CreateDir( d )
+            end
+        end
+
+        file.Write( string.gsub( filename, "data/", "", 1 ), contents )
+
+        if file.Exists( string.gsub( filename, "data/", "", 1 ), "DATA" ) then
+            luapad.SetStatus( "File succesfully saved!", Color( 72, 205, 72, 255 ) )
+            luapad.PropertySheet:GetActiveTab():GetPanel().name = string.Explode( "/", filename )[#string.Explode( "/", filename )]
+            luapad.PropertySheet:GetActiveTab():GetPanel().path = string.gsub( filename, luapad.PropertySheet:GetActiveTab():GetPanel().name, "", 1 )
+            luapad.PropertySheet:GetActiveTab():SetText( string.Explode( "/", filename )[#string.Explode( "/", filename )] )
+            luapad.PropertySheet:SetActiveTab( luapad.PropertySheet:GetActiveTab() )
+        else
+            luapad.SetStatus( "Save failed! (check your filename for illegal characters)", Color( 205, 72, 72, 255 ) )
+        end
+    end, nil, "Save", "Cancel" )
 end
 
 function luapad.SaveTabs()
@@ -326,129 +364,5 @@ function luapad.OpenScript()
     node2:MakeFolder( "data/luapad", "GAME", true );
     node2.Icon:SetImage( "icon16/folder_page_white.png" );
 end
-
-function luapad.SaveScript()
-    local contents = luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue() or ""
-    contents = string.gsub( contents, "   	", "\t" )
-    local path = string.gsub( luapad.PropertySheet:GetActiveTab():GetPanel().path, "data/luapad", "", 1 )
-    Msg( "data/luapad" .. path .. luapad.PropertySheet:GetActiveTab():GetPanel().name )
-
-    if not file.Exists( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, "DATA" ) then
-        luapad.SaveAsScript()
-    else
-        file.Write( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, contents )
-
-        if file.Exists( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, "DATA" ) then
-            luapad.SetStatus( "File succesfully saved!", Color( 72, 205, 72, 255 ) )
-        else
-            luapad.SetStatus( "Save failed! (check your filename for illegal characters)", Color( 205, 72, 72, 255 ) )
-        end
-    end
-end
-
-function luapad.SaveAsScript()
-    Derma_StringRequest( "Luapad", "You are about to save a file, please enter the desired filename.", luapad.PropertySheet:GetActiveTab():GetPanel().path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, function( filename )
-        local contents = luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue() or ""
-
-        --I really do hate how '.' is a wildcard...
-        if string.find( filename, "../" ) == 1 then
-            filename = string.gsub( filename, "../", "", 1 )
-        end
-
-        local dirs = string.Explode( "/", string.gsub( filename, "data/", "", 1 ) )
-        local d = ""
-
-        for k, v in ipairs( dirs ) do
-            if k == #dirs then break end --don't make a directory for the filename
-            d = d .. v .. "/"
-
-            if not file.IsDir( d, "DATA" ) then
-                file.CreateDir( d )
-            end
-        end
-
-        file.Write( string.gsub( filename, "data/", "", 1 ), contents )
-
-        if file.Exists( string.gsub( filename, "data/", "", 1 ), "DATA" ) then
-            luapad.SetStatus( "File succesfully saved!", Color( 72, 205, 72, 255 ) )
-            luapad.PropertySheet:GetActiveTab():GetPanel().name = string.Explode( "/", filename )[#string.Explode( "/", filename )]
-            luapad.PropertySheet:GetActiveTab():GetPanel().path = string.gsub( filename, luapad.PropertySheet:GetActiveTab():GetPanel().name, "", 1 )
-            luapad.PropertySheet:GetActiveTab():SetText( string.Explode( "/", filename )[#string.Explode( "/", filename )] )
-            luapad.PropertySheet:SetActiveTab( luapad.PropertySheet:GetActiveTab() )
-        else
-            luapad.SetStatus( "Save failed! (check your filename for illegal characters)", Color( 205, 72, 72, 255 ) )
-        end
-    end, nil, "Save", "Cancel" )
-end
-
-local function getObjectDefines()
-    return "local me = player.GetByID(" .. LocalPlayer():EntIndex() .. ") local this = me:GetEyeTrace().Entity "
-end
-
-function luapad.RunScriptClient()
-    if not luapad.CanUseCL( LocalPlayer() ) then return end
-    local source = "Luapad[" .. LocalPlayer():SteamID() .. "]" .. LocalPlayer():Nick() .. ".lua"
-    local code = getObjectDefines() .. luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue()
-    local success, err = luapad.Execute( code, source )
-    if success then
-        luapad.SetStatus( "Code ran sucessfully!", Color( 72, 205, 72, 255 ) )
-    else
-        luapad.SetStatus( "Code execution failed! Check console for more details.", Color( 205, 72, 72, 255 ) )
-        MsgC( Color( 255, 222, 102 ), err .. "\n" )
-    end
-end
-
-local function runScriptClientFromServer()
-    local script = net.ReadString()
-    local success, err = luapad.Execute( script, "Luapad[SERVER]" )
-    if not success then
-        MsgC( Color( 255, 222, 102 ), err .. "\n" )
-    end
-end
-
-net.Receive( "luapad.DownloadRunClient", runScriptClientFromServer )
-
-function luapad.RunScriptServer()
-    if not luapad.CanUseSV( LocalPlayer() ) then return end
-
-    net.Start( "luapad.Upload" )
-    net.WriteString( getObjectDefines() .. luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue() )
-    net.SendToServer()
-end
-
-net.Receive( "luapad.Upload", function()
-    local success = net.ReadBool()
-    if success then
-        luapad.SetStatus( "Code executed on server succesfully.", Color( 92, 205, 92, 255 ) )
-        return
-    end
-
-    local err = net.ReadString()
-    luapad.SetStatus( "Code execution on server failed! Check console for more details.", Color( 205, 92, 92, 255 ) )
-    MsgC( Color( 145, 219, 232 ), err .. "\n" )
-end )
-
-function luapad.RunScriptServerClient()
-    if not luapad.CanUseSV( LocalPlayer() ) then return end
-
-    net.Start( "luapad.UploadClient" )
-    net.WriteString( getObjectDefines() .. luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue() )
-    net.WriteBool( false )
-    net.SendToServer()
-end
-
-function luapad.RunScriptOnClient( ply )
-    if not luapad.CanUseSV( LocalPlayer() ) then return end
-
-    net.Start( "luapad.UploadClient" )
-    net.WriteString( getObjectDefines() .. luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue() )
-    net.WriteBool( true )
-    net.WritePlayer( ply )
-    net.SendToServer()
-end
-
-net.Receive( "luapad.UploadClient", function()
-    luapad.SetStatus( "Scrip ran.", Color( 92, 205, 92, 255 ) )
-end )
 
 concommand.Add( "luapad", luapad.Toggle )

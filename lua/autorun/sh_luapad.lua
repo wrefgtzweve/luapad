@@ -64,6 +64,7 @@ end
 if SERVER then
     AddCSLuaFile( "luapad/client/server_globals.lua" )
     AddCSLuaFile( "luapad/client/luapad_editorpanel.lua" )
+    AddCSLuaFile( "luapad/client/cl_functions.lua" )
     AddCSLuaFile( "luapad/client/cl_luapad.lua" )
 
     include( "luapad/server/sv_luapad.lua" )
@@ -72,5 +73,6 @@ end
 if CLIENT then
     include( "luapad/client/server_globals.lua" )
     include( "luapad/client/luapad_editorpanel.lua" )
+    include( "luapad/client/cl_functions.lua" )
     include( "luapad/client/cl_luapad.lua" )
 end
