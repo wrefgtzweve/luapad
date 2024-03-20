@@ -17,6 +17,13 @@ surface.CreateFont( "LuapadEditor_Bold", {
     weight = 800
 } )
 
+local lineNumbersColor = Color( 128, 128, 128, 255 )
+
+local string_sub = string.sub
+local table_insert = table.insert
+local input_IsKeyDown = input.IsKeyDown
+local draw_SimpleText = draw.SimpleText
+
 --
 function PANEL:Init()
     self:SetCursor( "beam" )
@@ -89,7 +96,7 @@ function PANEL:CursorToCaret()
         line = #self.Rows
     end
 
-    local length = string.len( self.Rows[line] )
+    local length = #self.Rows[line]
 
     if char > length + 1 then
         char = length + 1
@@ -115,7 +122,7 @@ function PANEL:OnMousePressed( code )
         self.MouseDown = true
         self.Caret = self:CursorToCaret()
 
-        if not input.IsKeyDown( KEY_LSHIFT ) and not input.IsKeyDown( KEY_RSHIFT ) then
+        if not input_IsKeyDown( KEY_LSHIFT ) and not input_IsKeyDown( KEY_RSHIFT ) then
             self.Start = self:CursorToCaret()
         end
     elseif code == MOUSE_RIGHT then
@@ -218,12 +225,24 @@ function PANEL:NextChar()
     self.str = self.str .. self.char
     self.pos = self.pos + 1
 
-    if self.pos <= string.len( self.line ) then
-        self.char = string.sub( self.line, self.pos, self.pos )
+    if self.pos <= #self.line then
+        self.char = string_sub( self.line, self.pos, self.pos )
     else
         self.char = nil
     end
 end
+
+local colors = {
+    ["none"] = { Color( 0, 0, 0, 255 ), false },
+    ["number"] = { Color( 218, 165, 32, 255 ), false },
+    ["function"] = { Color( 100, 100, 255, 255 ), false },
+    ["enumeration"] = { Color( 184, 134, 11, 255 ), false },
+    ["metatable"] = { Color( 140, 100, 90, 255 ), false },
+    ["string"] = { Color( 120, 120, 120, 255 ), false },
+    ["expression"] = { Color( 0, 0, 255, 255 ), false },
+    ["operator"] = { Color( 0, 0, 128, 255 ), false },
+    ["comment"] = { Color( 0, 120, 0, 255 ), false },
+}
 
 function PANEL:SyntaxColorLine( row )
     local cols = {}
@@ -232,19 +251,6 @@ function PANEL:SyntaxColorLine( row )
     self.pos = 0
     self.char = ""
     self.str = ""
-
-    -- TODO: Color customization?
-    colors = {
-        ["none"] = { Color( 0, 0, 0, 255 ), false },
-        ["number"] = { Color( 218, 165, 32, 255 ), false },
-        ["function"] = { Color( 100, 100, 255, 255 ), false },
-        ["enumeration"] = { Color( 184, 134, 11, 255 ), false },
-        ["metatable"] = { Color( 140, 100, 90, 255 ), false },
-        ["string"] = { Color( 120, 120, 120, 255 ), false },
-        ["expression"] = { Color( 0, 0, 255, 255 ), false },
-        ["operator"] = { Color( 0, 0, 128, 255 ), false },
-        ["comment"] = { Color( 0, 120, 0, 255 ), false },
-    }
 
     colors["string2"] = colors["string"]
     self:NextChar()
@@ -368,7 +374,7 @@ function PANEL:PaintLine( row )
         local line, char = start[1], start[2]
         local endline, endchar = stop[1], stop[2]
         surface.SetDrawColor( 170, 170, 170, 255 )
-        local length = string.len( self.Rows[row] ) - self.Scroll[2] + 1
+        local length = #self.Rows[row] - self.Scroll[2] + 1
         char = char - self.Scroll[2]
         endchar = endchar - self.Scroll[2]
 
@@ -391,31 +397,31 @@ function PANEL:PaintLine( row )
         end
     end
 
-    draw.SimpleText( tostring( row ), "LuapadEditor", width * 3, ( row - self.Scroll[1] ) * height, Color( 128, 128, 128, 255 ), TEXT_ALIGN_RIGHT )
+    draw_SimpleText( tostring( row ), "LuapadEditor", width * 3, ( row - self.Scroll[1] ) * height, lineNumbersColor, TEXT_ALIGN_RIGHT )
     local offset = -self.Scroll[2] + 1
 
     for _, cell in ipairs( self.PaintRows[row] ) do
         if offset < 0 then
-            if string.len( cell[1] ) > -offset then
-                local line = string.sub( cell[1], -offset + 1 )
-                offset = string.len( line )
+            if #cell[1] > -offset then
+                local line = string_sub( cell[1], -offset + 1 )
+                offset = #line
 
                 if cell[2][2] then
-                    draw.SimpleText( line, "LuapadEditorBold", width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] )
+                    draw_SimpleText( line, "LuapadEditorBold", width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] )
                 else
-                    draw.SimpleText( line, "LuapadEditor", width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] )
+                    draw_SimpleText( line, "LuapadEditor", width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] )
                 end
             else
-                offset = offset + string.len( cell[1] )
+                offset = offset + #cell[1]
             end
         else
             if cell[2][2] then
-                draw.SimpleText( cell[1], "LuapadEditorBold", offset * width + width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] )
+                draw_SimpleText( cell[1], "LuapadEditorBold", offset * width + width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] )
             else
-                draw.SimpleText( cell[1], "LuapadEditor", offset * width + width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] )
+                draw_SimpleText( cell[1], "LuapadEditor", offset * width + width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] )
             end
 
-            offset = offset + string.len( cell[1] )
+            offset = offset + #cell[1]
         end
     end
 
@@ -474,7 +480,7 @@ function PANEL:MovePosition( caret, offset )
 
     if offset > 0 then
         while true do
-            local length = string.len( self.Rows[caret[1]] ) - caret[2] + 2
+            local length = #self.Rows[caret[1]] - caret[2] + 2
 
             if offset < length then
                 caret[2] = caret[2] + offset
@@ -501,7 +507,7 @@ function PANEL:MovePosition( caret, offset )
             else
                 offset = offset - caret[2]
                 caret[1] = caret[1] - 1
-                caret[2] = string.len( self.Rows[caret[1]] ) + 1
+                caret[2] = #self.Rows[caret[1]] + 1
             end
         end
     end
@@ -534,15 +540,15 @@ function PANEL:GetArea( selection )
     local start, stop = self:MakeSelection( selection )
 
     if start[1] == stop[1] then
-        return string.sub( self.Rows[start[1]], start[2], stop[2] - 1 )
+        return string_sub( self.Rows[start[1]], start[2], stop[2] - 1 )
     else
-        local text = string.sub( self.Rows[start[1]], start[2] )
+        local text = string_sub( self.Rows[start[1]], start[2] )
 
         for i = start[1] + 1, stop[1] - 1 do
             text = text .. "\n" .. self.Rows[i]
         end
 
-        return text .. "\n" .. string.sub( self.Rows[stop[1]], 1, stop[2] - 1 )
+        return text .. "\n" .. string_sub( self.Rows[stop[1]], 1, stop[2] - 1 )
     end
 end
 
@@ -552,7 +558,7 @@ function PANEL:SetArea( selection, text, isundo, isredo, before, after )
 
     if start[1] ~= stop[1] or start[2] ~= stop[2] then
         -- clear selection
-        self.Rows[start[1]] = string.sub( self.Rows[start[1]], 1, start[2] - 1 ) .. string.sub( self.Rows[stop[1]], stop[2] )
+        self.Rows[start[1]] = string_sub( self.Rows[start[1]], 1, start[2] - 1 ) .. string_sub( self.Rows[stop[1]], stop[2] )
         self.PaintRows[start[1]] = false
 
         for _ = start[1] + 1, stop[1] do
@@ -601,17 +607,17 @@ function PANEL:SetArea( selection, text, isundo, isredo, before, after )
 
     -- insert text
     local rows = string.Explode( "\n", text )
-    local remainder = string.sub( self.Rows[start[1]], start[2] )
-    self.Rows[start[1]] = string.sub( self.Rows[start[1]], 1, start[2] - 1 ) .. rows[1]
+    local remainder = string_sub( self.Rows[start[1]], start[2] )
+    self.Rows[start[1]] = string_sub( self.Rows[start[1]], 1, start[2] - 1 ) .. rows[1]
     self.PaintRows[start[1]] = false
 
     for i = 2, #rows do
-        table.insert( self.Rows, start[1] + i - 1, rows[i] )
-        table.insert( self.PaintRows, start[1] + i - 1, false )
+        table_insert( self.Rows, start[1] + i - 1, rows[i] )
+        table_insert( self.PaintRows, start[1] + i - 1, false )
         self.PaintRows = {} -- TODO: fix for cache errors
     end
 
-    stop = { start[1] + #rows - 1, string.len( self.Rows[start[1] + #rows - 1] ) + 1 }
+    stop = { start[1] + #rows - 1, #self.Rows[start[1] + #rows - 1] + 1 }
 
     self.Rows[stop[1]] = self.Rows[stop[1]] .. remainder
     self.PaintRows[stop[1]] = false
@@ -672,11 +678,11 @@ function PANEL:_OnTextChanged()
     local ctrlv = false
     local text = self.TextEntry:GetValue()
     self.TextEntry:SetText( "" )
-    if input.IsKeyDown( KEY_BACKQUOTE ) and not input.IsKeyDown( KEY_LSHIFT ) then return end
+    if input_IsKeyDown( KEY_BACKQUOTE ) and not input_IsKeyDown( KEY_LSHIFT ) then return end
 
-    if ( input.IsKeyDown( KEY_LCONTROL ) or input.IsKeyDown( KEY_RCONTROL ) ) and not ( input.IsKeyDown( KEY_LALT ) or input.IsKeyDown( KEY_RALT ) ) then
+    if ( input_IsKeyDown( KEY_LCONTROL ) or input_IsKeyDown( KEY_RCONTROL ) ) and not ( input_IsKeyDown( KEY_LALT ) or input_IsKeyDown( KEY_RALT ) ) then
         -- ctrl+[shift+]key
-        if input.IsKeyDown( KEY_V ) then
+        if input_IsKeyDown( KEY_V ) then
             -- ctrl+[shift+]V
             ctrlv = true
         else
@@ -779,7 +785,7 @@ function PANEL:DoRedo()
 end
 
 function PANEL:SelectAll()
-    self.Caret = { #self.Rows, string.len( self.Rows[#self.Rows] ) + 1 }
+    self.Caret = { #self.Rows, #self.Rows[#self.Rows] + 1 }
 
     self.Start = { 1, 1 }
 
@@ -788,9 +794,9 @@ end
 
 function PANEL:_OnKeyCodeTyped( code )
     self.Blink = RealTime()
-    local alt = input.IsKeyDown( KEY_LALT ) or input.IsKeyDown( KEY_RALT )
-    local shift = input.IsKeyDown( KEY_LSHIFT ) or input.IsKeyDown( KEY_RSHIFT )
-    local control = input.IsKeyDown( KEY_LCONTROL ) or input.IsKeyDown( KEY_RCONTROL )
+    local alt = input_IsKeyDown( KEY_LALT ) or input_IsKeyDown( KEY_RALT )
+    local shift = input_IsKeyDown( KEY_LSHIFT ) or input_IsKeyDown( KEY_RSHIFT )
+    local control = input_IsKeyDown( KEY_LCONTROL ) or input_IsKeyDown( KEY_RCONTROL )
 
     if control and alt and code == KEY_S then
         luapad.SaveAsScript()
@@ -891,7 +897,7 @@ function PANEL:_OnKeyCodeTyped( code )
         elseif code == KEY_UP then
             if self.Caret[1] > 1 then
                 self.Caret[1] = self.Caret[1] - 1
-                local length = string.len( self.Rows[self.Caret[1]] )
+                local length = #self.Rows[self.Caret[1]]
 
                 if self.Caret[2] > length + 1 then
                     self.Caret[2] = length + 1
@@ -906,7 +912,7 @@ function PANEL:_OnKeyCodeTyped( code )
         elseif code == KEY_DOWN then
             if self.Caret[1] < #self.Rows then
                 self.Caret[1] = self.Caret[1] + 1
-                local length = string.len( self.Rows[self.Caret[1]] )
+                local length = #self.Rows[self.Caret[1]]
 
                 if self.Caret[2] > length + 1 then
                     self.Caret[2] = length + 1
@@ -950,7 +956,7 @@ function PANEL:_OnKeyCodeTyped( code )
                 self.Caret[1] = 1
             end
 
-            local length = string.len( self.Rows[self.Caret[1]] )
+            local length = #self.Rows[self.Caret[1]]
 
             if self.Caret[2] > length + 1 then
                 self.Caret[2] = length + 1
@@ -977,7 +983,7 @@ function PANEL:_OnKeyCodeTyped( code )
                 self.Caret[2] = 1
             end
 
-            local length = string.len( self.Rows[self.Caret[1]] )
+            local length = #self.Rows[self.Caret[1]]
 
             if self.Caret[2] > length + 1 then
                 self.Caret[2] = length + 1
@@ -1004,7 +1010,7 @@ function PANEL:_OnKeyCodeTyped( code )
                 self.Start = self:CopyPosition( self.Caret )
             end
         elseif code == KEY_END then
-            local length = string.len( self.Rows[self.Caret[1]] )
+            local length = #self.Rows[self.Caret[1]]
             self.Caret[2] = length + 1
             self:ScrollCaret()
 
@@ -1019,7 +1025,7 @@ function PANEL:_OnKeyCodeTyped( code )
                     self.Caret, { self.Caret[1], 1 }
                 } )
 
-                if self.Caret[2] % 4 == 1 and string.len( buffer ) > 0 and string.rep( " ", string.len( buffer ) ) == buffer then
+                if self.Caret[2] % 4 == 1 and #buffer > 0 and string.rep( " ", #buffer ) == buffer then
                     self:SetCaret( self:SetArea( { self.Caret, self:MovePosition( self.Caret, -4 ) } ) )
                 else
                     self:SetCaret( self:SetArea( { self.Caret, self:MovePosition( self.Caret, -1 ) } ) )
@@ -1034,7 +1040,7 @@ function PANEL:_OnKeyCodeTyped( code )
                     { self.Caret[1], 1 }
                 } )
 
-                if self.Caret[2] % 4 == 1 and string.rep( " ", string.len( buffer ) ) == buffer and string.len( self.Rows[self.Caret[1]] ) >= self.Caret[2] + 4 - 1 then
+                if self.Caret[2] % 4 == 1 and string.rep( " ", #buffer ) == buffer and #self.Rows[self.Caret[1]] >= self.Caret[2] + 4 - 1 then
                     self:SetCaret( self:SetArea( { self.Caret, self:MovePosition( self.Caret, 4 ) } ) )
                 else
                     self:SetCaret( self:SetArea( { self.Caret, self:MovePosition( self.Caret, 1 ) } ) )
