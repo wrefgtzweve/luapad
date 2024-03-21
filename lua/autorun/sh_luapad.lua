@@ -24,7 +24,9 @@ function luapad.CanUseSV( ply )
     return true
 end
 
+local clAllowLua = GetConVar( "sv_allowcslua" )
 function luapad.CanUseCL( ply )
+    if clAllowLua:GetBool() then return true end
     if not IsValid( ply ) then return false end
     if not clUsers[ply:SteamID()] then return false end
     return true
