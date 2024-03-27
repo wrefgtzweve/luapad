@@ -28,31 +28,19 @@ function PANEL:Init()
             return
         end
 
-        local glob = _G
-        local isGlobal = true
-        local parts = string.Explode( ".", text )
-        for _, part in ipairs( parts ) do
-            if not glob[part] then
-                isGlobal = false
-                break
+        local success, ret = luapad.Execute( "return " .. text, "LuapadConsole" )
+        if success then
+            if istable( ret ) then
+                self:AddConsoleTable( ret )
+            elseif isfunction( ret ) then
+                local info = debug.getinfo( ret )
+                self:AddConsoleTable( info )
+            elseif ret ~= nil then
+                self:AddConsoleText( tostring( ret ) )
             end
-            glob = glob[part]
-        end
-
-        if isGlobal then
-            self:AddConsoleText( "Global: " .. text, Color( 0, 0, 255 ) )
-            self:AddConsoleText( "Type: " .. type( glob ), Color( 0, 0, 255 ) )
-            self:AddConsoleText( "Value: " .. tostring( glob ), Color( 0, 0, 255 ) )
         else
-            local success, err = luapad.Execute( text, "LuapadConsole" )
-            if success then
-                self:AddConsoleText( "Success: " .. text, Color( 0, 255, 0 ) )
-            else
-                self:AddConsoleText( "Error: " .. text, Color( 255, 0, 0 ) )
-                self:AddConsoleText( "Error: " .. err, Color( 255, 0, 0 ) )
-            end
+            self:AddConsoleText( "Error: " .. err, Color( 255, 0, 0 ) )
         end
-
 
         local exists = table.KeyFromValue( self.Input.History, text )
         if exists then return end
@@ -70,13 +58,35 @@ function PANEL:Init()
 end
 
 function PANEL:AddConsoleText( str, color )
-    if color then
-        self.Display:InsertColorChange( color.r, color.g, color.b, color.a )
-    end
+    color = color or Color( 255, 255, 255 )
+    self.Display:InsertColorChange( color.r, color.g, color.b, color.a )
     self.Display:AppendText( str .. "\n" )
     if color then
         self.Display:InsertColorChange( 50, 50, 50, 255 )
     end
+end
+
+function PANEL:AddConsoleTable( tbl, prefix )
+    if not next( tbl ) then
+        self:AddConsoleText( "{}" )
+        return
+    end
+
+    if not prefix then
+        self:AddConsoleText( "{" )
+        prefix = "   "
+    end
+
+    for k, v in pairs( tbl ) do
+        if istable( v ) then
+            self:AddConsoleText( prefix .. tostring( k ) .. " = {" )
+            self:AddConsoleTable( v, prefix .. "    " )
+        else
+            self:AddConsoleText( prefix .. tostring( k ) .. " = " .. tostring( v ) )
+        end
+    end
+
+    self:AddConsoleText( prefix .. "}," )
 end
 
 function PANEL:ClearConsoleText()
