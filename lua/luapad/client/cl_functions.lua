@@ -15,7 +15,7 @@ function luapad.CheckGlobal( func )
 end
 
 function luapad.getCurrentScript()
-    return luapad.PropertySheet:GetActiveTab():GetPanel():GetItems()[1]:GetValue() or ""
+    return luapad.PropertySheet:GetActiveTab():GetPanel():GetValue() or ""
 end
 
 local function getObjectDefines()

@@ -69,7 +69,7 @@ function luapad.SaveTabs()
         local panel = v["Panel"]
         local name = panel.name
         local path = panel.path
-        local content = panel:GetItems()[1]:GetValue()
+        local content = panel:GetValue()
         if content == "" then continue end
         table.insert( store.tabs, { name = name, path = path, content = content } )
     end
@@ -101,123 +101,96 @@ function luapad.Toggle()
         return
     end
 
-    if not IsValid( luapad.Frame ) then
-        -- Build it, if it doesn't exist
-        luapad.Frame = vgui.Create( "DFrame" )
-        luapad.Frame:SetSize( ScrW() * 2 / 3, ScrH() * 2 / 3 )
-        luapad.Frame:SetPos( ScrW() * 1 / 6, ScrH() * 1 / 6 )
-        luapad.Frame:SetTitle( "Luapad" )
-        luapad.Frame:ShowCloseButton( true )
-        luapad.Frame:MakePopup()
+    if IsValid( luapad.Frame ) then
+        luapad.Frame:SetVisible( not luapad.Frame:IsVisible() )
+        return
+    end
 
-        function luapad.Frame.btnClose:DoClick()
-            luapad.Toggle()
-            luapad.SaveTabs()
+    -- Build it, if it doesn't exist
+    luapad.Frame = vgui.Create( "DFrame" )
+    luapad.Frame:SetSize( ScrW() * 2 / 3, ScrH() * 2 / 3 )
+    luapad.Frame:SetPos( ScrW() * 1 / 6, ScrH() * 1 / 6 )
+    luapad.Frame:SetTitle( "Luapad" )
+    luapad.Frame:ShowCloseButton( true )
+    luapad.Frame:MakePopup()
+
+    function luapad.Frame.btnClose:DoClick()
+        luapad.Toggle()
+        luapad.SaveTabs()
+    end
+
+    luapad.Toolbar = vgui.Create( "DPanelList", luapad.Frame )
+    luapad.Toolbar:Dock( TOP )
+    luapad.Toolbar:SetSize( luapad.Frame:GetWide() - 6, 22 )
+    luapad.Toolbar:SetSpacing( 5 )
+    luapad.Toolbar:EnableHorizontal( true )
+    luapad.Toolbar:EnableVerticalScrollbar( false )
+
+    luapad.PropertySheet = vgui.Create( "DPropertySheet", luapad.Frame )
+    luapad.PropertySheet.tabScroller:DockMargin( 0, 0, 0, 0 )
+    luapad.PropertySheet.tabScroller:SetOverlap( 0 )
+    luapad.PropertySheet.____SetActiveTab = luapad.PropertySheet.SetActiveTab
+    function luapad.PropertySheet:SetActiveTab( ... )
+        luapad.PropertySheet:____SetActiveTab( ... )
+
+        if luapad.PropertySheet:GetActiveTab() then
+            local panel = luapad.PropertySheet:GetActiveTab():GetPanel()
+            luapad.Frame:SetTitle( "Luapad - " .. panel.path .. panel.name )
         end
+    end
+    luapad.PropertySheet.tabScroller:SetTall( 22 )
+    luapad.PropertySheet.tabScroller.SetTall = function() end
+    luapad.PropertySheet.Paint = function() end
 
-        luapad.Toolbar = vgui.Create( "DPanelList", luapad.Frame )
-        luapad.Toolbar:SetPos( 3, 26 )
-        luapad.Toolbar:SetSize( luapad.Frame:GetWide() - 6, 22 )
-        luapad.Toolbar:SetSpacing( 5 )
-        luapad.Toolbar:EnableHorizontal( true )
-        luapad.Toolbar:EnableVerticalScrollbar( false )
+    local console = vgui.Create( "LuapadConsole", luapad.PropertySheet )
+    luapad.Frame.Console = console
 
-        function luapad.Toolbar:PerformLayout()
-            local Wide = self:GetWide()
-            local YPos = 3
+    local hdiv = vgui.Create( "DVerticalDivider", luapad.Frame )
+    hdiv:Dock( FILL )
+    hdiv:SetDividerHeight( 5 )
+    hdiv:SetTop( luapad.PropertySheet )
+    hdiv:SetBottom( console )
+    hdiv:SetTopMin( 300 )
+    hdiv:SetBottomMin( 100 )
+    hdiv:SetTopHeight( luapad.Frame:GetTall() - 100 )
 
-            if not self.Rebuild then
-                debug.Trace()
-            end
+    luapad.PropertySheet:InvalidateLayout()
 
-            self:Rebuild()
+    luapad.NewTab()
 
-            if self.VBar and not m_bSizeToContents then
-                self.VBar:SetPos( self:GetWide() - 16, 0 )
-                self.VBar:SetSize( 16, self:GetTall() )
-                self.VBar:SetUp( self:GetTall(), self.pnlCanvas:GetTall() )
-                YPos = self.VBar:GetOffset() + 3
+    luapad.AddToolbarItem( "New (CTRL + N)", "icon16/page_white_add.png", luapad.NewTab )
+    luapad.AddToolbarItem( "Open (CTRL + O)", "icon16/folder_page_white.png", luapad.OpenScript )
+    luapad.AddToolbarItem( "Save (CTRL + S)", "icon16/disk.png", luapad.SaveScript )
+    luapad.AddToolbarItem( "Save As (CTRL + ALT + S)", "icon16/disk_multiple.png", luapad.SaveAsScript )
 
-                if self.VBar.Enabled then
-                    Wide = Wide - 16
-                end
-            end
+    luapad.AddToolbarSpacer()
 
-            self.pnlCanvas:SetPos( 3, YPos )
-            self.pnlCanvas:SetWide( Wide )
-            self:Rebuild()
+    local isSVUser = luapad.CanUseSV( LocalPlayer() )
 
-            if self:GetAutoSize() then
-                self:SetTall( self.pnlCanvas:GetTall() )
-                self.pnlCanvas:SetPos( 3, 3 )
-            end
-        end
-
-        local _, y = luapad.Toolbar:GetPos()
-        luapad.PropertySheet = vgui.Create( "DPropertySheet", luapad.Frame )
-        luapad.PropertySheet:SetPos( 3, y + luapad.Toolbar:GetTall() + 5 )
-        luapad.PropertySheet:SetSize( luapad.Frame:GetWide() - 6, luapad.Frame:GetTall() - 82 )
-        luapad.PropertySheet:SetPadding( 1 )
-        luapad.PropertySheet:SetFadeTime( 0 )
-
-        luapad.PropertySheet.____SetActiveTab = luapad.PropertySheet.SetActiveTab
-        function luapad.PropertySheet:SetActiveTab( ... )
-            luapad.PropertySheet:____SetActiveTab( ... )
-
-            if luapad.PropertySheet:GetActiveTab() then
-                local panel = luapad.PropertySheet:GetActiveTab():GetPanel()
-                luapad.Frame:SetTitle( "Luapad - " .. panel.path .. panel.name )
-            end
-        end
-
-        luapad.PropertySheet:InvalidateLayout()
-
-        luapad.NewTab()
-
-        luapad.Statusbar = vgui.Create( "DPanelList", luapad.Frame )
-        luapad.Statusbar:SetPos( 3, luapad.Frame:GetTall() - 25 )
-        luapad.Statusbar:SetSize( luapad.Frame:GetWide() - 6, 22 )
-        luapad.Statusbar:SetSpacing( 5 )
-        luapad.Statusbar:EnableHorizontal( true )
-        luapad.Statusbar:EnableVerticalScrollbar( false )
-        luapad.Statusbar.PerformLayout = luapad.Toolbar.PerformLayout
-        luapad.Statusbar:InvalidateLayout()
-        luapad.AddToolbarItem( "New (CTRL + N)", "icon16/page_white_add.png", luapad.NewTab )
-        luapad.AddToolbarItem( "Open (CTRL + O)", "icon16/folder_page_white.png", luapad.OpenScript )
-        luapad.AddToolbarItem( "Save (CTRL + S)", "icon16/disk.png", luapad.SaveScript )
-        luapad.AddToolbarItem( "Save As (CTRL + ALT + S)", "icon16/disk_multiple.png", luapad.SaveAsScript )
+    luapad.AddToolbarItem( "Run Clientside", "icon16/script_code.png", luapad.RunScriptClient )
+    if isSVUser then
+        luapad.AddToolbarItem( "Run Serverside", "icon16/script_code_red.png", luapad.RunScriptServer )
 
         luapad.AddToolbarSpacer()
 
-        local isSVUser = luapad.CanUseSV( LocalPlayer() )
-
-        luapad.AddToolbarItem( "Run Clientside", "icon16/script_code.png", luapad.RunScriptClient )
-        if isSVUser then
-            luapad.AddToolbarItem( "Run Serverside", "icon16/script_code_red.png", luapad.RunScriptServer )
-
-            luapad.AddToolbarSpacer()
-
-            luapad.AddToolbarItem( "Run Shared", "icon16/script_lightning.png", function()
-                luapad.RunScriptClient()
-                luapad.RunScriptServer()
-            end )
-            luapad.AddToolbarItem( "Run on all clients", "icon16/script_palette.png", luapad.RunScriptServerClient )
-            luapad.AddToolbarItem( "Run on specfic client", "icon16/script_go.png", function()
-                local menu = DermaMenu()
-                for _, v in pairs( player.GetAll() ) do
-                    if v == LocalPlayer() then continue end
-                    menu:AddOption( v:Nick(), function()
-                        luapad.RunScriptOnClient( v )
-                    end )
-                end
-                menu:Open()
-            end )
-        end
-
-        luapad.LoadSavedTabs()
-    else
-        luapad.Frame:SetVisible( not luapad.Frame:IsVisible() )
+        luapad.AddToolbarItem( "Run Shared", "icon16/script_lightning.png", function()
+            luapad.RunScriptClient()
+            luapad.RunScriptServer()
+        end )
+        luapad.AddToolbarItem( "Run on all clients", "icon16/script_palette.png", luapad.RunScriptServerClient )
+        luapad.AddToolbarItem( "Run on specfic client", "icon16/script_go.png", function()
+            local menu = DermaMenu()
+            for _, v in pairs( player.GetAll() ) do
+                if v == LocalPlayer() then continue end
+                menu:AddOption( v:Nick(), function()
+                    luapad.RunScriptOnClient( v )
+                end )
+            end
+            menu:Open()
+        end )
     end
+
+    luapad.LoadSavedTabs()
 end
 
 function luapad.AddToolbarItem( tooltip, mat, func )
@@ -237,26 +210,9 @@ function luapad.AddToolbarSpacer()
 end
 
 function luapad.SetStatus( str, clr )
-    timer.Remove( "luapad.Statusbar.Fade" )
-    luapad.Statusbar:Clear()
-    local msg = vgui.Create( "DLabel", luapad.Statusbar )
-    msg:SetText( str )
-    msg:SetTextColor( clr )
-    msg:SizeToContents()
+    if not IsValid( luapad.Frame ) and not IsValid( luapad.Frame.Console ) then return end
 
-    timer.Create( "luapad.Statusbar.Fade", 0.01, 0, function()
-        local statusMsg = luapad.Statusbar:GetItems()[1]
-        local col = statusMsg:GetTextColor()
-        col.a = math.Clamp( col.a - 1, 0, 255 )
-        statusMsg:SetTextColor( Color( col.r, col.g, col.b, col.a ) )
-
-        if col.a == 0 then
-            timer.Remove( "luapad.Statusbar.Fade" )
-        end
-    end )
-
-    luapad.Statusbar:AddItem( msg )
-    surface.PlaySound( "common/wpn_select.wav" )
+    luapad.Frame.Console:AddConsoleText( str, clr )
 end
 
 function luapad.AddTab( name, content, path )
@@ -264,19 +220,16 @@ function luapad.AddTab( name, content, path )
     path = path or ""
     content = string.gsub( content, "\t", "	   " )
 
-    local form = vgui.Create( "DPanelList", luapad.PropertySheet )
-    form:SetSize( luapad.PropertySheet:GetWide(), luapad.PropertySheet:GetTall() - 23 )
-    form.name = name
-    form.path = path
+    local editor = vgui.Create( "LuapadEditor", luapad.PropertySheet )
+    editor:SetText( content )
+    editor:Dock( FILL )
+    editor:RequestFocus()
+    editor.name = name
+    editor.path = path
 
-    local textentry = vgui.Create( "LuapadEditor", form )
-    textentry:SetSize( form:GetWide(), form:GetTall() )
-    textentry:SetText( content or "" )
-    textentry:RequestFocus()
-
-    form:AddItem( textentry )
-    local sheet = luapad.PropertySheet:AddSheet( name, form, "icon16/page_white.png", false, false )
+    local sheet = luapad.PropertySheet:AddSheet( name, editor, "icon16/page_white.png", false, false )
     local dtab = sheet.Tab
+
     function dtab:DoRightClick()
         local menu = DermaMenu()
         menu:AddOption( "Close", function()
