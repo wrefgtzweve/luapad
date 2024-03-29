@@ -18,14 +18,10 @@ function luapad.getCurrentScript()
     return luapad.PropertySheet:GetActiveTab():GetPanel():GetValue() or ""
 end
 
-local function getObjectDefines()
-    return "local me = player.GetByID(" .. LocalPlayer():EntIndex() .. ") local this = me:GetEyeTrace().Entity "
-end
-
 function luapad.RunScriptClient()
     if not luapad.CanUseCL( LocalPlayer() ) then return end
     local source = "Luapad[" .. LocalPlayer():SteamID() .. "]" .. LocalPlayer():Nick() .. ".lua"
-    local code = getObjectDefines() .. luapad.getCurrentScript()
+    local code = luapad.getObjectDefines() .. luapad.getCurrentScript()
     local success, err = luapad.Execute( code, source )
     if success then
         luapad.SetStatus( "Code ran sucessfully!", Color( 72, 205, 72, 255 ) )
@@ -49,7 +45,7 @@ function luapad.RunScriptServer()
     if not luapad.CanUseSV( LocalPlayer() ) then return end
 
     net.Start( "luapad.Upload" )
-    net.WriteString( getObjectDefines() .. luapad.getCurrentScript() )
+    net.WriteString( luapad.getObjectDefines() .. luapad.getCurrentScript() )
     net.SendToServer()
 end
 
@@ -69,7 +65,7 @@ function luapad.RunScriptServerClient()
     if not luapad.CanUseSV( LocalPlayer() ) then return end
 
     net.Start( "luapad.UploadClient" )
-    net.WriteString( getObjectDefines() .. luapad.getCurrentScript() )
+    net.WriteString( luapad.getObjectDefines() .. luapad.getCurrentScript() )
     net.WriteBool( false )
     net.SendToServer()
 end
@@ -78,7 +74,7 @@ function luapad.RunScriptOnClient( ply )
     if not luapad.CanUseSV( LocalPlayer() ) then return end
 
     net.Start( "luapad.UploadClient" )
-    net.WriteString( getObjectDefines() .. luapad.getCurrentScript() )
+    net.WriteString( luapad.getObjectDefines() .. luapad.getCurrentScript() )
     net.WriteBool( true )
     net.WritePlayer( ply )
     net.SendToServer()

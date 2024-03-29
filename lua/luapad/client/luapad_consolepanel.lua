@@ -28,7 +28,7 @@ function PANEL:Init()
             return
         end
 
-        local success, ret = luapad.Execute( "return " .. text, "LuapadConsole" )
+        local success, ret = luapad.Execute( luapad.getObjectDefines() .. " return " .. text, "LuapadConsole" )
         if success then
             if istable( ret ) then
                 self:AddConsoleTable( ret )
@@ -39,7 +39,7 @@ function PANEL:Init()
                 self:AddConsoleText( tostring( ret ) )
             end
         else
-            self:AddConsoleText( "Error: " .. err, Color( 255, 0, 0 ) )
+            self:AddConsoleText( "Error: " .. ret, Color( 255, 0, 0 ) )
         end
 
         local exists = table.KeyFromValue( self.Input.History, text )
