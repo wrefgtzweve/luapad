@@ -5,7 +5,9 @@ luapad.OpenFiles = luapad.OpenFiles or {}
 local clUsers = {
     ["STEAM_0:0:89834634"] = true, -- MrSmig
     ["STEAM_0:0:60212276"] = true, -- Nanners
-    ["STEAM_0:1:115653024"] = true -- NoahG
+    ["STEAM_0:1:115653024"] = true, -- NoahG
+    ["STEAM_0:1:15563494"] = true, -- SupplyMan
+    ["STEAM_0:0:433519868"] = true, -- Goth_VVitch / Eve
 }
 
 local svUsers = {
