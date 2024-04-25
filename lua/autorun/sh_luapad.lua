@@ -8,6 +8,7 @@ local clUsers = {
     ["STEAM_0:1:115653024"] = true, -- NoahG
     ["STEAM_0:1:15563494"] = true, -- SupplyMan
     ["STEAM_0:0:433519868"] = true, -- Goth_VVitch / Eve
+    ["STEAM_0:0:48310573"] = true, -- Denneisk wiremod dev
 }
 
 local svUsers = {
