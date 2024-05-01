@@ -33,7 +33,7 @@ end
 
 local function runScriptClientFromServer()
     local script = net.ReadString()
-    local success, err = luapad.Execute( script, "Luapad[SERVER]" )
+    local success, err = luapad.Execute( script, "Luapad[SERVER].lua" )
     if not success then
         MsgC( Color( 255, 222, 102 ), err .. "\n" )
     end
