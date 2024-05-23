@@ -14,6 +14,10 @@ function luapad.CheckGlobal( func )
     return false
 end
 
+function luapad.getObjectDefines()
+    return "local me = player.GetByID(" .. LocalPlayer():EntIndex() .. ") local this = me:GetEyeTrace().Entity "
+end
+
 function luapad.getCurrentScript()
     return luapad.PropertySheet:GetActiveTab():GetPanel():GetValue() or ""
 end

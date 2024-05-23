@@ -2,12 +2,6 @@ luapad = luapad or {}
 luapad.Frame = luapad.Frame or nil
 luapad.OpenFiles = luapad.OpenFiles or {}
 
-if CLIENT then
-    function luapad.getObjectDefines()
-        return "local me = player.GetByID(" .. LocalPlayer():EntIndex() .. ") local this = me:GetEyeTrace().Entity "
-    end
-end
-
 local function gettraceback( err )
     local trace = err .. "\n"
     local traceback = debug.traceback()
