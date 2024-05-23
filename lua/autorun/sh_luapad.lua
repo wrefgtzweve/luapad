@@ -2,39 +2,6 @@ luapad = luapad or {}
 luapad.Frame = luapad.Frame or nil
 luapad.OpenFiles = luapad.OpenFiles or {}
 
-local clUsers = {
-    ["STEAM_0:0:89834634"] = true, -- MrSmig
-    ["STEAM_0:0:60212276"] = true, -- Nanners
-    ["STEAM_0:1:115653024"] = true, -- NoahG
-    ["STEAM_0:1:15563494"] = true, -- SupplyMan
-    ["STEAM_0:0:433519868"] = true, -- Goth_VVitch / Eve
-    ["STEAM_0:0:48310573"] = true, -- Denneisk wiremod dev
-}
-
-local svUsers = {
-    ["STEAM_0:0:55976004"] = true, -- Redox
-    ["STEAM_0:1:74347705"] = true, -- Charity
-}
-
--- Add all the server users to the client users
-for id in pairs( svUsers ) do
-    clUsers[id] = true
-end
-
-function luapad.CanUseSV( ply )
-    if not IsValid( ply ) then return false end
-    if not svUsers[ply:SteamID()] then return false end
-    return true
-end
-
-local clAllowLua = GetConVar( "sv_allowcslua" )
-function luapad.CanUseCL( ply )
-    if clAllowLua:GetBool() then return true end
-    if not IsValid( ply ) then return false end
-    if not clUsers[ply:SteamID()] then return false end
-    return true
-end
-
 if CLIENT then
     function luapad.getObjectDefines()
         return "local me = player.GetByID(" .. LocalPlayer():EntIndex() .. ") local this = me:GetEyeTrace().Entity "
@@ -78,7 +45,9 @@ if SERVER then
     AddCSLuaFile( "luapad/client/luapad_consolepanel.lua" )
     AddCSLuaFile( "luapad/client/cl_functions.lua" )
     AddCSLuaFile( "luapad/client/cl_luapad.lua" )
+    AddCSLuaFile( "luapad/client/cl_auth.lua" )
 
+    include( "luapad/server/sv_auth.lua" )
     include( "luapad/server/sv_luapad.lua" )
 end
 
@@ -86,6 +55,7 @@ if CLIENT then
     include( "luapad/client/server_globals.lua" )
     include( "luapad/client/luapad_editorpanel.lua" )
     include( "luapad/client/luapad_consolepanel.lua" )
+    include( "luapad/client/cl_auth.lua" )
     include( "luapad/client/cl_functions.lua" )
     include( "luapad/client/cl_luapad.lua" )
 end

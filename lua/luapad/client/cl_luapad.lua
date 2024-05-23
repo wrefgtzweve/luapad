@@ -95,12 +95,44 @@ function luapad.LoadSavedTabs()
     end
 end
 
-function luapad.Toggle()
-    if not luapad.CanUseCL( LocalPlayer() ) then
-        print( "You don't have permission to use Luapad." )
-        return
-    end
+function luapad.SetupToolbar()
+    if not IsValid( luapad.Toolbar ) then return end
+    luapad.Toolbar:Clear()
 
+    luapad.AddToolbarItem( "New (CTRL + N)", "icon16/page_white_add.png", luapad.NewTab )
+    luapad.AddToolbarItem( "Open (CTRL + O)", "icon16/folder_page_white.png", luapad.OpenScript )
+    luapad.AddToolbarItem( "Save (CTRL + S)", "icon16/disk.png", luapad.SaveScript )
+    luapad.AddToolbarItem( "Save As (CTRL + ALT + S)", "icon16/disk_multiple.png", luapad.SaveAsScript )
+
+    luapad.AddToolbarSpacer()
+
+    local isSVUser = luapad.CanUseSV()
+
+    luapad.AddToolbarItem( "Run Clientside", "icon16/script_code.png", luapad.RunScriptClient )
+    if isSVUser then
+        luapad.AddToolbarItem( "Run Serverside", "icon16/script_code_red.png", luapad.RunScriptServer )
+
+        luapad.AddToolbarSpacer()
+
+        luapad.AddToolbarItem( "Run Shared", "icon16/script_lightning.png", function()
+            luapad.RunScriptClient()
+            luapad.RunScriptServer()
+        end )
+        luapad.AddToolbarItem( "Run on all clients", "icon16/script_palette.png", luapad.RunScriptServerClient )
+        luapad.AddToolbarItem( "Run on specfic client", "icon16/script_go.png", function()
+            local menu = DermaMenu()
+            for _, v in pairs( player.GetAll() ) do
+                if v == LocalPlayer() then continue end
+                menu:AddOption( v:Nick(), function()
+                    luapad.RunScriptOnClient( v )
+                end )
+            end
+            menu:Open()
+        end )
+    end
+end
+
+function luapad.Toggle()
     if IsValid( luapad.Frame ) then
         luapad.Frame:SetVisible( not luapad.Frame:IsVisible() )
         return
@@ -158,37 +190,7 @@ function luapad.Toggle()
 
     luapad.NewTab()
 
-    luapad.AddToolbarItem( "New (CTRL + N)", "icon16/page_white_add.png", luapad.NewTab )
-    luapad.AddToolbarItem( "Open (CTRL + O)", "icon16/folder_page_white.png", luapad.OpenScript )
-    luapad.AddToolbarItem( "Save (CTRL + S)", "icon16/disk.png", luapad.SaveScript )
-    luapad.AddToolbarItem( "Save As (CTRL + ALT + S)", "icon16/disk_multiple.png", luapad.SaveAsScript )
-
-    luapad.AddToolbarSpacer()
-
-    local isSVUser = luapad.CanUseSV( LocalPlayer() )
-
-    luapad.AddToolbarItem( "Run Clientside", "icon16/script_code.png", luapad.RunScriptClient )
-    if isSVUser then
-        luapad.AddToolbarItem( "Run Serverside", "icon16/script_code_red.png", luapad.RunScriptServer )
-
-        luapad.AddToolbarSpacer()
-
-        luapad.AddToolbarItem( "Run Shared", "icon16/script_lightning.png", function()
-            luapad.RunScriptClient()
-            luapad.RunScriptServer()
-        end )
-        luapad.AddToolbarItem( "Run on all clients", "icon16/script_palette.png", luapad.RunScriptServerClient )
-        luapad.AddToolbarItem( "Run on specfic client", "icon16/script_go.png", function()
-            local menu = DermaMenu()
-            for _, v in pairs( player.GetAll() ) do
-                if v == LocalPlayer() then continue end
-                menu:AddOption( v:Nick(), function()
-                    luapad.RunScriptOnClient( v )
-                end )
-            end
-            menu:Open()
-        end )
-    end
+    luapad.SetupToolbar()
 
     luapad.LoadSavedTabs()
 end
@@ -318,4 +320,15 @@ function luapad.OpenScript()
     node2.Icon:SetImage( "icon16/folder_page_white.png" );
 end
 
-concommand.Add( "luapad", luapad.Toggle )
+concommand.Add( "luapad", function()
+    if luapad.CanUseCL() then
+        luapad.Toggle()
+        return
+    end
+
+    luapad.RequestCLAuth( luapad.Toggle )
+end )
+
+concommand.Add( "luapad_auth_refresh", function()
+    luapad.RequestCLAuth( luapad.SetupToolbar )
+end )

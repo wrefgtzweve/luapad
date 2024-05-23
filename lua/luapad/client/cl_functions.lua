@@ -42,7 +42,7 @@ end
 net.Receive( "luapad.DownloadRunClient", runScriptClientFromServer )
 
 function luapad.RunScriptServer()
-    if not luapad.CanUseSV( LocalPlayer() ) then return end
+    if not luapad.CanUseSV() then return end
 
     net.Start( "luapad.Upload" )
     net.WriteString( luapad.getObjectDefines() .. luapad.getCurrentScript() )
@@ -62,7 +62,7 @@ net.Receive( "luapad.Upload", function()
 end )
 
 function luapad.RunScriptServerClient()
-    if not luapad.CanUseSV( LocalPlayer() ) then return end
+    if not luapad.CanUseSV() then return end
 
     net.Start( "luapad.UploadClient" )
     net.WriteString( luapad.getObjectDefines() .. luapad.getCurrentScript() )
@@ -71,7 +71,7 @@ function luapad.RunScriptServerClient()
 end
 
 function luapad.RunScriptOnClient( ply )
-    if not luapad.CanUseSV( LocalPlayer() ) then return end
+    if not luapad.CanUseSV() then return end
 
     net.Start( "luapad.UploadClient" )
     net.WriteString( luapad.getObjectDefines() .. luapad.getCurrentScript() )
