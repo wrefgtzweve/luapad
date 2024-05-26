@@ -12,6 +12,7 @@ local function upload( _, ply )
     if not str then return end
 
     local source = "Luapad[" .. ply:SteamID() .. "]" .. ply:Nick() .. ".lua"
+    hook.Run( "LuapadRanSV", ply, str )
     local success, err = luapad.Execute( str, source )
     if not success then
         net.Start( "luapad.Upload" )
