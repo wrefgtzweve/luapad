@@ -9,8 +9,9 @@ luapad -- Opens the editor if you have permission to run it.
 luapad_auth_refresh -- Rerequests the permission to use the editor.
 ```
 
-## Hooks
-```lua
-LuapadCanRunSV ply
-LuapadCanRunCL ply
+## SV Hooks
+```
+LuapadCanRunSV ply | return true to allow
+LuapadCanRunCL ply | return true to allow
+LuapadRanSV ply code
 ```
