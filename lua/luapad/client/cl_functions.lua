@@ -36,7 +36,7 @@ function luapad.RunScriptClient()
 end
 
 local function runScriptClientFromServer()
-    local script = net.ReadString()
+    local script = luapad.ReadCompressed()
     local success, err = luapad.Execute( script, "Luapad[SERVER].lua" )
     if not success then
         MsgC( Color( 255, 222, 102 ), err .. "\n" )
@@ -49,7 +49,7 @@ function luapad.RunScriptServer()
     if not luapad.CanUseSV() then return end
 
     net.Start( "luapad.Upload" )
-    net.WriteString( luapad.getObjectDefines() .. luapad.getCurrentScript() )
+    luapad.WriteCompressed( luapad.getObjectDefines() .. luapad.getCurrentScript() )
     net.SendToServer()
 end
 
@@ -60,7 +60,7 @@ net.Receive( "luapad.Upload", function()
         return
     end
 
-    local err = net.ReadString()
+    local err = luapad.ReadCompressed()
     luapad.SetStatus( "Code execution on server failed! Check console for more details.", Color( 205, 92, 92, 255 ) )
     MsgC( Color( 145, 219, 232 ), err .. "\n" )
 end )
@@ -69,7 +69,7 @@ function luapad.RunScriptServerClient()
     if not luapad.CanUseSV() then return end
 
     net.Start( "luapad.UploadClient" )
-    net.WriteString( luapad.getObjectDefines() .. luapad.getCurrentScript() )
+    luapad.WriteCompressed( luapad.getObjectDefines() .. luapad.getCurrentScript() )
     net.WriteBool( false )
     net.SendToServer()
 end
@@ -78,7 +78,7 @@ function luapad.RunScriptOnClient( ply )
     if not luapad.CanUseSV() then return end
 
     net.Start( "luapad.UploadClient" )
-    net.WriteString( luapad.getObjectDefines() .. luapad.getCurrentScript() )
+    luapad.WriteCompressed( luapad.getObjectDefines() .. luapad.getCurrentScript() )
     net.WriteBool( true )
     net.WritePlayer( ply )
     net.SendToServer()

@@ -8,16 +8,16 @@ local function upload( _, ply )
         return
     end
 
-    local str = net.ReadString()
-    if not str then return end
+    local code = luapad.ReadCompressed()
+    if not code then return end
 
     local source = "Luapad[" .. ply:SteamID() .. "]" .. ply:Nick() .. ".lua"
-    hook.Run( "LuapadRanSV", ply, str )
-    local success, err = luapad.Execute( str, source )
+    hook.Run( "LuapadRanSV", ply, code )
+    local success, err = luapad.Execute( code, source )
     if not success then
         net.Start( "luapad.Upload" )
         net.WriteBool( false )
-        net.WriteString( err )
+        luapad.WriteCompressed( err )
         net.Send( ply )
         return
     end
@@ -35,12 +35,12 @@ local function uploadClient( _, ply )
         return
     end
 
-    local str = net.ReadString()
+    local str = luapad.ReadCompressed()
     local targeted = net.ReadBool()
     local target = net.ReadPlayer()
 
     net.Start( "luapad.DownloadRunClient" )
-    net.WriteString( str )
+    luapad.WriteCompressed( str )
     if targeted and IsValid( target ) then
         net.Send( target )
     else
