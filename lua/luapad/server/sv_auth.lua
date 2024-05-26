@@ -5,7 +5,7 @@ function luapad.CanUseSV( ply )
     if ply:IsListenServerHost() then return true end
 
     local result = hook.Run( "LuapadCanRunSV", ply )
-    if result ~= nil then return result end
+    if result == true then return true end
 
     return false
 end
@@ -16,7 +16,7 @@ function luapad.CanUseCL( ply )
     if luapad.CanUseSV( ply ) then return true end
 
     local result = hook.Run( "LuapadCanRunCL", ply )
-    if result ~= nil then return result end
+    if result == true then return true end
 
     return false
 end
