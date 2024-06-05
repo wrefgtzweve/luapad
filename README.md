@@ -1,7 +1,7 @@
 # Luapad
 
 ## Description
-A simple lua editor for Garry's Mod.
+A simple lua run tool for Garry's Mod.
 
 ## CL Concommands
 ```lua
