@@ -3,13 +3,13 @@ local canUseSV = false
 
 local callbacks = {}
 function luapad.RequestCLAuth( callback )
-    net.Start( "luapad.RequestCLAuth" )
+    net.Start( "luapad_requestauth" )
     net.SendToServer()
 
     table.insert( callbacks, callback )
 end
 
-net.Receive( "luapad.RequestCLAuth", function()
+net.Receive( "luapad_requestauth", function()
     canUseCL = net.ReadBool()
     canUseSV = net.ReadBool()
 

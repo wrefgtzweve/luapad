@@ -1,6 +1,5 @@
-util.AddNetworkString( "luapad.Upload" )
-util.AddNetworkString( "luapad.UploadClient" )
-util.AddNetworkString( "luapad.DownloadRunClient" )
+util.AddNetworkString( "luapad_runserver" )
+util.AddNetworkString( "luapad_runclient" )
 
 local function upload( _, ply )
     if not luapad.CanUseSV( ply ) then
@@ -15,19 +14,19 @@ local function upload( _, ply )
     hook.Run( "LuapadRanSV", ply, code )
     local success, err = luapad.Execute( code, source )
     if not success then
-        net.Start( "luapad.Upload" )
+        net.Start( "luapad_runserver" )
         net.WriteBool( false )
         luapad.WriteCompressed( err )
         net.Send( ply )
         return
     end
 
-    net.Start( "luapad.Upload" )
+    net.Start( "luapad_runserver" )
     net.WriteBool( true )
     net.Send( ply )
 end
 
-net.Receive( "luapad.Upload", upload )
+net.Receive( "luapad_runserver", upload )
 
 local function uploadClient( _, ply )
     if not luapad.CanUseSV( ply ) then
@@ -39,16 +38,13 @@ local function uploadClient( _, ply )
     local targeted = net.ReadBool()
     local target = net.ReadPlayer()
 
-    net.Start( "luapad.DownloadRunClient" )
+    net.Start( "luapad_runclient" )
     luapad.WriteCompressed( str )
     if targeted and IsValid( target ) then
         net.Send( target )
     else
         net.Broadcast()
     end
-
-    net.Start( "luapad.UploadClient" )
-    net.Send( ply )
 end
 
-net.Receive( "luapad.UploadClient", uploadClient )
+net.Receive( "luapad_runclient", uploadClient )

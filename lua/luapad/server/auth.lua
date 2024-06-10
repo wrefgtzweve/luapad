@@ -1,4 +1,4 @@
-util.AddNetworkString( "luapad.RequestCLAuth" )
+util.AddNetworkString( "luapad_requestauth" )
 
 function luapad.CanUseSV( ply )
     if not IsValid( ply ) then return false end
@@ -22,13 +22,13 @@ function luapad.CanUseCL( ply )
 end
 
 function luapad.SendAuth( ply )
-    net.Start( "luapad.RequestCLAuth" )
+    net.Start( "luapad_requestauth" )
     net.WriteBool( luapad.CanUseCL( ply ) )
     net.WriteBool( luapad.CanUseSV( ply ) )
     net.Send( ply )
 end
 
-net.Receive( "luapad.RequestCLAuth", function( _, ply )
+net.Receive( "luapad_requestauth", function( _, ply )
     if ply.LuapadCLAuthTimeout and ply.LuapadCLAuthTimeout > CurTime() then return end
     ply.LuapadCLAuthTimeout = CurTime() + 1
 
