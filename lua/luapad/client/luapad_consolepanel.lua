@@ -1,5 +1,21 @@
 local PANEL = {}
 
+if system.IsWindows() then
+    surface.CreateFont( "luapadConsoleText", {
+        font = "Lucida Console",
+        size = 10,
+        weight = 500,
+        antialias = false,
+    } )
+else
+    surface.CreateFont( "luapadConsoleText", {
+        font = "Verdana",
+        size = 14,
+        weight = 500,
+        antialias = false,
+    } )
+end
+
 function PANEL:Init()
     self.Display = vgui.Create( "RichText", self )
     self.Input = vgui.Create( "DTextEntry", self )
@@ -54,6 +70,7 @@ function PANEL:Init()
     function self.Display:PerformLayout()
         self:SetPaintBackgroundEnabled( true )
         self:SetBGColor( Color( 77, 80, 82 ) )
+        self:SetFontInternal( "luapadConsoleText" )
     end
 end
 
