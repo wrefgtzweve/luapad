@@ -3,26 +3,7 @@ if IsValid( luapad.Frame ) then
     luapad.Frame:Remove()
 end
 
-function luapad.SaveScript()
-    local contents = luapad.getCurrentScript()
-    contents = string.gsub( contents, "   	", "\t" )
-    local path = string.gsub( luapad.PropertySheet:GetActiveTab():GetPanel().path, "data/luapad", "", 1 )
-    Msg( "data/luapad" .. path .. luapad.PropertySheet:GetActiveTab():GetPanel().name )
-
-    if not file.Exists( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, "DATA" ) then
-        luapad.SaveAsScript()
-    else
-        file.Write( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, contents )
-
-        if file.Exists( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, "DATA" ) then
-            luapad.AddConsoleText( "File succesfully saved!", Color( 72, 205, 72, 255 ) )
-        else
-            luapad.AddConsoleText( "Save failed! (check your filename for illegal characters)", Color( 205, 72, 72, 255 ) )
-        end
-    end
-end
-
-function luapad.SaveAsScript()
+local function saveAsScript()
     Derma_StringRequest( "Luapad", "You are about to save a file, please enter the desired filename.", luapad.PropertySheet:GetActiveTab():GetPanel().path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, function( filename )
         local contents = luapad.getCurrentScript()
 
@@ -57,6 +38,25 @@ function luapad.SaveAsScript()
     end, nil, "Save", "Cancel" )
 end
 
+local function saveScript()
+    local contents = luapad.getCurrentScript()
+    contents = string.gsub( contents, "   	", "\t" )
+    local path = string.gsub( luapad.PropertySheet:GetActiveTab():GetPanel().path, "data/luapad", "", 1 )
+    Msg( "data/luapad" .. path .. luapad.PropertySheet:GetActiveTab():GetPanel().name )
+
+    if not file.Exists( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, "DATA" ) then
+        saveAsScript()
+    else
+        file.Write( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, contents )
+
+        if file.Exists( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, "DATA" ) then
+            luapad.AddConsoleText( "File succesfully saved!", Color( 72, 205, 72, 255 ) )
+        else
+            luapad.AddConsoleText( "Save failed! (check your filename for illegal characters)", Color( 205, 72, 72, 255 ) )
+        end
+    end
+end
+
 function luapad.SaveTabs()
     if not luapad.Frame then return end
 
@@ -78,7 +78,7 @@ function luapad.SaveTabs()
 end
 hook.Add( "ShutDown", "luapad.SaveTabs", luapad.SaveTabs )
 
-function luapad.LoadSavedTabs()
+local function loadSavedTabs()
     if not file.Exists( "luapad/_tabs.txt", "DATA" ) then return end
     local store = util.JSONToTable( util.Decompress( file.Read( "luapad/_tabs.txt", "DATA" ):sub( 8 ) ) )
 
@@ -111,14 +111,14 @@ local function addToolbarSpacer()
     luapad.Toolbar:AddItem( lab )
 end
 
-function luapad.SetupToolbar()
+local function setupToolbar()
     if not IsValid( luapad.Toolbar ) then return end
     luapad.Toolbar:Clear()
 
     addToolbarItem( "New (CTRL + N)", "icon16/page_white_add.png", luapad.NewTab )
     addToolbarItem( "Open (CTRL + O)", "icon16/folder_page_white.png", luapad.OpenScript )
-    addToolbarItem( "Save (CTRL + S)", "icon16/disk.png", luapad.SaveScript )
-    addToolbarItem( "Save As (CTRL + ALT + S)", "icon16/disk_multiple.png", luapad.SaveAsScript )
+    addToolbarItem( "Save (CTRL + S)", "icon16/disk.png", saveScript )
+    addToolbarItem( "Save As (CTRL + ALT + S)", "icon16/disk_multiple.png", saveAsScript )
 
     addToolbarSpacer()
 
@@ -217,9 +217,8 @@ function luapad.Toggle()
 
     luapad.NewTab()
 
-    luapad.SetupToolbar()
-
-    luapad.LoadSavedTabs()
+    setupToolbar()
+    loadSavedTabs()
 end
 
 function luapad.AddTab( name, content, path )
@@ -250,7 +249,7 @@ function luapad.AddTab( name, content, path )
             luapad.PropertySheet:CloseTab( self, true )
         end ):SetIcon( "icon16/cross.png" )
 
-        menu:AddOption( "Save", luapad.SaveScript ):SetIcon( "icon16/disk.png" )
+        menu:AddOption( "Save", saveScript ):SetIcon( "icon16/disk.png" )
 
         menu:AddSpacer()
 
@@ -339,5 +338,5 @@ concommand.Add( "luapad", function()
 end )
 
 concommand.Add( "luapad_auth_refresh", function()
-    luapad.RequestCLAuth( luapad.SetupToolbar )
+    luapad.RequestCLAuth( setupToolbar )
 end )
