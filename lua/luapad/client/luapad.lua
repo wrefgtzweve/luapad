@@ -165,6 +165,8 @@ function luapad.Toggle()
         return
     end
 
+    include( "luapad/client/server_globals.lua" )
+
     -- Build it, if it doesn't exist
     luapad.Frame = vgui.Create( "DFrame" )
     luapad.Frame:SetSize( ScrW() * 2 / 3, ScrH() * 2 / 3 )

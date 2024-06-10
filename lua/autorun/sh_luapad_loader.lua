@@ -24,7 +24,6 @@ end
 include_shared( "luapad/shared/code_execution.lua" )
 include_shared( "luapad/shared/net.lua" )
 
-include_client( "luapad/client/server_globals.lua" )
 include_client( "luapad/client/luapad_editorpanel.lua" )
 include_client( "luapad/client/luapad_consolepanel.lua" )
 include_client( "luapad/client/auth.lua" )
@@ -33,3 +32,5 @@ include_client( "luapad/client/luapad.lua" )
 
 include_server( "luapad/server/auth.lua" )
 include_server( "luapad/server/luapad.lua" )
+
+AddCSLuaFile( "luapad/client/server_globals.lua" ) -- Special case, only gets included when luapad is being used.

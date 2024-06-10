@@ -1,3 +1,5 @@
+if luapad._sG then return end
+
 luapad._sG = {}
 luapad._sG["Move"] = "m"
 luapad._sG["Wire_AdjustOutputs"] = "f"
