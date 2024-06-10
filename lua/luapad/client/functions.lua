@@ -104,7 +104,7 @@ end
 net.Receive( "luapad_prints_cl", function()
     local ply = net.ReadPlayer()
     local str = luapad.ReadCompressed()
-    str = ply:Nick() .. ": " .. str
+    str = "[" .. ply:SteamID() .. "]" .. ply:Nick() .. ": " .. str
     luapad.AddConsoleText( str, Color( 255, 222, 102 ) )
 end )
 
