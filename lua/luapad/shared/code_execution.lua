@@ -1,7 +1,3 @@
-luapad = luapad or {}
-luapad.Frame = luapad.Frame or nil
-luapad.OpenFiles = luapad.OpenFiles or {}
-
 local function gettraceback( err )
     local trace = err .. "\n"
     local traceback = debug.traceback()
@@ -31,28 +27,4 @@ function luapad.Execute( str, src )
     end
 
     return true, ret
-end
-
-function luapad.ReadCompressed()
-    local len = net.ReadUInt( 16 )
-    local data = net.ReadData( len )
-
-    return util.Decompress( data )
-end
-
-function luapad.WriteCompressed( data )
-    local compressed = util.Compress( data )
-    local len = #compressed
-
-    net.WriteUInt( len, 16 )
-    net.WriteData( compressed, len )
-end
-
-if CLIENT then
-    include( "luapad/client/server_globals.lua" )
-    include( "luapad/client/luapad_editorpanel.lua" )
-    include( "luapad/client/luapad_consolepanel.lua" )
-    include( "luapad/client/cl_auth.lua" )
-    include( "luapad/client/cl_functions.lua" )
-    include( "luapad/client/cl_luapad.lua" )
 end
