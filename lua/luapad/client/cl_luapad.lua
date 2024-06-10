@@ -108,18 +108,29 @@ function luapad.SetupToolbar()
 
     local isSVUser = luapad.CanUseSV()
 
-    luapad.AddToolbarItem( "Run Clientside", "icon16/script_code.png", luapad.RunScriptClient )
+    luapad.AddToolbarItem( "Run Clientside", "icon16/script_code.png", function()
+        luapad.SaveTabs()
+        luapad.RunScriptClient()
+    end )
     if isSVUser then
-        luapad.AddToolbarItem( "Run Serverside", "icon16/script_code_red.png", luapad.RunScriptServer )
+        luapad.AddToolbarItem( "Run Serverside", "icon16/script_code_red.png", function()
+            luapad.SaveTabs()
+            luapad.RunScriptServer()
+        end )
 
         luapad.AddToolbarSpacer()
 
         luapad.AddToolbarItem( "Run Shared", "icon16/script_lightning.png", function()
+            luapad.SaveTabs()
             luapad.RunScriptClient()
             luapad.RunScriptServer()
         end )
-        luapad.AddToolbarItem( "Run on all clients", "icon16/script_palette.png", luapad.RunScriptServerClient )
+        luapad.AddToolbarItem( "Run on all clients", "icon16/script_palette.png", function()
+            luapad.SaveTabs()
+            luapad.RunScriptServerClient()
+        end )
         luapad.AddToolbarItem( "Run on specfic client", "icon16/script_go.png", function()
+            luapad.SaveTabs()
             local menu = DermaMenu()
             for _, v in pairs( player.GetAll() ) do
                 if v == LocalPlayer() then continue end
@@ -245,9 +256,7 @@ function luapad.AddTab( name, content, path )
             luapad.PropertySheet:CloseTab( self, true )
         end ):SetIcon( "icon16/cross.png" )
 
-        menu:AddOption( "Save", function()
-            luapad.SaveScript()
-        end ):SetIcon( "icon16/disk.png" )
+        menu:AddOption( "Save", luapad.SaveScript ):SetIcon( "icon16/disk.png" )
 
         menu:AddSpacer()
 
