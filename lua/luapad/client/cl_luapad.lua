@@ -222,12 +222,6 @@ function luapad.Toggle()
     luapad.LoadSavedTabs()
 end
 
-function luapad.AddConsoleText( str, clr )
-    if not IsValid( luapad.Frame ) and not IsValid( luapad.Frame.Console ) then return end
-
-    luapad.Frame.Console:AddConsoleText( str, clr )
-end
-
 function luapad.AddTab( name, content, path )
     content = content or ""
     path = path or ""

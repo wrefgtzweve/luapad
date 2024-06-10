@@ -87,3 +87,23 @@ end
 net.Receive( "luapad.UploadClient", function()
     luapad.AddConsoleText( "Scrip ran.", Color( 92, 205, 92, 255 ) )
 end )
+
+local function getConsole()
+    if not IsValid( luapad.Frame ) then return false end
+    if not IsValid( luapad.Frame.Console ) then return false end
+    return luapad.Frame.Console
+end
+
+function luapad.AddConsoleText( str, clr )
+    local console = getConsole()
+    if not console then return end
+
+    console:AddConsoleText( str, clr )
+end
+
+function luapad.AddConsoleTable( tbl, prefix )
+    local console = getConsole()
+    if not console then return end
+
+    console:AddConsoleTable( tbl, prefix )
+end
