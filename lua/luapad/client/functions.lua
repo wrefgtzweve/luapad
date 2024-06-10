@@ -24,9 +24,7 @@ end
 
 function luapad.RunScriptClient()
     if not luapad.CanUseCL( LocalPlayer() ) then return end
-    local source = "Luapad[" .. LocalPlayer():SteamID() .. "]" .. LocalPlayer():Nick() .. ".lua"
-    local code = luapad.getObjectDefines() .. luapad.getCurrentScript()
-    local success, err = luapad.Execute( code, source )
+    local success, err = luapad.Execute( LocalPlayer(), luapad.getCurrentScript() )
     if success then
         luapad.AddConsoleText( "Code ran sucessfully!", Color( 72, 205, 72, 255 ) )
     else
@@ -37,7 +35,8 @@ end
 
 net.Receive( "luapad_runclient", function()
     local script = luapad.ReadCompressed()
-    local success, err = luapad.Execute( script, "Luapad[SERVER].lua" )
+    local runner = net.ReadPlayer()
+    local success, err = luapad.Execute( runner, script )
     if not success then
         MsgC( Color( 255, 222, 102 ), err .. "\n" )
     end
@@ -60,7 +59,7 @@ net.Receive( "luapad_runserver", function()
 
     local err = luapad.ReadCompressed()
     luapad.AddConsoleText( "Code execution on server failed! Check console for more details.", Color( 205, 92, 92, 255 ) )
-    MsgC( Color( 145, 219, 232 ), err .. "\n" )
+    MsgC( Color( 137, 222, 255 ), err .. "\n" )
 end )
 
 function luapad.RunScriptServerClient()
@@ -101,3 +100,15 @@ function luapad.AddConsoleTable( tbl, prefix )
 
     console:AddConsoleTable( tbl, prefix )
 end
+
+net.Receive( "luapad_prints_cl", function()
+    local ply = net.ReadPlayer()
+    local str = luapad.ReadCompressed()
+    str = ply:Nick() .. ": " .. str
+    luapad.AddConsoleText( str, Color( 255, 222, 102 ) )
+end )
+
+net.Receive( "luapad_prints_sv", function()
+    local str = luapad.ReadCompressed()
+    luapad.AddConsoleText( str, Color( 137, 222, 255 ) )
+end )

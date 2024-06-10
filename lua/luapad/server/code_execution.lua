@@ -1,5 +1,7 @@
 util.AddNetworkString( "luapad_runserver" )
 util.AddNetworkString( "luapad_runclient" )
+util.AddNetworkString( "luapad_prints_cl" )
+util.AddNetworkString( "luapad_prints_sv" )
 
 net.Receive( "luapad_runserver", function( _, ply )
     if not luapad.CanUseSV( ply ) then
@@ -10,9 +12,8 @@ net.Receive( "luapad_runserver", function( _, ply )
     local code = luapad.ReadCompressed()
     if not code then return end
 
-    local source = "Luapad[" .. ply:SteamID() .. "]" .. ply:Nick() .. ".lua"
     hook.Run( "LuapadRanSV", ply, code )
-    local success, err = luapad.Execute( code, source )
+    local success, err = luapad.Execute( ply, code )
     if not success then
         net.Start( "luapad_runserver" )
         net.WriteBool( false )
@@ -32,6 +33,8 @@ net.Receive( "luapad_runclient", function( _, ply )
         return
     end
 
+    ply.LuapadCanReceivePrintsFrom = ply.LuapadCanReceivePrintsFrom or {}
+
     local str = luapad.ReadCompressed()
     local targeted = net.ReadBool()
     local target = net.ReadPlayer()
@@ -40,7 +43,23 @@ net.Receive( "luapad_runclient", function( _, ply )
     luapad.WriteCompressed( str )
     if targeted and IsValid( target ) then
         net.Send( target )
+        ply.LuapadCanReceivePrintsFrom[target] = true
     else
         net.Broadcast()
+        for _, targetedPly in ipairs( player.GetHumans() ) do
+            ply.LuapadCanReceivePrintsFrom[targetedPly] = true
+        end
     end
+end )
+
+net.Receive( "luapad_prints_cl", function( _, ply )
+    local target = net.ReadPlayer()
+    if not target.LuapadCanReceivePrintsFrom[ply] then return end
+
+    local str = luapad.ReadCompressed()
+
+    net.Start( "luapad_prints_cl" )
+    net.WritePlayer( ply )
+    luapad.WriteCompressed( str )
+    net.Send( target )
 end )

@@ -28,7 +28,7 @@ function PANEL:Init()
             return
         end
 
-        local success, ret = luapad.Execute( luapad.getObjectDefines() .. " return " .. text, "LuapadConsole" )
+        local success, ret = luapad.Execute( LocalPlayer(), text )
         if success then
             if istable( ret ) then
                 self:AddConsoleTable( ret )
