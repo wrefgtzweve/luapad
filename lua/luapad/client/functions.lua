@@ -35,15 +35,13 @@ function luapad.RunScriptClient()
     end
 end
 
-local function runScriptClientFromServer()
+net.Receive( "luapad_runclient", function()
     local script = luapad.ReadCompressed()
     local success, err = luapad.Execute( script, "Luapad[SERVER].lua" )
     if not success then
         MsgC( Color( 255, 222, 102 ), err .. "\n" )
     end
-end
-
-net.Receive( "luapad_runclient", runScriptClientFromServer )
+end )
 
 function luapad.RunScriptServer()
     if not luapad.CanUseSV() then return end

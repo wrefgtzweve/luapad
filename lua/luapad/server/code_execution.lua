@@ -1,7 +1,7 @@
 util.AddNetworkString( "luapad_runserver" )
 util.AddNetworkString( "luapad_runclient" )
 
-local function upload( _, ply )
+net.Receive( "luapad_runserver", function( _, ply )
     if not luapad.CanUseSV( ply ) then
         ply:Kick( "You are not allowed to use Luapad." )
         return
@@ -24,11 +24,9 @@ local function upload( _, ply )
     net.Start( "luapad_runserver" )
     net.WriteBool( true )
     net.Send( ply )
-end
+end )
 
-net.Receive( "luapad_runserver", upload )
-
-local function uploadClient( _, ply )
+net.Receive( "luapad_runclient", function( _, ply )
     if not luapad.CanUseSV( ply ) then
         ply:Kick( "You are not allowed to use Luapad." )
         return
@@ -45,6 +43,4 @@ local function uploadClient( _, ply )
     else
         net.Broadcast()
     end
-end
-
-net.Receive( "luapad_runclient", uploadClient )
+end )
