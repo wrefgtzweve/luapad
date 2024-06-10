@@ -28,9 +28,9 @@ function luapad.RunScriptClient()
     local code = luapad.getObjectDefines() .. luapad.getCurrentScript()
     local success, err = luapad.Execute( code, source )
     if success then
-        luapad.SetStatus( "Code ran sucessfully!", Color( 72, 205, 72, 255 ) )
+        luapad.AddConsoleText( "Code ran sucessfully!", Color( 72, 205, 72, 255 ) )
     else
-        luapad.SetStatus( "Code execution failed! Check console for more details.", Color( 205, 72, 72, 255 ) )
+        luapad.AddConsoleText( "Code execution failed! Check console for more details.", Color( 205, 72, 72, 255 ) )
         MsgC( Color( 255, 222, 102 ), err .. "\n" )
     end
 end
@@ -56,12 +56,12 @@ end
 net.Receive( "luapad.Upload", function()
     local success = net.ReadBool()
     if success then
-        luapad.SetStatus( "Code executed on server succesfully.", Color( 92, 205, 92, 255 ) )
+        luapad.AddConsoleText( "Code executed on server succesfully.", Color( 92, 205, 92, 255 ) )
         return
     end
 
     local err = luapad.ReadCompressed()
-    luapad.SetStatus( "Code execution on server failed! Check console for more details.", Color( 205, 92, 92, 255 ) )
+    luapad.AddConsoleText( "Code execution on server failed! Check console for more details.", Color( 205, 92, 92, 255 ) )
     MsgC( Color( 145, 219, 232 ), err .. "\n" )
 end )
 
@@ -85,5 +85,5 @@ function luapad.RunScriptOnClient( ply )
 end
 
 net.Receive( "luapad.UploadClient", function()
-    luapad.SetStatus( "Scrip ran.", Color( 92, 205, 92, 255 ) )
+    luapad.AddConsoleText( "Scrip ran.", Color( 92, 205, 92, 255 ) )
 end )

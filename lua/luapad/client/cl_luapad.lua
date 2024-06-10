@@ -15,9 +15,9 @@ function luapad.SaveScript()
         file.Write( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, contents )
 
         if file.Exists( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, "DATA" ) then
-            luapad.SetStatus( "File succesfully saved!", Color( 72, 205, 72, 255 ) )
+            luapad.AddConsoleText( "File succesfully saved!", Color( 72, 205, 72, 255 ) )
         else
-            luapad.SetStatus( "Save failed! (check your filename for illegal characters)", Color( 205, 72, 72, 255 ) )
+            luapad.AddConsoleText( "Save failed! (check your filename for illegal characters)", Color( 205, 72, 72, 255 ) )
         end
     end
 end
@@ -46,13 +46,13 @@ function luapad.SaveAsScript()
         file.Write( string.gsub( filename, "data/", "", 1 ), contents )
 
         if file.Exists( string.gsub( filename, "data/", "", 1 ), "DATA" ) then
-            luapad.SetStatus( "File succesfully saved!", Color( 72, 205, 72, 255 ) )
+            luapad.AddConsoleText( "File succesfully saved!", Color( 72, 205, 72, 255 ) )
             luapad.PropertySheet:GetActiveTab():GetPanel().name = string.Explode( "/", filename )[#string.Explode( "/", filename )]
             luapad.PropertySheet:GetActiveTab():GetPanel().path = string.gsub( filename, luapad.PropertySheet:GetActiveTab():GetPanel().name, "", 1 )
             luapad.PropertySheet:GetActiveTab():SetText( string.Explode( "/", filename )[#string.Explode( "/", filename )] )
             luapad.PropertySheet:SetActiveTab( luapad.PropertySheet:GetActiveTab() )
         else
-            luapad.SetStatus( "Save failed! (check your filename for illegal characters)", Color( 205, 72, 72, 255 ) )
+            luapad.AddConsoleText( "Save failed! (check your filename for illegal characters)", Color( 205, 72, 72, 255 ) )
         end
     end, nil, "Save", "Cancel" )
 end
@@ -95,41 +95,57 @@ function luapad.LoadSavedTabs()
     end
 end
 
+local function addToolbarItem( tooltip, mat, func )
+    local button = vgui.Create( "DImageButton" )
+    button:SetImage( mat )
+    button:SetTooltip( tooltip )
+    button:SetSize( 16, 16 )
+    button.DoClick = func
+    luapad.Toolbar:AddItem( button )
+end
+
+local function addToolbarSpacer()
+    local lab = vgui.Create( "DLabel" )
+    lab:SetText( " | " )
+    lab:SizeToContents()
+    luapad.Toolbar:AddItem( lab )
+end
+
 function luapad.SetupToolbar()
     if not IsValid( luapad.Toolbar ) then return end
     luapad.Toolbar:Clear()
 
-    luapad.AddToolbarItem( "New (CTRL + N)", "icon16/page_white_add.png", luapad.NewTab )
-    luapad.AddToolbarItem( "Open (CTRL + O)", "icon16/folder_page_white.png", luapad.OpenScript )
-    luapad.AddToolbarItem( "Save (CTRL + S)", "icon16/disk.png", luapad.SaveScript )
-    luapad.AddToolbarItem( "Save As (CTRL + ALT + S)", "icon16/disk_multiple.png", luapad.SaveAsScript )
+    addToolbarItem( "New (CTRL + N)", "icon16/page_white_add.png", luapad.NewTab )
+    addToolbarItem( "Open (CTRL + O)", "icon16/folder_page_white.png", luapad.OpenScript )
+    addToolbarItem( "Save (CTRL + S)", "icon16/disk.png", luapad.SaveScript )
+    addToolbarItem( "Save As (CTRL + ALT + S)", "icon16/disk_multiple.png", luapad.SaveAsScript )
 
-    luapad.AddToolbarSpacer()
+    addToolbarSpacer()
 
     local isSVUser = luapad.CanUseSV()
 
-    luapad.AddToolbarItem( "Run Clientside", "icon16/script_code.png", function()
+    addToolbarItem( "Run Clientside", "icon16/script_code.png", function()
         luapad.SaveTabs()
         luapad.RunScriptClient()
     end )
     if isSVUser then
-        luapad.AddToolbarItem( "Run Serverside", "icon16/script_code_red.png", function()
+        addToolbarItem( "Run Serverside", "icon16/script_code_red.png", function()
             luapad.SaveTabs()
             luapad.RunScriptServer()
         end )
 
-        luapad.AddToolbarSpacer()
+        addToolbarSpacer()
 
-        luapad.AddToolbarItem( "Run Shared", "icon16/script_lightning.png", function()
+        addToolbarItem( "Run Shared", "icon16/script_lightning.png", function()
             luapad.SaveTabs()
             luapad.RunScriptClient()
             luapad.RunScriptServer()
         end )
-        luapad.AddToolbarItem( "Run on all clients", "icon16/script_palette.png", function()
+        addToolbarItem( "Run on all clients", "icon16/script_palette.png", function()
             luapad.SaveTabs()
             luapad.RunScriptServerClient()
         end )
-        luapad.AddToolbarItem( "Run on specfic client", "icon16/script_go.png", function()
+        addToolbarItem( "Run on specfic client", "icon16/script_go.png", function()
             luapad.SaveTabs()
             local menu = DermaMenu()
             for _, v in pairs( player.GetAll() ) do
@@ -206,23 +222,7 @@ function luapad.Toggle()
     luapad.LoadSavedTabs()
 end
 
-function luapad.AddToolbarItem( tooltip, mat, func )
-    local button = vgui.Create( "DImageButton" )
-    button:SetImage( mat )
-    button:SetTooltip( tooltip )
-    button:SetSize( 16, 16 )
-    button.DoClick = func
-    luapad.Toolbar:AddItem( button )
-end
-
-function luapad.AddToolbarSpacer()
-    local lab = vgui.Create( "DLabel" )
-    lab:SetText( " | " )
-    lab:SizeToContents()
-    luapad.Toolbar:AddItem( lab )
-end
-
-function luapad.SetStatus( str, clr )
+function luapad.AddConsoleText( str, clr )
     if not IsValid( luapad.Frame ) and not IsValid( luapad.Frame.Console ) then return end
 
     luapad.Frame.Console:AddConsoleText( str, clr )
