@@ -34,8 +34,8 @@ function luapad.RunScriptClient()
 end
 
 net.Receive( "luapad_runclient", function()
-    local script = luapad.ReadCompressed()
     local runner = net.ReadPlayer()
+    local script = luapad.ReadCompressed()
     local success, err = luapad.Execute( runner, script )
     if not success then
         MsgC( Color( 255, 222, 102 ), err .. "\n" )

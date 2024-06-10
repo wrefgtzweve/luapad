@@ -40,6 +40,7 @@ net.Receive( "luapad_runclient", function( _, ply )
     local target = net.ReadPlayer()
 
     net.Start( "luapad_runclient" )
+    net.WritePlayer( ply )
     luapad.WriteCompressed( str )
     if targeted and IsValid( target ) then
         net.Send( target )
