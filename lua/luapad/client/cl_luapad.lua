@@ -318,15 +318,21 @@ function luapad.OpenScript()
         luapad.OpenTree:Remove()
     end
 
-    local node = luapad.OpenTree:AddNode( "garrysmod\\data" )
-    node.RootFolder = "data"
-    node:MakeFolder( "data", "GAME", true )
-    node.Icon:SetImage( "icon16/computer.png" )
+    local node1 = luapad.OpenTree:AddNode( "garrysmod\\data" )
+    node1.RootFolder = "data"
+    node1:MakeFolder( "data", "GAME", true )
+    node1.Icon:SetImage( "icon16/computer.png" )
 
     local node2 = luapad.OpenTree:AddNode( "luapad" )
-    node2.RootFolder = "data/luapad";
-    node2:MakeFolder( "data/luapad", "GAME", true );
-    node2.Icon:SetImage( "icon16/folder_page_white.png" );
+    function node2:OnNodeAdded( node )
+        if node:GetText() == "_tabs.txt" then
+            node:Remove()
+        end
+    end
+
+    node2.RootFolder = "data/luapad"
+    node2:MakeFolder( "data/luapad", "GAME", true )
+    node2.Icon:SetImage( "icon16/folder_page_white.png" )
 end
 
 concommand.Add( "luapad", function()
