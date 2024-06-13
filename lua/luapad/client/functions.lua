@@ -57,9 +57,7 @@ net.Receive( "luapad_runserver", function()
         return
     end
 
-    local err = luapad.ReadCompressed()
-    luapad.AddConsoleText( "Code execution on server failed! Check console for more details.", Color( 205, 92, 92, 255 ) )
-    MsgC( Color( 137, 222, 255 ), err .. "\n" )
+    luapad.AddConsoleText( luapad.ReadCompressed(), Color( 137, 222, 255 ) )
 end )
 
 function luapad.RunScriptServerClient()

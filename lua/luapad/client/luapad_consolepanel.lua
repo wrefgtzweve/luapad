@@ -66,17 +66,16 @@ function PANEL:Init()
             end
         end
 
-        local code = "return (" .. text .. ")"
         local isClient = self.Realm:GetValue() == "Client"
         local isServer = self.Realm:GetValue() == "Server"
         local isShared = self.Realm:GetValue() == "Shared"
 
         if isClient or isShared then
-            local success, ret = luapad.Execute( LocalPlayer(), code )
+            local success, ret = luapad.Execute( LocalPlayer(), text )
             if success and ret ~= nil then
                 luapad.AddConsoleText( luapad.PrettyPrint( ret ) )
             elseif not success then
-                self:AddConsoleText( "Error: " .. ret, Color( 255, 0, 0 ) )
+                self:AddConsoleText( ret, Color( 255, 222, 102 ) )
             end
 
             if isClient then
@@ -85,7 +84,7 @@ function PANEL:Init()
         end
 
         if isServer or isShared then
-            luapad.RunScriptServer( code )
+            luapad.RunScriptServer( text )
         end
     end
 
