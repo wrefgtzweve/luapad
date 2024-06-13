@@ -21,6 +21,7 @@ local function include_server( path )
     include( path )
 end
 
+include_shared( "luapad/shared/prettyprint.lua" )
 include_shared( "luapad/shared/code_execution.lua" )
 include_shared( "luapad/shared/net.lua" )
 

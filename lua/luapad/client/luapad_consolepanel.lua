@@ -34,6 +34,7 @@ function PANEL:Init()
 
     self.Input = vgui.Create( "DTextEntry", self.Bottombar )
     self.Input:Dock( BOTTOM )
+    self.Input:Dock( FILL )
     self.Input:SetEnterAllowed( false )
     self.Input:SetHistoryEnabled( true )
     self.Input.History = {}
@@ -56,31 +57,26 @@ function PANEL:Init()
             return
         end
 
+        local exists = table.KeyFromValue( self.Input.History, text )
+        if not exists then
+            table.insert( self.Input.History, text )
+
+            if #self.Input.History > 10 then
+                table.remove( self.Input.History, 1 )
+            end
+        end
+
+        local code = "return (" .. text .. ")"
         local isClient = self.Realm:GetValue() == "Client"
         local isServer = self.Realm:GetValue() == "Server"
         local isShared = self.Realm:GetValue() == "Shared"
 
         if isClient or isShared then
-            local success, ret = luapad.Execute( LocalPlayer(), text )
-            if success then
-                if istable( ret ) then
-                    self:AddConsoleTable( ret )
-                elseif isfunction( ret ) then
-                    local info = debug.getinfo( ret )
-                    self:AddConsoleTable( info )
-                elseif ret ~= nil then
-                    self:AddConsoleText( tostring( ret ) )
-                end
-            else
+            local success, ret = luapad.Execute( LocalPlayer(), code )
+            if success and ret ~= nil then
+                luapad.AddConsoleText( luapad.PrettyPrint( ret ) )
+            elseif not success then
                 self:AddConsoleText( "Error: " .. ret, Color( 255, 0, 0 ) )
-            end
-
-            local exists = table.KeyFromValue( self.Input.History, text )
-            if exists then return end
-            table.insert( self.Input.History, text )
-
-            if #self.Input.History > 10 then
-                table.remove( self.Input.History, 1 )
             end
 
             if isClient then
@@ -89,7 +85,7 @@ function PANEL:Init()
         end
 
         if isServer or isShared then
-            luapad.RunScriptServer( text )
+            luapad.RunScriptServer( code )
         end
     end
 
@@ -107,29 +103,6 @@ function PANEL:AddConsoleText( str, color )
     if color then
         self.Display:InsertColorChange( 50, 50, 50, 255 )
     end
-end
-
-function PANEL:AddConsoleTable( tbl, prefix )
-    if not next( tbl ) then
-        self:AddConsoleText( "{}" )
-        return
-    end
-
-    if not prefix then
-        self:AddConsoleText( "{" )
-        prefix = "   "
-    end
-
-    for k, v in pairs( tbl ) do
-        if istable( v ) then
-            self:AddConsoleText( prefix .. tostring( k ) .. " = {" )
-            self:AddConsoleTable( v, prefix .. "    " )
-        else
-            self:AddConsoleText( prefix .. tostring( k ) .. " = " .. tostring( v ) )
-        end
-    end
-
-    self:AddConsoleText( prefix .. "}," )
 end
 
 function PANEL:ClearConsoleText()

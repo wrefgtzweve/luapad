@@ -94,13 +94,6 @@ function luapad.AddConsoleText( str, clr )
     console:AddConsoleText( str, clr )
 end
 
-function luapad.AddConsoleTable( tbl, prefix )
-    local console = getConsole()
-    if not console then return end
-
-    console:AddConsoleTable( tbl, prefix )
-end
-
 net.Receive( "luapad_prints_cl", function()
     local ply = net.ReadPlayer()
     local str = luapad.ReadCompressed()
