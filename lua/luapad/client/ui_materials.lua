@@ -1,5 +1,6 @@
 local ICON_SIZE = 64
 local icons = {}
+luapad.Icons = icons
 
 local function createIcon( name, drawFunc )
     local rt = GetRenderTarget( name .. "RT", ICON_SIZE, ICON_SIZE, RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_SEPARATE, 2, 0, IMAGE_FORMAT_BGRA8888 )
@@ -18,16 +19,16 @@ local function createIcon( name, drawFunc )
     icons[name] = iconMaterial
 end
 
-hook.Add( "HUDPaint", "DrawIconsTest", function()
-    local count = 0
-    for _, iconMaterial in pairs( icons ) do
-        surface.SetDrawColor( 255, 255, 255, 255 )
-        surface.SetMaterial( iconMaterial )
-        surface.DrawTexturedRect( 0 + count * ICON_SIZE * 1.5,  0, ICON_SIZE, ICON_SIZE )
-        draw.SimpleTextOutlined( iconMaterial:GetName(), "DermaDefault", 0 + count * ICON_SIZE * 1.5, ICON_SIZE, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0 ) )
-        count = count + 1
-    end
-end )
+-- hook.Add( "HUDPaint", "DrawIconsTest", function()
+--     local count = 0
+--     for _, iconMaterial in pairs( icons ) do
+--         surface.SetDrawColor( 255, 255, 255, 255 )
+--         surface.SetMaterial( iconMaterial )
+--         surface.DrawTexturedRect( 0 + count * ICON_SIZE * 1.5,  0, ICON_SIZE, ICON_SIZE )
+--         draw.SimpleTextOutlined( iconMaterial:GetName(), "DermaDefault", 0 + count * ICON_SIZE * 1.5, ICON_SIZE, Color( 255, 255, 255 ), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0 ) )
+--         count = count + 1
+--     end
+-- end )
 
 local function drawRealmSquare( color )
     draw.RoundedBox( ICON_SIZE * 0.3, 0, 0, ICON_SIZE, ICON_SIZE, color )
