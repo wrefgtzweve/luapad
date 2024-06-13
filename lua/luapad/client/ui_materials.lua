@@ -14,6 +14,7 @@ local function createIcon( name, drawFunc )
 
     local iconMaterial = CreateMaterial( name, "UnlitGeneric", {
         ["$basetexture"] = rt:GetName(),
+        ["$translucent"] = "1"
     } )
 
     icons[name] = iconMaterial
