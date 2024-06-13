@@ -88,7 +88,7 @@ function PANEL:Init()
             end
         end
 
-        if isServer then
+        if isServer or isShared then
             luapad.RunScriptServer( text )
         end
     end
