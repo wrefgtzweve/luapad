@@ -881,11 +881,11 @@ function PANEL:_OnKeyCodeTyped( code )
                 self.Start = self:CopyPosition( self.Caret )
             end
         elseif code == KEY_T then
-            luapad.RunScriptServer( luapad.getObjectDefines() .. luapad.getCurrentScript() )
+            luapad.RunScriptServer( luapad.getCurrentScript() )
         elseif code == KEY_G then
             luapad.RunScriptClient()
         elseif code == KEY_B then
-            luapad.RunScriptServer( luapad.getObjectDefines() .. luapad.getCurrentScript() )
+            luapad.RunScriptServer( luapad.getCurrentScript() )
             luapad.RunScriptClient()
         end
     else

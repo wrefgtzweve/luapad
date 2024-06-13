@@ -13,17 +13,18 @@ net.Receive( "luapad_runserver", function( _, ply )
     if not code then return end
 
     hook.Run( "LuapadRanSV", ply, code )
-    local success, err = luapad.Execute( ply, code )
+    local success, ret = luapad.Execute( ply, code )
     if not success then
         net.Start( "luapad_runserver" )
         net.WriteBool( false )
-        luapad.WriteCompressed( err )
+        luapad.WriteCompressed( ret )
         net.Send( ply )
         return
     end
 
     net.Start( "luapad_runserver" )
     net.WriteBool( true )
+    luapad.WriteCompressed( luapad.PrettyPrint( ret ) )
     net.Send( ply )
 end )
 

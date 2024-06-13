@@ -14,22 +14,18 @@ function luapad.CheckGlobal( func )
     return false
 end
 
-function luapad.getObjectDefines()
-    return "local me = player.GetByID(" .. LocalPlayer():EntIndex() .. ") local this = me:GetEyeTrace().Entity "
-end
-
 function luapad.getCurrentScript()
     return luapad.PropertySheet:GetActiveTab():GetPanel():GetValue() or ""
 end
 
 function luapad.RunScriptClient()
     if not luapad.CanUseCL( LocalPlayer() ) then return end
-    local success, err = luapad.Execute( LocalPlayer(), luapad.getCurrentScript() )
+    local success, ret = luapad.Execute( LocalPlayer(), luapad.getCurrentScript() )
     if success then
         luapad.AddConsoleText( "Code ran sucessfully!", Color( 72, 205, 72, 255 ) )
-    else
-        luapad.AddConsoleText( err, luapad.Colors.clientConsole )
     end
+
+    luapad.AddConsoleText( luapad.PrettyPrint( ret ), luapad.Colors.clientConsole )
 end
 
 net.Receive( "luapad_runclient", function()
@@ -53,7 +49,6 @@ net.Receive( "luapad_runserver", function()
     local success = net.ReadBool()
     if success then
         luapad.AddConsoleText( "Code executed on server succesfully.", Color( 92, 205, 92, 255 ) )
-        return
     end
 
     luapad.AddConsoleText( luapad.ReadCompressed(), luapad.Colors.serverConsole )
@@ -63,7 +58,7 @@ function luapad.RunScriptServerClient()
     if not luapad.CanUseSV() then return end
 
     net.Start( "luapad_runclient" )
-    luapad.WriteCompressed( luapad.getObjectDefines() .. luapad.getCurrentScript() )
+    luapad.WriteCompressed( luapad.getCurrentScript() )
     net.WriteBool( false )
     net.SendToServer()
 end
@@ -72,7 +67,7 @@ function luapad.RunScriptOnClient( ply )
     if not luapad.CanUseSV() then return end
 
     net.Start( "luapad_runclient" )
-    luapad.WriteCompressed( luapad.getObjectDefines() .. luapad.getCurrentScript() )
+    luapad.WriteCompressed( luapad.getCurrentScript() )
     net.WriteBool( true )
     net.WritePlayer( ply )
     net.SendToServer()

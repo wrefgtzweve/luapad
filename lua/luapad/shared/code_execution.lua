@@ -82,9 +82,13 @@ local function gettraceback( err )
     return trace
 end
 
-function luapad.Execute( owner, str )
+function luapad.Execute( owner, code )
     local src = "Luapad[" .. owner:SteamID() .. "]" .. owner:Nick() .. ".lua"
-    local func = CompileString( str, src, false )
+    local func = CompileString( "return " .. code, src, false )
+    if not isfunction( func ) then
+        func = CompileString( code, src, false )
+    end
+
     if isstring( func ) then
         return false, func
     end
