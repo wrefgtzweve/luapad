@@ -36,15 +36,15 @@ local function drawRealmSquare( color )
 end
 
 createIcon( "luapadClient", function()
-    drawRealmSquare( Color( 222, 169, 9 ) )
+    drawRealmSquare( luapad.Colors.clientWiki )
 end )
 
 createIcon( "luapadServer", function()
-    drawRealmSquare( Color( 3, 169, 244 ) )
+    drawRealmSquare( luapad.Colors.serverWiki )
 end )
 
 createIcon( "luapadShared", function()
-    drawRealmSquare( Color( 222, 169, 9 ) )
+    drawRealmSquare( luapad.Colors.clientWiki )
 
     render.SetStencilEnable( true )
 
@@ -63,13 +63,13 @@ createIcon( "luapadShared", function()
     render.SetStencilFailOperation( STENCILOPERATION_KEEP )
     render.SetStencilCompareFunction( STENCILCOMPARISONFUNCTION_EQUAL )
 
-    drawRealmSquare( Color( 3, 169, 244 ) )
+    drawRealmSquare( luapad.Colors.serverWiki )
 
     render.SetStencilEnable( false )
 end )
 
 createIcon( "luapadRunClient", function()
-    drawRealmSquare( Color( 222, 169, 9 ) )
+    drawRealmSquare( luapad.Colors.clientWiki )
 
     draw.NoTexture()
     surface.SetDrawColor( 255, 255, 255, 255 )
@@ -78,7 +78,7 @@ createIcon( "luapadRunClient", function()
 end )
 
 createIcon( "luapadRunServer", function()
-    drawRealmSquare( Color( 3, 169, 244 ) )
+    drawRealmSquare( luapad.Colors.serverWiki )
 
     draw.NoTexture()
     surface.SetDrawColor( 255, 255, 255, 255 )
@@ -87,7 +87,7 @@ createIcon( "luapadRunServer", function()
 end )
 
 createIcon( "luapadClientAll", function()
-    drawRealmSquare( Color( 222, 169, 9 ) )
+    drawRealmSquare( luapad.Colors.clientWiki )
 
     draw.NoTexture()
     surface.SetDrawColor( 255, 255, 255, 255 )
@@ -96,7 +96,7 @@ createIcon( "luapadClientAll", function()
 end )
 
 createIcon( "luapadClientSpecific", function()
-    drawRealmSquare( Color( 222, 169, 9 ) )
+    drawRealmSquare( luapad.Colors.clientWiki )
 
     draw.NoTexture()
     surface.SetDrawColor( 255, 255, 255, 255 )

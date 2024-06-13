@@ -9,7 +9,7 @@ local Msg = Msg
 function runEnv.__send( str )
     if CLIENT then
         if LocalPlayer() == runEnv.__codeOwner then
-            luapad.AddConsoleText( str, Color( 255, 222, 102 ) )
+            luapad.AddConsoleText( str, luapad.Colors.clientConsole )
         else
             net.Start( "luapad_prints_cl" )
             net.WritePlayer( runEnv.__codeOwner )

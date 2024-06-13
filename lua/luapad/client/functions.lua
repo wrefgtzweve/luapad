@@ -28,7 +28,7 @@ function luapad.RunScriptClient()
     if success then
         luapad.AddConsoleText( "Code ran sucessfully!", Color( 72, 205, 72, 255 ) )
     else
-        luapad.AddConsoleText( err, Color( 255, 222, 102 ) )
+        luapad.AddConsoleText( err, luapad.Colors.clientConsole )
     end
 end
 
@@ -37,7 +37,7 @@ net.Receive( "luapad_runclient", function()
     local script = luapad.ReadCompressed()
     local success, err = luapad.Execute( runner, script )
     if not success then
-        MsgC( Color( 255, 222, 102 ), err .. "\n" )
+        MsgC( luapad.Colors.clientConsole, err .. "\n" )
     end
 end )
 
@@ -56,7 +56,7 @@ net.Receive( "luapad_runserver", function()
         return
     end
 
-    luapad.AddConsoleText( luapad.ReadCompressed(), Color( 137, 222, 255 ) )
+    luapad.AddConsoleText( luapad.ReadCompressed(), luapad.Colors.serverConsole )
 end )
 
 function luapad.RunScriptServerClient()
@@ -95,10 +95,10 @@ net.Receive( "luapad_prints_cl", function()
     local ply = net.ReadPlayer()
     local str = luapad.ReadCompressed()
     str = "[" .. ply:SteamID() .. "]" .. ply:Nick() .. ": " .. str
-    luapad.AddConsoleText( str, Color( 255, 222, 102 ) )
+    luapad.AddConsoleText( str, luapad.Colors.clientConsole )
 end )
 
 net.Receive( "luapad_prints_sv", function()
     local str = luapad.ReadCompressed()
-    luapad.AddConsoleText( str, Color( 137, 222, 255 ) )
+    luapad.AddConsoleText( str, luapad.Colors.serverConsole )
 end )

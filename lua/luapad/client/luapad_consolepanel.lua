@@ -75,7 +75,7 @@ function PANEL:Init()
             if success and ret ~= nil then
                 luapad.AddConsoleText( luapad.PrettyPrint( ret ) )
             elseif not success then
-                self:AddConsoleText( ret, Color( 255, 222, 102 ) )
+                self:AddConsoleText( ret, luapad.Colors.clientConsole )
             end
 
             if isClient then
