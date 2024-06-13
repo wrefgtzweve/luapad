@@ -42,11 +42,11 @@ net.Receive( "luapad_runclient", function()
     end
 end )
 
-function luapad.RunScriptServer()
+function luapad.RunScriptServer( code )
     if not luapad.CanUseSV() then return end
 
     net.Start( "luapad_runserver" )
-    luapad.WriteCompressed( luapad.getObjectDefines() .. luapad.getCurrentScript() )
+    luapad.WriteCompressed( code )
     net.SendToServer()
 end
 

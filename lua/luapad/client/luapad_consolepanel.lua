@@ -18,9 +18,21 @@ end
 
 function PANEL:Init()
     self.Display = vgui.Create( "RichText", self )
-    self.Input = vgui.Create( "DTextEntry", self )
-
     self.Display:Dock( FILL )
+
+    self.Bottombar = vgui.Create( "DPanel", self )
+    self.Bottombar:Dock( BOTTOM )
+
+    self.Realm = vgui.Create( "DComboBox", self.Bottombar )
+    self.Realm:Dock( RIGHT )
+    self.Realm:AddChoice( "Client", nil, false, "!luapadClient" )
+    if luapad.CanUseSV() then
+        self.Realm:AddChoice( "Server", nil, false, "!luapadServer" )
+        self.Realm:AddChoice( "Shared", nil, false, "!luapadShared" )
+    end
+    self.Realm:SetValue( "Client" )
+
+    self.Input = vgui.Create( "DTextEntry", self.Bottombar )
     self.Input:Dock( BOTTOM )
     self.Input:SetEnterAllowed( false )
     self.Input:SetHistoryEnabled( true )
@@ -44,26 +56,40 @@ function PANEL:Init()
             return
         end
 
-        local success, ret = luapad.Execute( LocalPlayer(), text )
-        if success then
-            if istable( ret ) then
-                self:AddConsoleTable( ret )
-            elseif isfunction( ret ) then
-                local info = debug.getinfo( ret )
-                self:AddConsoleTable( info )
-            elseif ret ~= nil then
-                self:AddConsoleText( tostring( ret ) )
+        local isClient = self.Realm:GetValue() == "Client"
+        local isServer = self.Realm:GetValue() == "Server"
+        local isShared = self.Realm:GetValue() == "Shared"
+
+        if isClient or isShared then
+            local success, ret = luapad.Execute( LocalPlayer(), text )
+            if success then
+                if istable( ret ) then
+                    self:AddConsoleTable( ret )
+                elseif isfunction( ret ) then
+                    local info = debug.getinfo( ret )
+                    self:AddConsoleTable( info )
+                elseif ret ~= nil then
+                    self:AddConsoleText( tostring( ret ) )
+                end
+            else
+                self:AddConsoleText( "Error: " .. ret, Color( 255, 0, 0 ) )
             end
-        else
-            self:AddConsoleText( "Error: " .. ret, Color( 255, 0, 0 ) )
+
+            local exists = table.KeyFromValue( self.Input.History, text )
+            if exists then return end
+            table.insert( self.Input.History, text )
+
+            if #self.Input.History > 10 then
+                table.remove( self.Input.History, 1 )
+            end
+
+            if isClient then
+                return
+            end
         end
 
-        local exists = table.KeyFromValue( self.Input.History, text )
-        if exists then return end
-        table.insert( self.Input.History, text )
-
-        if #self.Input.History > 10 then
-            table.remove( self.Input.History, 1 )
+        if isServer then
+            luapad.RunScriptServer( text )
         end
     end
 
