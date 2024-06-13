@@ -66,12 +66,18 @@ function PANEL:Init()
             end
         end
 
+        local code = text
+        local canCompile = CompileString( "return " .. code, "Luapad[" .. LocalPlayer():SteamID() .. "]" .. LocalPlayer():Nick() .. ".lua" )
+        if isfunction( canCompile ) then
+            code = "return " .. code
+        end
+
         local isClient = self.Realm:GetValue() == "Client"
         local isServer = self.Realm:GetValue() == "Server"
         local isShared = self.Realm:GetValue() == "Shared"
 
         if isClient or isShared then
-            local success, ret = luapad.Execute( LocalPlayer(), text )
+            local success, ret = luapad.Execute( LocalPlayer(), code )
             if success and ret ~= nil then
                 luapad.AddConsoleText( luapad.PrettyPrint( ret ) )
             elseif not success then
@@ -84,7 +90,7 @@ function PANEL:Init()
         end
 
         if isServer or isShared then
-            luapad.RunScriptServer( text )
+            luapad.RunScriptServer( code )
         end
     end
 
