@@ -124,28 +124,28 @@ local function setupToolbar()
 
     local isSVUser = luapad.CanUseSV()
 
-    addToolbarItem( "Run Clientside", "icon16/script_code.png", function()
+    addToolbarItem( "Run Clientside", "!luapadRunClient", function()
         luapad.SaveTabs()
         luapad.RunScriptClient()
     end )
     if isSVUser then
-        addToolbarItem( "Run Serverside", "icon16/script_code_red.png", function()
+        addToolbarItem( "Run Serverside", "!luapadRunServer", function()
             luapad.SaveTabs()
             luapad.RunScriptServer()
         end )
 
         addToolbarSpacer()
 
-        addToolbarItem( "Run Shared", "icon16/script_lightning.png", function()
+        addToolbarItem( "Run Shared", "!luapadShared", function()
             luapad.SaveTabs()
             luapad.RunScriptClient()
             luapad.RunScriptServer()
         end )
-        addToolbarItem( "Run on all clients", "icon16/script_palette.png", function()
+        addToolbarItem( "Run on all clients", "!luapadClientAll", function()
             luapad.SaveTabs()
             luapad.RunScriptServerClient()
         end )
-        addToolbarItem( "Run on specfic client", "icon16/script_go.png", function()
+        addToolbarItem( "Run on specific client", "!luapadClientSpecific", function()
             luapad.SaveTabs()
             local menu = DermaMenu()
             for _, v in pairs( player.GetAll() ) do
@@ -213,7 +213,7 @@ function luapad.Toggle()
     hdiv:SetBottom( console )
     hdiv:SetTopMin( 300 )
     hdiv:SetBottomMin( 100 )
-    hdiv:SetTopHeight( luapad.Frame:GetTall() - 100 )
+    hdiv:SetTopHeight( luapad.Frame:GetTall() - 150 )
 
     luapad.PropertySheet:InvalidateLayout()
 
