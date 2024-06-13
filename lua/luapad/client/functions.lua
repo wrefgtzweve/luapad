@@ -28,8 +28,7 @@ function luapad.RunScriptClient()
     if success then
         luapad.AddConsoleText( "Code ran sucessfully!", Color( 72, 205, 72, 255 ) )
     else
-        luapad.AddConsoleText( "Code execution failed! Check console for more details.", Color( 205, 72, 72, 255 ) )
-        MsgC( Color( 255, 222, 102 ), err .. "\n" )
+        luapad.AddConsoleText( err, Color( 255, 222, 102 ) )
     end
 end
 
