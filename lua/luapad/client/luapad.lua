@@ -38,7 +38,7 @@ local function saveAsScript()
     end, nil, "Save", "Cancel" )
 end
 
-local function saveScript()
+function luapad.SaveCurrentScript()
     local contents = luapad.getCurrentScript()
     contents = string.gsub( contents, "   	", "\t" )
     local path = string.gsub( luapad.PropertySheet:GetActiveTab():GetPanel().path, "data/luapad", "", 1 )
@@ -117,7 +117,7 @@ local function setupToolbar()
 
     addToolbarItem( "New (CTRL + N)", "icon16/page_white_add.png", luapad.NewTab )
     addToolbarItem( "Open (CTRL + O)", "icon16/folder_page_white.png", luapad.OpenScript )
-    addToolbarItem( "Save (CTRL + S)", "icon16/disk.png", saveScript )
+    addToolbarItem( "Save (CTRL + S)", "icon16/disk.png", SaveCurrentScript )
     addToolbarItem( "Save As (CTRL + ALT + S)", "icon16/disk_multiple.png", saveAsScript )
 
     addToolbarSpacer()
@@ -252,7 +252,7 @@ function luapad.AddTab( name, content, path )
             luapad.PropertySheet:CloseTab( self, true )
         end ):SetIcon( "icon16/cross.png" )
 
-        menu:AddOption( "Save", saveScript ):SetIcon( "icon16/disk.png" )
+        menu:AddOption( "Save", luapad.SaveCurrentScript ):SetIcon( "icon16/disk.png" )
 
         menu:AddSpacer()
 

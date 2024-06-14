@@ -827,7 +827,7 @@ function PANEL:_OnKeyCodeTyped( code )
         elseif code == KEY_Q then
             self:GetParent():Close()
         elseif code == KEY_S then
-            luapad.SaveScript()
+            luapad.SaveCurrentScript()
         elseif code == KEY_O then
             luapad.OpenScript()
         elseif code == KEY_N then
