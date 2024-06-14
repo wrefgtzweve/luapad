@@ -25,6 +25,24 @@ function PANEL:Init()
 
     self.Realm = vgui.Create( "DComboBox", self.Bottombar )
     self.Realm:Dock( RIGHT )
+    self.Realm:SetWide( 100 )
+
+    self.Realm.Icon = self.Realm:Add( "DImage" )
+    self.Realm.Icon:SetImage( "!luapadClient" )
+    self.Realm.Icon:SetSize( 16, 16 )
+    self.Realm.Icon:SetPos( 4, 4 )
+
+    self.Realm._SetText = self.Realm.SetText
+    function self.Realm:SetText( text )
+        self:_SetText( "      " .. text )
+        self.Icon:SetImage( "!luapad" .. text )
+    end
+
+    self.Realm._GetValue = self.Realm.GetValue
+    function self.Realm:GetValue()
+        return self:_GetValue():sub( 7 )
+    end
+
     self.Realm:AddChoice( "Client", nil, false, "!luapadClient" )
     if luapad.CanUseSV() then
         self.Realm:AddChoice( "Server", nil, false, "!luapadServer" )
