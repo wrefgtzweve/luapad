@@ -45,6 +45,30 @@ function runEnv.Msg( ... )
     runEnv.__send( str )
 end
 
+function runEnv.MsgN( ... )
+    MsgN( ... )
+    local args = { ... }
+    local str = ""
+    for _, arg in ipairs( args ) do
+        str = str .. tostring( arg )
+    end
+    runEnv.__send( str )
+end
+
+function runEnv.MsgC( ... )
+    MsgC( ... )
+    local args = { ... }
+    local str = ""
+    for _, arg in ipairs( args ) do
+        if IsColor( arg ) then
+            str = str .. string.format( "Color( %i, %i, %i, %i ) ", arg.r, arg.g, arg.b, arg.a )
+        else
+            str = str .. tostring( arg )
+        end
+    end
+    runEnv.__send( str )
+end
+
 function runEnv.error( str )
     runEnv.__send( str )
     error( str )
