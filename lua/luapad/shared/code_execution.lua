@@ -74,6 +74,13 @@ function runEnv.error( str )
     error( str )
 end
 
+if SERVER then
+    function runEnv.ServerLog( str )
+        ServerLog( str )
+        runEnv.__send( str )
+    end
+end
+
 setmetatable( runEnv, {
     __index = _G,
 } )
