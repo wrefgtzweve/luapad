@@ -23,6 +23,10 @@ local function prettyTable( tbl, str, prefix )
 end
 
 function luapad.PrettyPrint( obj )
+    if not obj then
+        return ""
+    end
+
     if istable( obj ) then
         return prettyTable( obj )
     end

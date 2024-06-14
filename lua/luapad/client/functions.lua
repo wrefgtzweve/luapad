@@ -25,7 +25,9 @@ function luapad.RunScriptClient()
         luapad.AddConsoleText( "Code ran sucessfully!", Color( 72, 205, 72, 255 ) )
     end
 
-    luapad.AddConsoleText( luapad.PrettyPrint( ret ), luapad.Colors.clientConsole )
+    if ret ~= nil then
+        luapad.AddConsoleText( luapad.PrettyPrint( ret ), luapad.Colors.clientConsole )
+    end
 end
 
 net.Receive( "luapad_runclient", function()
@@ -51,7 +53,10 @@ net.Receive( "luapad_runserver", function()
         luapad.AddConsoleText( "Code executed on server succesfully.", Color( 92, 205, 92, 255 ) )
     end
 
-    luapad.AddConsoleText( luapad.ReadCompressed(), luapad.Colors.serverConsole )
+    local ret = luapad.ReadCompressed()
+    if #ret > 0 then
+        luapad.AddConsoleText( ret, luapad.Colors.serverConsole )
+    end
 end )
 
 function luapad.RunScriptServerClient()
