@@ -6,18 +6,27 @@ end
 local function saveAsScript()
     local name = luapad.PropertySheet:GetActiveTab():GetPanel().name
     Derma_StringRequest( "Luapad", "You are about to save a file, please enter the desired filename.", name, function( filename )
-        local contents = luapad.getCurrentScript()
-        file.Write( "luapad/" .. name, contents )
+        local extension = string.GetExtensionFromFilename( filename )
+        if not extension then
+            filename = filename .. ".txt"
+        end
 
-        if file.Exists( string.gsub( filename, "data/", "", 1 ), "DATA" ) then
+        local contents = luapad.getCurrentScript()
+        local filePath = "luapad/" .. filename
+        file.Write( filePath, contents )
+
+        if file.Exists( filePath, "DATA" ) then
             luapad.AddConsoleText( "File succesfully saved!", Color( 72, 205, 72, 255 ) )
-            luapad.PropertySheet:GetActiveTab():GetPanel().name = string.Explode( "/", filename )[#string.Explode( "/", filename )]
-            luapad.PropertySheet:GetActiveTab():GetPanel().path = string.gsub( filename, luapad.PropertySheet:GetActiveTab():GetPanel().name, "", 1 )
-            luapad.PropertySheet:GetActiveTab():SetText( string.Explode( "/", filename )[#string.Explode( "/", filename )] )
+            luapad.PropertySheet:GetActiveTab():GetPanel().name = filename
+            luapad.PropertySheet:GetActiveTab():SetText( filename )
             luapad.PropertySheet:SetActiveTab( luapad.PropertySheet:GetActiveTab() )
+
+            luapad.PropertySheet:InvalidateChildren()
         else
             luapad.AddConsoleText( "Save failed! (check your filename for illegal characters)", Color( 205, 72, 72, 255 ) )
         end
+
+        luapad.SaveTabs()
     end, nil, "Save", "Cancel" )
 end
 
