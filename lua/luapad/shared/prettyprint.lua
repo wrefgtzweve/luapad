@@ -1,25 +1,50 @@
-local function prettyTable( tbl, str, prefix )
-    str = str or ""
+local MAX_DEPTH = 3
+
+local function getIndent( depth )
+    local str = ""
+    for _ = 1, depth do
+        str = str .. "  "
+    end
+    return str
+end
+
+local function prettyTable( tbl, str, indent, done )
     if not next( tbl ) then
         return "{}"
     end
 
-    if not prefix then
-        str = str .. "{"
-        prefix = "   "
+    if not str then
+        str = "{"
+        indent = 0
+        done = {}
     end
 
+    if tbl == _G then
+        return str .. "\n" .. getIndent( indent ) .. "_G = _G,"
+    end
+
+    if indent >= MAX_DEPTH then
+        return str .. "\n" .. getIndent( indent + 1 ) .. "Recursive " .. tostring( tbl ) .. "," .. "\n" .. getIndent( indent ) .. "},"
+    end
+
+    done[tbl] = true
+
+    indent = indent + 1
     for k, v in pairs( tbl ) do
         if istable( v ) then
-            str = str .. "\n" .. prefix .. tostring( k ) .. " = {"
-            str = str .. prettyTable( v, str, prefix .. "    " )
+            if done[v] then
+                str = str .. "\n" .. getIndent( indent ) .. tostring( k ) .. " = Recursive " .. tostring( v ) .. ","
+            else
+                str = str .. "\n" .. getIndent( indent ) .. tostring( k ) .. " = {"
+                str = prettyTable( v, str, indent, done )
+            end
         else
-            str = str .. "\n" .. prefix .. tostring( k ) .. " = " .. tostring( v ) .. ","
+            str = str .. "\n" .. getIndent( indent ) .. tostring( k ) .. " = " .. tostring( v ) .. ","
         end
     end
+    indent = indent - 1
 
-    str = str .. "\n" .. "},"
-    return str
+    return str .. "\n" .. getIndent( indent ) .. "},"
 end
 
 function luapad.PrettyPrint( obj )
