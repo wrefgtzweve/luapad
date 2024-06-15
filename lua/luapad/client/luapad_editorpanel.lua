@@ -824,8 +824,8 @@ function PANEL:_OnKeyCodeTyped( code )
                 self.clipboard = string.Replace( self.clipboard, "\n", "\r\n" )
                 SetClipboardText( self.clipboard )
             end
-        elseif code == KEY_Q then
-            self:GetParent():Close()
+        elseif code == KEY_W then
+            luapad.PropertySheet:CloseTab( self.dtab, true )
         elseif code == KEY_S then
             luapad.SaveCurrentScript()
         elseif code == KEY_O then

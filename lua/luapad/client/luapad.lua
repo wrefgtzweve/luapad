@@ -229,6 +229,7 @@ function luapad.AddTab( name, content, path )
 
     local sheet = luapad.PropertySheet:AddSheet( name, editor, "icon16/page_white.png", false, false )
     local dtab = sheet.Tab
+    editor.dtab = dtab
 
     function dtab:DoRightClick()
         local menu = DermaMenu()
