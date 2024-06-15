@@ -4,27 +4,10 @@ if IsValid( luapad.Frame ) then
 end
 
 local function saveAsScript()
-    Derma_StringRequest( "Luapad", "You are about to save a file, please enter the desired filename.", luapad.PropertySheet:GetActiveTab():GetPanel().path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, function( filename )
+    local name = luapad.PropertySheet:GetActiveTab():GetPanel().name
+    Derma_StringRequest( "Luapad", "You are about to save a file, please enter the desired filename.", name, function( filename )
         local contents = luapad.getCurrentScript()
-
-        --I really do hate how '.' is a wildcard...
-        if string.find( filename, "../" ) == 1 then
-            filename = string.gsub( filename, "../", "", 1 )
-        end
-
-        local dirs = string.Explode( "/", string.gsub( filename, "data/", "", 1 ) )
-        local d = ""
-
-        for k, v in ipairs( dirs ) do
-            if k == #dirs then break end --don't make a directory for the filename
-            d = d .. v .. "/"
-
-            if not file.IsDir( d, "DATA" ) then
-                file.CreateDir( d )
-            end
-        end
-
-        file.Write( string.gsub( filename, "data/", "", 1 ), contents )
+        file.Write( "luapad/" .. name, contents )
 
         if file.Exists( string.gsub( filename, "data/", "", 1 ), "DATA" ) then
             luapad.AddConsoleText( "File succesfully saved!", Color( 72, 205, 72, 255 ) )
@@ -41,15 +24,14 @@ end
 function luapad.SaveCurrentScript()
     local contents = luapad.getCurrentScript()
     contents = string.gsub( contents, "   	", "\t" )
-    local path = string.gsub( luapad.PropertySheet:GetActiveTab():GetPanel().path, "data/luapad", "", 1 )
-    Msg( "data/luapad" .. path .. luapad.PropertySheet:GetActiveTab():GetPanel().name )
 
-    if not file.Exists( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, "DATA" ) then
+    local path = "luapad/" .. luapad.PropertySheet:GetActiveTab():GetPanel().name
+    if not file.Exists( path, "DATA" ) then
         saveAsScript()
     else
-        file.Write( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, contents )
+        file.Write( path, contents )
 
-        if file.Exists( path .. luapad.PropertySheet:GetActiveTab():GetPanel().name, "DATA" ) then
+        if file.Time( path, "DATA" ) == os.time() then
             luapad.AddConsoleText( "File succesfully saved!", Color( 72, 205, 72, 255 ) )
         else
             luapad.AddConsoleText( "Save failed! (check your filename for illegal characters)", Color( 205, 72, 72, 255 ) )
