@@ -91,7 +91,7 @@ function PANEL:Init()
         if isClient or isShared then
             local success, ret = luapad.Execute( LocalPlayer(), text )
             if success and ret ~= nil then
-                luapad.AddConsoleText( luapad.PrettyPrint( ret ) )
+                luapad.AddConsoleText( luapad.PrettyPrint( ret ), luapad.Colors.clientConsole )
             elseif not success then
                 self:AddConsoleText( ret, luapad.Colors.clientConsole )
             end
