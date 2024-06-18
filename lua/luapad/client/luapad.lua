@@ -139,7 +139,14 @@ local function setupToolbar()
         addToolbarItem( "Run on specific client", "!luapadClientSpecific", function()
             luapad.SaveTabs()
             local menu = DermaMenu()
-            for _, v in pairs( player.GetAll() ) do
+
+            -- sort players by name
+            local players = player.GetAll()
+            table.sort( players, function( a, b )
+                return string.lower( a:Nick() ) < string.lower( b:Nick() )
+            end )
+
+            for _, v in pairs( players ) do
                 if v == LocalPlayer() then continue end
                 menu:AddOption( v:Nick(), function()
                     luapad.RunScriptOnClient( v )
