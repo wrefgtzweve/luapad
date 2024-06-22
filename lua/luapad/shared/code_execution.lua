@@ -7,6 +7,8 @@ local error = error
 local Msg = Msg
 
 function runEnv.__send( str )
+    if not IsValid( runEnv.__codeOwner ) then return end
+
     if CLIENT then
         if LocalPlayer() == runEnv.__codeOwner then
             luapad.AddConsoleText( str, luapad.Colors.clientConsole )
