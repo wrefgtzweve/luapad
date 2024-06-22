@@ -74,6 +74,11 @@ function runEnv.error( str )
     error( str )
 end
 
+function runEnv.PrintTable( tbl )
+    PrintTable( tbl )
+    runEnv.__send( luapad.PrettyPrint( tbl ) )
+end
+
 if SERVER then
     function runEnv.ServerLog( str )
         ServerLog( str )
