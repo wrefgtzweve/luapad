@@ -29,19 +29,22 @@ end
 
 function runEnv.print( ... )
     print( ... )
-    local args = { ... }
     local str = ""
-    for _, arg in ipairs( args ) do
+    for i = 1, select( "#", ... ) do
+        local arg = select( i, ... )
         str = str .. tostring( arg ) .. "\t"
     end
+
+    str = str:sub( 1, -2 )
+
     runEnv.__send( str )
 end
 
 function runEnv.Msg( ... )
     Msg( ... )
-    local args = { ... }
     local str = ""
-    for _, arg in ipairs( args ) do
+    for i = 1, select( "#", ... ) do
+        local arg = select( i, ... )
         str = str .. tostring( arg )
     end
     runEnv.__send( str )
@@ -49,9 +52,9 @@ end
 
 function runEnv.MsgN( ... )
     MsgN( ... )
-    local args = { ... }
     local str = ""
-    for _, arg in ipairs( args ) do
+    for i = 1, select( "#", ... ) do
+        local arg = select( i, ... )
         str = str .. tostring( arg )
     end
     runEnv.__send( str )
@@ -59,9 +62,9 @@ end
 
 function runEnv.MsgC( ... )
     MsgC( ... )
-    local args = { ... }
     local str = ""
-    for _, arg in ipairs( args ) do
+    for i = 1, select( "#", ... ) do
+        local arg = select( i, ... )
         if IsColor( arg ) then
             str = str .. string.format( "Color( %i, %i, %i, %i ) ", arg.r, arg.g, arg.b, arg.a )
         else
