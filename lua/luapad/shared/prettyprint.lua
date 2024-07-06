@@ -24,7 +24,7 @@ local function prettyTable( tbl, str, indent, done )
     end
 
     if indent >= MAX_DEPTH then
-        return str .. "\n" .. getIndent( indent + 1 ) .. "Recursive " .. tostring( tbl ) .. "," .. "\n" .. getIndent( indent ) .. "},"
+        return str .. "\n" .. getIndent( indent + 1 ) .. "Max table depth " .. tostring( tbl ) .. "," .. "\n" .. getIndent( indent ) .. "},"
     end
 
     done[tbl] = true
