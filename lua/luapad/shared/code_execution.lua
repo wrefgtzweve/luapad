@@ -101,6 +101,7 @@ local function setEnv( ply, func )
     runEnv.this = ply:GetEyeTrace().Entity
     runEnv.there = ply:GetEyeTrace().HitPos
     runEnv.here = ply:GetPos()
+    runEnv.randombot = player.GetBots()[1]
 
     setfenv( func, runEnv )
     return func
