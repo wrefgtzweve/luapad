@@ -83,6 +83,7 @@ local draw_SimpleText = draw.SimpleText
 local PANEL = {}
 function PANEL:Init()
     self:SetCursor( "beam" )
+    surface.SetFont( "LuapadEditor" )
     self.FontWidth, self.FontHeight = surface.GetTextSize( " " )
 
     self.Rows = { "" }
