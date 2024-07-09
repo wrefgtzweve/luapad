@@ -25,6 +25,12 @@ cvars.AddChangeCallback( "luapad_font_weight", setupFonts, "LuapadEditor" )
 setupFonts()
 
 local lineNumbersColor = Color( 128, 128, 128, 255 )
+local lineCountBarColor = Color( 215, 215, 215, 255 )
+local backgroundColor = Color( 250, 250, 250, 255 )
+local currentLineColor = Color( 220, 220, 220, 255 )
+local selectionColor = Color( 170, 170, 170, 255 )
+local caretColor = Color( 72, 61, 139, 255 )
+
 local colors = {
     ["none"] = { Color( 0, 0, 0, 255 ), false },
     ["number"] = { Color( 218, 165, 32, 255 ), false },
@@ -403,7 +409,7 @@ function PANEL:PaintLine( row )
     local width, height = self.FontWidth, self.FontHeight
 
     if row == self.Caret[1] and self.TextEntry:HasFocus() then
-        surface.SetDrawColor( 220, 220, 220, 255 )
+        surface.SetDrawColor( currentLineColor )
         surface.DrawRect( width * 3 + 5, ( row - self.Scroll[1] ) * height, self:GetWide() - ( width * 3 + 5 ), height )
     end
 
@@ -411,7 +417,7 @@ function PANEL:PaintLine( row )
         local start, stop = self:MakeSelection( self:Selection() )
         local line, char = start[1], start[2]
         local endline, endchar = stop[1], stop[2]
-        surface.SetDrawColor( 170, 170, 170, 255 )
+        surface.SetDrawColor( selectionColor )
         local length = #self.Rows[row] - self.Scroll[2] + 1
         char = char - self.Scroll[2]
         endchar = endchar - self.Scroll[2]
@@ -464,7 +470,7 @@ function PANEL:PaintLine( row )
     end
 
     if row == self.Caret[1] and self.TextEntry:HasFocus() and ( RealTime() - self.Blink ) % 0.8 < 0.4 and self.Caret[2] - self.Scroll[2] >= 0 then
-        surface.SetDrawColor( 72, 61, 139, 255 )
+        surface.SetDrawColor( caretColor )
         surface.DrawRect( ( self.Caret[2] - self.Scroll[2] ) * width + width * 3 + 6, ( self.Caret[1] - self.Scroll[1] ) * height, 1, height )
     end
 end
@@ -490,9 +496,9 @@ function PANEL:Paint()
         self.Caret = self:CursorToCaret()
     end
 
-    surface.SetDrawColor( 215, 215, 215, 255 )
+    surface.SetDrawColor( lineCountBarColor )
     surface.DrawRect( 0, 0, self.FontWidth * 3 + 4, self:GetTall() )
-    surface.SetDrawColor( 250, 250, 250, 255 )
+    surface.SetDrawColor( backgroundColor )
     surface.DrawRect( self.FontWidth * 3 + 5, 0, self:GetWide() - ( self.FontWidth * 3 + 5 ), self:GetTall() )
     self.Scroll[1] = math.floor( self.ScrollBar:GetScroll() + 1 )
 
