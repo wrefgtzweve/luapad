@@ -1,25 +1,41 @@
-local PANEL = {}
+local fontSizeCvar = CreateClientConVar( "luapad_font_size", 16, true, false, "The font size of the Luapad editor." )
+local fontNameCvar = CreateClientConVar( "luapad_font_name", "Courier New", true, false, "The font name of the Luapad editor." )
+local fontWeightCvar = CreateClientConVar( "luapad_font_weight", 400, true, false, "The weight of the luapad editor font." )
 
---Create fonts
-surface.CreateFont( "LuapadEditor", {
-    font = "Courier New",
-    size = 16,
-    weight = 400
-} )
+local function setupFonts()
+    local fontName = fontNameCvar:GetString()
+    local fontSize = fontSizeCvar:GetInt()
+    local fontWeight = fontWeightCvar:GetInt()
+    surface.CreateFont( "LuapadEditor", {
+        font = fontName,
+        size = fontSize,
+        weight = fontWeight
+    } )
 
-surface.CreateFont( "LuapadEditor_Bold", {
-    font = "Courier New",
-    size = 16,
-    weight = 800
-} )
+    surface.CreateFont( "LuapadEditor_Bold", {
+        font = fontName,
+        size = fontSize,
+        weight = fontWeight * 2
+    } )
+end
+
+cvars.AddChangeCallback( "luapad_font_size", setupFonts, "LuapadEditor" )
+cvars.AddChangeCallback( "luapad_font_name", setupFonts, "LuapadEditor" )
+cvars.AddChangeCallback( "luapad_font_weight", setupFonts, "LuapadEditor" )
+setupFonts()
 
 local lineNumbersColor = Color( 128, 128, 128, 255 )
-
-local string_sub = string.sub
-local table_insert = table.insert
-local input_IsKeyDown = input.IsKeyDown
-local draw_SimpleText = draw.SimpleText
-
+local colors = {
+    ["none"] = { Color( 0, 0, 0, 255 ), false },
+    ["number"] = { Color( 218, 165, 32, 255 ), false },
+    ["function"] = { Color( 100, 100, 255, 255 ), false },
+    ["enumeration"] = { Color( 184, 134, 11, 255 ), false },
+    ["metatable"] = { Color( 140, 100, 90, 255 ), false },
+    ["string"] = { Color( 120, 120, 120, 255 ), false },
+    ["keyword"] = { Color( 0, 0, 255, 255 ), false },
+    ["operator"] = { Color( 0, 0, 128, 255 ), false },
+    ["comment"] = { Color( 0, 120, 0, 255 ), false },
+}
 
 local keywordTable = {
     ["if"] = true,
@@ -53,9 +69,14 @@ local keywordTable = {
     ["~="] = true
 }
 
+local string_sub = string.sub
+local table_insert = table.insert
+local input_IsKeyDown = input.IsKeyDown
+local draw_SimpleText = draw.SimpleText
+
+local PANEL = {}
 function PANEL:Init()
     self:SetCursor( "beam" )
-    surface.SetFont( "LuapadEditor" )
     self.FontWidth, self.FontHeight = surface.GetTextSize( " " )
 
     self.Rows = { "" }
@@ -75,6 +96,7 @@ function PANEL:Init()
     self.ScrollBar = vgui.Create( "DVScrollBar", self )
     self.ScrollBar:SetUp( 1, 1 )
     self.TextEntry = vgui.Create( "TextEntry", self )
+    self.TextEntry:SetFontInternal( "LuapadEditor" )
     self.TextEntry:SetMultiline( true )
     self.TextEntry:SetAllowNonAsciiCharacters( true )
     self.TextEntry:SetSize( 0, 0 )
@@ -259,18 +281,6 @@ function PANEL:NextChar()
         self.char = nil
     end
 end
-
-local colors = {
-    ["none"] = { Color( 0, 0, 0, 255 ), false },
-    ["number"] = { Color( 218, 165, 32, 255 ), false },
-    ["function"] = { Color( 100, 100, 255, 255 ), false },
-    ["enumeration"] = { Color( 184, 134, 11, 255 ), false },
-    ["metatable"] = { Color( 140, 100, 90, 255 ), false },
-    ["string"] = { Color( 120, 120, 120, 255 ), false },
-    ["keyword"] = { Color( 0, 0, 255, 255 ), false },
-    ["operator"] = { Color( 0, 0, 128, 255 ), false },
-    ["comment"] = { Color( 0, 120, 0, 255 ), false },
-}
 
 function PANEL:SyntaxColorLine( row )
     local cols = {}

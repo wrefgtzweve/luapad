@@ -110,6 +110,9 @@ local function setupToolbar()
     addToolbarItem( "Open (CTRL + O)", "icon16/folder_page_white.png", luapad.OpenScript )
     addToolbarItem( "Save (CTRL + S)", "icon16/disk.png", SaveCurrentScript )
     addToolbarItem( "Save As (CTRL + ALT + S)", "icon16/disk_multiple.png", saveAsScript )
+    addToolbarItem( "Settings", "icon16/cog.png", function()
+        luapad.ToggleSettingsMenu()
+    end )
 
     addToolbarSpacer()
 
