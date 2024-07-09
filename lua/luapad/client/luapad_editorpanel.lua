@@ -1,7 +1,3 @@
--- Andreas "Syranide" Svensson's editor for Wire Expression 2
--- edited by DarKSunrise aka Assassini
--- to work with Luapad and with Lua-syntax
-
 local PANEL = {}
 
 --Create fonts
@@ -24,7 +20,39 @@ local table_insert = table.insert
 local input_IsKeyDown = input.IsKeyDown
 local draw_SimpleText = draw.SimpleText
 
---
+
+local keywordTable = {
+    ["if"] = true,
+    ["elseif"] = true,
+    ["else"] = true,
+    ["then"] = true,
+    ["end"] = true,
+    ["function"] = true,
+    ["do"] = true,
+    ["while"] = true,
+    ["break"] = true,
+    ["for"] = true,
+    ["in"] = true,
+    ["local"] = true,
+    ["true"] = true,
+    ["false"] = true,
+    ["nil"] = true,
+    ["NULL"] = true,
+    ["and"] = true,
+    ["not"] = true,
+    ["or"] = true,
+    ["||"] = true,
+    ["&&"] = true,
+    ["!"] = true,
+    ["!="] = true,
+    ["return"] = true,
+    ["continue"] = true,
+    ["goto"] = true,
+    ["repeat"] = true,
+    ["until"] = true,
+    ["~="] = true
+}
+
 function PANEL:Init()
     self:SetCursor( "beam" )
     surface.SetFont( "LuapadEditor" )
@@ -239,7 +267,7 @@ local colors = {
     ["enumeration"] = { Color( 184, 134, 11, 255 ), false },
     ["metatable"] = { Color( 140, 100, 90, 255 ), false },
     ["string"] = { Color( 120, 120, 120, 255 ), false },
-    ["expression"] = { Color( 0, 0, 255, 255 ), false },
+    ["keyword"] = { Color( 0, 0, 255, 255 ), false },
     ["operator"] = { Color( 0, 0, 128, 255 ), false },
     ["comment"] = { Color( 0, 120, 0, 255 ), false },
 }
@@ -278,8 +306,8 @@ function PANEL:SyntaxColorLine( row )
 
             local sstr = string.Trim( self.str )
 
-            if sstr == "if" or sstr == "elseif" or sstr == "else" or sstr == "then" or sstr == "end" or sstr == "function" or sstr == "do" or sstr == "while" or sstr == "break" or sstr == "for" or sstr == "in" or sstr == "local" or sstr == "true" or sstr == "false" or sstr == "nil" or sstr == "NULL" or sstr == "and" or sstr == "not" or sstr == "or" or sstr == "||" or sstr == "&&" then
-                token = "expression"
+            if keywordTable[sstr] then
+                token = "keyword"
             elseif luapad.CheckGlobal( sstr ) and ( type( luapad.CheckGlobal( sstr ) ) == "function" or luapad.CheckGlobal( sstr ) == "f" or luapad.CheckGlobal( sstr ) == "e" or luapad.CheckGlobal( sstr ) == "m" or type( luapad.CheckGlobal( sstr ) ) == "table" ) or lasttable and lasttable[sstr] then
                 -- Could be better code, but what the hell; it works
                 if type( luapad.CheckGlobal( sstr ) ) == "table" then
