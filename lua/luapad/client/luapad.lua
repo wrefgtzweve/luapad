@@ -110,6 +110,27 @@ local function setupToolbar()
     addToolbarItem( "Open (CTRL + O)", "icon16/folder_page_white.png", luapad.OpenScript )
     addToolbarItem( "Save (CTRL + S)", "icon16/disk.png", SaveCurrentScript )
     addToolbarItem( "Save As (CTRL + ALT + S)", "icon16/disk_multiple.png", saveAsScript )
+    addToolbarItem( "Paste large text without lag", "icon16/paste_plain.png", function()
+        local dframe = vgui.Create( "DFrame" )
+        dframe:SetSize( 200, 100 )
+        dframe:Center()
+        dframe:MakePopup()
+
+        local dhtml = vgui.Create( "DHTML", dframe )
+        dhtml:Dock( FILL )
+        dhtml:SetHTML( [[<textarea id="paste"></textarea>
+            <script>
+                document.getElementById("paste").focus();
+                document.getElementById("paste").oninput = function() {
+                    gmod.paste( document.getElementById("paste").value );
+                };
+            </script>
+        ]] )
+        dhtml:AddFunction( "gmod", "paste", function( text )
+            luapad.NewTab( text )
+            dframe:Remove()
+        end )
+    end )
     addToolbarItem( "Settings", "icon16/cog.png", function()
         luapad.ToggleSettingsMenu()
     end )
