@@ -65,13 +65,13 @@ function luapad.SaveTabs()
         table.insert( store.tabs, { name = name, path = path, content = content } )
     end
 
-    file.Write( "luapad/_tabs.txt", "luapad " .. util.Compress( util.TableToJSON( store ) ) )
+    file.Write( "luapad/_tabs.dat", "luapad " .. util.Compress( util.TableToJSON( store ) ) )
 end
 hook.Add( "ShutDown", "luapad.SaveTabs", luapad.SaveTabs )
 
 local function loadSavedTabs()
-    if not file.Exists( "luapad/_tabs.txt", "DATA" ) then return end
-    local store = util.JSONToTable( util.Decompress( file.Read( "luapad/_tabs.txt", "DATA" ):sub( 8 ) ) )
+    if not file.Exists( "luapad/_tabs.dat", "DATA" ) then return end
+    local store = util.JSONToTable( util.Decompress( file.Read( "luapad/_tabs.dat", "DATA" ):sub( 8 ) ) )
 
     if store then
         for _, v in pairs( store.tabs ) do
@@ -343,14 +343,9 @@ function luapad.OpenScript()
     node1.Icon:SetImage( "icon16/computer.png" )
 
     local node2 = luapad.OpenTree:AddNode( "luapad" )
-    function node2:OnNodeAdded( node )
-        if node:GetText() == "_tabs.txt" then
-            node:Remove()
-        end
-    end
 
     node2.RootFolder = "data/luapad"
-    node2:MakeFolder( "data/luapad", "GAME", true )
+    node2:MakeFolder( "data/luapad", "GAME", true, "*.txt" )
     node2.Icon:SetImage( "icon16/folder_page_white.png" )
 end
 
