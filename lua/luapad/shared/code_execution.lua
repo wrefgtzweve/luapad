@@ -105,12 +105,12 @@ local function createEnv( ply, func )
     installBaseFunctions( ply, env )
     installDefaultVariables( ply, env )
 
+    hook.Run( "LuapadCustomizeEnv", ply, env )
+
     setmetatable( env, {
         __index = _G,
         __newindex = _G
     } )
-
-    hook.Run( "LuapadCustomizeEnv", ply, env )
 
     setfenv( func, env )
 end
