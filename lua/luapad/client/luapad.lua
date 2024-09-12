@@ -70,7 +70,14 @@ end
 hook.Add( "ShutDown", "luapad.SaveTabs", luapad.SaveTabs )
 
 local function loadSavedTabs()
-    if not file.Exists( "luapad/_tabs.dat", "DATA" ) then return end
+    if not file.Exists( "luapad/_tabs.dat", "DATA" ) then
+        if file.Exists( "luapad/_tabs.txt", "DATA" ) then
+            file.Rename( "luapad/_tabs.txt", "luapad/_tabs.dat" )
+        else
+            return
+        end
+    end
+
     local store = util.JSONToTable( util.Decompress( file.Read( "luapad/_tabs.dat", "DATA" ):sub( 8 ) ) )
 
     if store then
