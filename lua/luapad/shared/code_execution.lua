@@ -1,4 +1,4 @@
-local function installBaseFunctions( ply, env )
+local function setEnvFunctions( ply, env )
     env.__send = function( str )
         if CLIENT then
             if LocalPlayer() == ply then
@@ -88,7 +88,7 @@ local function installBaseFunctions( ply, env )
     end
 end
 
-local function installDefaultVariables( ply, env )
+local function setEnvVariables( ply, env )
     local tr = ply:GetEyeTrace()
 
     env.me = ply
@@ -102,8 +102,8 @@ end
 local function createEnv( ply, func )
     local env = {}
 
-    installBaseFunctions( ply, env )
-    installDefaultVariables( ply, env )
+    setEnvFunctions( ply, env )
+    setEnvVariables( ply, env )
 
     hook.Run( "LuapadCustomizeEnv", ply, env )
 
