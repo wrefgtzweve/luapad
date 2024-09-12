@@ -226,7 +226,7 @@ function luapad.Toggle()
     luapad.PropertySheet.tabScroller.SetTall = function() end
     luapad.PropertySheet.Paint = function() end
 
-    local console = vgui.Create( "LuapadConsole", luapad.PropertySheet )
+    local console = vgui.Create( "LuapadConsole", luapad.Frame )
     luapad.Frame.Console = console
 
     local hdiv = vgui.Create( "DVerticalDivider", luapad.Frame )
@@ -237,6 +237,8 @@ function luapad.Toggle()
     hdiv:SetTopMin( 300 )
     hdiv:SetBottomMin( 100 )
     hdiv:SetTopHeight( luapad.Frame:GetTall() - 200 )
+
+    luapad.Frame.Divider = hdiv
 
     luapad.PropertySheet:InvalidateLayout()
 

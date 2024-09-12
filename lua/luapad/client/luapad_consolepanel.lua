@@ -107,6 +107,37 @@ function PANEL:Init()
         end
     end
 
+    self.EnlargeButton = vgui.Create( "DImageButton", self.Input )
+    self.EnlargeButton:SetImage( "icon16/application_xp_terminal.png" )
+    self.EnlargeButton:SetTooltip( "Enlarge Console" )
+    self.EnlargeButton:SetSize( 16, 16 )
+
+    function self.EnlargeButton:DoClick()
+        if luapad.ConsoleMode then
+            luapad.Frame.Console:Dock( NODOCK )
+
+            luapad.Frame.Divider:SetBottom( luapad.Frame.Console )
+            luapad.Frame.Divider:Show()
+
+            luapad.ConsoleMode = nil
+        else
+            luapad.Frame.Divider:Hide()
+
+            luapad.Frame.Console:SetParent( luapad.Frame )
+            luapad.Frame.Console:Dock( FILL )
+
+            luapad.ConsoleMode = true
+        end
+    end
+
+    local performLayout = self.EnlargeButton.PerformLayout
+
+    self.EnlargeButton.PerformLayout = function(pnl, w, h)
+        performLayout(pnl, w, h)
+
+        self.EnlargeButton:SetPos(self.Input:GetWide() - 21, 4)
+    end
+
     function self.Display:PerformLayout()
         self:SetPaintBackgroundEnabled( true )
         self:SetBGColor( Color( 77, 80, 82 ) )
