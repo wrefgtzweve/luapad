@@ -240,10 +240,13 @@ function luapad.Toggle()
 
     luapad.PropertySheet:InvalidateLayout()
 
-    luapad.NewTab()
 
     setupToolbar()
     loadSavedTabs()
+
+    if table.Count( luapad.PropertySheet.Items ) == 0 then
+        luapad.NewTab()
+    end
 end
 
 function luapad.AddTab( name, content, path )
