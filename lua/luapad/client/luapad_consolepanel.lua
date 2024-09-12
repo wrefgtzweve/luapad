@@ -67,7 +67,8 @@ function PANEL:Init()
     self.Input.OnEnter = function()
         local text = self.Input:GetText()
         if text == "" then return end
-        self:SetText( "" )
+
+        self.Input:SetText( "" )
 
         self:AddConsoleText( "> " .. text, Color( 23, 136, 0 ) )
         if text == "clear" or text == "cls" then
