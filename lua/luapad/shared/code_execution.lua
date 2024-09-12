@@ -103,7 +103,15 @@ local function setEnv( ply, func )
     runEnv.here = ply:GetPos()
     runEnv.randombot = player.GetBots()[1]
 
-    setfenv( func, runEnv )
+    local customEnv = setmetatable( {}, {
+        __index = runEnv,
+        __newindex = _G
+    } )
+
+    hook.Run( "LuapadCustomizeEnv", ply, customEnv )
+
+    setfenv( func, customEnv )
+
     return func
 end
 

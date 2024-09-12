@@ -14,4 +14,5 @@ luapad_auth_refresh -- Rerequests the permission to use the editor.
 LuapadCanRunSV ply | return true to allow
 LuapadCanRunCL ply | return true to allow
 LuapadRanSV ply code
+LuapadCustomizeEnv ply env
 ```
