@@ -1,110 +1,118 @@
-local SERVER = SERVER
-local CLIENT = CLIENT
-
-local runEnv = {}
-local print = print
-local error = error
-local Msg = Msg
-
-function runEnv.__send( str )
-    if not IsValid( runEnv.__codeOwner ) then return end
-
-    if CLIENT then
-        if LocalPlayer() == runEnv.__codeOwner then
-            luapad.AddConsoleText( str, luapad.Colors.clientConsole )
+local function setEnvFunctions( ply, env )
+    env.__send = function( str )
+        if CLIENT then
+            if LocalPlayer() == ply then
+                luapad.AddConsoleText( str, luapad.Colors.clientConsole )
+            else
+                net.Start( "luapad_prints_cl" )
+                    net.WritePlayer( ply )
+                    luapad.WriteCompressed( str )
+                net.SendToServer()
+            end
         else
-            net.Start( "luapad_prints_cl" )
-            net.WritePlayer( runEnv.__codeOwner )
-            luapad.WriteCompressed( str )
-            net.SendToServer()
+            net.Start( "luapad_prints_sv" )
+                luapad.WriteCompressed( str )
+            net.Send( ply )
         end
+    end
+
+    env.print = function( ... )
+        print( ... )
+
+        local str = ""
+        for i = 1, select( "#", ... ) do
+            local arg = select( i, ... )
+            str = str .. tostring( arg ) .. "\t"
+        end
+
+        str = str:sub( 1, -2 )
+
+        env.__send( str )
+    end
+
+    env.Msg = function( ... )
+        Msg( ... )
+
+        local str = ""
+        for i = 1, select( "#", ... ) do
+            local arg = select( i, ... )
+            str = str .. tostring( arg )
+        end
+
+        env.__send( str )
+    end
+
+    env.MsgN = function( ... )
+        MsgN( ... )
+
+        local str = ""
+        for i = 1, select( "#", ... ) do
+            local arg = select( i, ... )
+            str = str .. tostring( arg )
+        end
+
+        env.__send( str )
+    end
+
+    env.MsgC = function( ... )
+        MsgC( ... )
+
+        local str = ""
+        for i = 1, select( "#", ... ) do
+            local arg = select( i, ... )
+            if IsColor( arg ) then
+                str = str .. string.format( "Color( %i, %i, %i, %i ) ", arg.r, arg.g, arg.b, arg.a )
+            else
+                str = str .. tostring( arg )
+            end
+        end
+
+        env.__send( str )
+    end
+
+    env.error = function( str )
+        env.__send( str )
+        error( str )
+    end
+
+    env.PrintTable = function( tbl )
+        PrintTable( tbl )
+        env.__send( luapad.PrettyPrint( tbl ) )
     end
 
     if SERVER then
-        net.Start( "luapad_prints_sv" )
-        luapad.WriteCompressed( str )
-        net.Send( runEnv.__codeOwner )
-    end
-end
-
-function runEnv.print( ... )
-    print( ... )
-    local str = ""
-    for i = 1, select( "#", ... ) do
-        local arg = select( i, ... )
-        str = str .. tostring( arg ) .. "\t"
-    end
-
-    str = str:sub( 1, -2 )
-
-    runEnv.__send( str )
-end
-
-function runEnv.Msg( ... )
-    Msg( ... )
-    local str = ""
-    for i = 1, select( "#", ... ) do
-        local arg = select( i, ... )
-        str = str .. tostring( arg )
-    end
-    runEnv.__send( str )
-end
-
-function runEnv.MsgN( ... )
-    MsgN( ... )
-    local str = ""
-    for i = 1, select( "#", ... ) do
-        local arg = select( i, ... )
-        str = str .. tostring( arg )
-    end
-    runEnv.__send( str )
-end
-
-function runEnv.MsgC( ... )
-    MsgC( ... )
-    local str = ""
-    for i = 1, select( "#", ... ) do
-        local arg = select( i, ... )
-        if IsColor( arg ) then
-            str = str .. string.format( "Color( %i, %i, %i, %i ) ", arg.r, arg.g, arg.b, arg.a )
-        else
-            str = str .. tostring( arg )
+        env.ServerLog = function( str )
+            ServerLog( str )
+            env.__send( str )
         end
     end
-    runEnv.__send( str )
 end
 
-function runEnv.error( str )
-    runEnv.__send( str )
-    error( str )
+local function setEnvVariables( ply, env )
+    local tr = ply:GetEyeTrace()
+
+    env.me = ply
+    env.tr = tr
+    env.this = tr.Entity
+    env.there = tr.HitPos
+    env.here = ply:GetPos()
+    env.bot = player.GetBots()[1]
 end
 
-function runEnv.PrintTable( tbl )
-    PrintTable( tbl )
-    runEnv.__send( luapad.PrettyPrint( tbl ) )
-end
+local function createEnv( ply, func )
+    local env = {}
 
-if SERVER then
-    function runEnv.ServerLog( str )
-        ServerLog( str )
-        runEnv.__send( str )
-    end
-end
+    setEnvFunctions( ply, env )
+    setEnvVariables( ply, env )
 
-setmetatable( runEnv, {
-    __index = _G,
-} )
+    hook.Run( "LuapadCustomizeEnv", ply, env )
 
-local function setEnv( ply, func )
-    runEnv.__codeOwner = ply
-    runEnv.me = ply
-    runEnv.this = ply:GetEyeTrace().Entity
-    runEnv.there = ply:GetEyeTrace().HitPos
-    runEnv.here = ply:GetPos()
-    runEnv.randombot = player.GetBots()[1]
+    setmetatable( env, {
+        __index = _G,
+        __newindex = _G
+    } )
 
-    setfenv( func, runEnv )
-    return func
+    setfenv( func, env )
 end
 
 local function gettraceback( err )
@@ -135,7 +143,7 @@ function luapad.Execute( owner, code )
         return false, func
     end
 
-    func = setEnv( owner, func )
+    createEnv( owner, func )
 
     local status, ret = xpcall( func, gettraceback )
     if not status then
