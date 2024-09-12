@@ -97,13 +97,14 @@ setmetatable( runEnv, {
 
 local function setEnv( ply, func )
     runEnv.__codeOwner = ply
-    runEnv.me = ply
-    runEnv.this = ply:GetEyeTrace().Entity
-    runEnv.there = ply:GetEyeTrace().HitPos
-    runEnv.here = ply:GetPos()
-    runEnv.randombot = player.GetBots()[1]
 
-    local customEnv = setmetatable( {}, {
+    local customEnv = setmetatable( {
+        me = ply,
+        this = ply:GetEyeTrace().Entity,
+        there = ply:GetEyeTrace().HitPos,
+        here = ply:GetPos(),
+        randombot = player.GetBots()[1]
+    }, {
         __index = runEnv,
         __newindex = _G
     } )
