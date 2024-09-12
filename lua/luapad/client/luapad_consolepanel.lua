@@ -1,3 +1,5 @@
+local realmSideCvar = CreateClientConVar( "luapad_console_realm_left", 0, true, false, "Whether the realm selector for the console appears on the left." )
+
 local PANEL = {}
 
 if system.IsWindows() then
@@ -17,15 +19,26 @@ else
 end
 
 function PANEL:Init()
+    self:SetPaintBackground( false )
+
     self.Display = vgui.Create( "RichText", self )
     self.Display:Dock( FILL )
 
     self.Bottombar = vgui.Create( "DPanel", self )
+    self.Bottombar:DockMargin( 0, 5, 0, 0 )
     self.Bottombar:Dock( BOTTOM )
+    self.Bottombar:SetPaintBackground( false )
 
     self.Realm = vgui.Create( "DComboBox", self.Bottombar )
-    self.Realm:Dock( RIGHT )
     self.Realm:SetWide( 100 )
+
+    if realmSideCvar:GetBool() then
+        self.Realm:DockMargin( 0, 0, 5, 0 )
+        self.Realm:Dock( LEFT )
+    else
+        self.Realm:DockMargin( 5, 0, 0, 0 )
+        self.Realm:Dock( RIGHT )
+    end
 
     self.Realm.Icon = self.Realm:Add( "DImage" )
     self.Realm.Icon:SetImage( "!luapadClient" )
@@ -51,7 +64,6 @@ function PANEL:Init()
     self.Realm:SetValue( "Client" )
 
     self.Input = vgui.Create( "DTextEntry", self.Bottombar )
-    self.Input:Dock( BOTTOM )
     self.Input:Dock( FILL )
     self.Input:SetEnterAllowed( false )
     self.Input:SetHistoryEnabled( true )
