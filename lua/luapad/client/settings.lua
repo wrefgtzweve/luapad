@@ -27,6 +27,11 @@ function luapad.ToggleSettingsMenu()
     weight:SetDecimals( 0 )
     weight:SetConVar( "luapad_font_weight" )
 
+    local realm = vgui.Create( "DCheckBoxLabel", frame )
+    realm:Dock( TOP )
+    realm:SetText ("Left-handed realm selector" )
+    realm:SetConVar( "luapad_console_realm_left" )
+
     local button = vgui.Create( "DButton", frame )
     button:Dock( BOTTOM )
     button:SetText( "Reload luapad" )

@@ -1,3 +1,5 @@
+local realmSideCvar = CreateClientConVar( "luapad_console_realm_left", 1, true, false, "Whether the realm selector for the console appears on the left." )
+
 local PANEL = {}
 
 if system.IsWindows() then
@@ -17,15 +19,26 @@ else
 end
 
 function PANEL:Init()
+    self:SetPaintBackground( false )
+
     self.Display = vgui.Create( "RichText", self )
     self.Display:Dock( FILL )
 
     self.Bottombar = vgui.Create( "DPanel", self )
+    self.Bottombar:DockMargin( 0, 5, 0, 0 )
     self.Bottombar:Dock( BOTTOM )
+    self.Bottombar:SetPaintBackground( false )
 
     self.Realm = vgui.Create( "DComboBox", self.Bottombar )
-    self.Realm:Dock( RIGHT )
     self.Realm:SetWide( 100 )
+
+    if realmSideCvar:GetBool() then
+        self.Realm:DockMargin( 0, 0, 5, 0 )
+        self.Realm:Dock( LEFT )
+    else
+        self.Realm:DockMargin( 5, 0, 0, 0 )
+        self.Realm:Dock( RIGHT )
+    end
 
     self.Realm.Icon = self.Realm:Add( "DImage" )
     self.Realm.Icon:SetImage( "!luapadClient" )
@@ -51,7 +64,6 @@ function PANEL:Init()
     self.Realm:SetValue( "Client" )
 
     self.Input = vgui.Create( "DTextEntry", self.Bottombar )
-    self.Input:Dock( BOTTOM )
     self.Input:Dock( FILL )
     self.Input:SetEnterAllowed( false )
     self.Input:SetHistoryEnabled( true )
@@ -105,6 +117,37 @@ function PANEL:Init()
         if isServer or isShared then
             luapad.RunScriptServer( text )
         end
+    end
+
+    self.EnlargeButton = vgui.Create( "DImageButton", self.Input )
+    self.EnlargeButton:SetImage( "icon16/application_xp_terminal.png" )
+    self.EnlargeButton:SetTooltip( "Enlarge Console" )
+    self.EnlargeButton:SetSize( 16, 16 )
+
+    function self.EnlargeButton:DoClick()
+        if luapad.ConsoleMode then
+            luapad.Frame.Console:Dock( NODOCK )
+
+            luapad.Frame.Divider:SetBottom( luapad.Frame.Console )
+            luapad.Frame.Divider:Show()
+
+            luapad.ConsoleMode = nil
+        else
+            luapad.Frame.Divider:Hide()
+
+            luapad.Frame.Console:SetParent( luapad.Frame )
+            luapad.Frame.Console:Dock( FILL )
+
+            luapad.ConsoleMode = true
+        end
+    end
+
+    local performLayout = self.EnlargeButton.PerformLayout
+
+    self.EnlargeButton.PerformLayout = function(pnl, w, h)
+        performLayout(pnl, w, h)
+
+        self.EnlargeButton:SetPos(self.Input:GetWide() - 21, 4)
     end
 
     function self.Display:PerformLayout()
