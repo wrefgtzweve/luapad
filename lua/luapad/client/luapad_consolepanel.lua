@@ -1,4 +1,4 @@
-local realmSideCvar = CreateClientConVar( "luapad_console_realm_left", 0, true, false, "Whether the realm selector for the console appears on the left." )
+local realmSideCvar = CreateClientConVar( "luapad_console_realm_left", 1, true, false, "Whether the realm selector for the console appears on the left." )
 
 local PANEL = {}
 
