@@ -202,6 +202,7 @@ function luapad.Toggle()
     luapad.Frame:SetPos( ScrW() * 1 / 6, ScrH() * 1 / 6 )
     luapad.Frame:SetTitle( "Luapad" )
     luapad.Frame:ShowCloseButton( true )
+    luapad.Frame:SetSizable( true )
     luapad.Frame:MakePopup()
     luapad.Frame:SetIcon( "icon16/application_osx_terminal.png" )
 
