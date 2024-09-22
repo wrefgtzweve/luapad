@@ -32,10 +32,15 @@ end
 
 net.Receive( "luapad_runclient", function()
     local runner = net.ReadPlayer()
+    if not IsValid( runner ) then return end
+
     local script = luapad.ReadCompressed()
     local success, err = luapad.Execute( runner, script )
     if not success then
-        MsgC( luapad.Colors.clientConsole, err .. "\n" )
+        net.Start( "luapad_prints_cl" )
+            net.WritePlayer( ply )
+            luapad.WriteCompressed( err )
+        net.SendToServer()
     end
 end )
 
