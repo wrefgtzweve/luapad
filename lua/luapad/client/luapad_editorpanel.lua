@@ -515,9 +515,9 @@ function PANEL:PaintLine( row )
                 offset = #line
 
                 if cell[2][2] then
-                    draw_SimpleText( line, "LuapadEditorBold", width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2] )
+                    draw_SimpleText( line, "LuapadEditorBold", width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] or cell[2] )
                 else
-                    draw_SimpleText( line, "LuapadEditor", width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2] )
+                    draw_SimpleText( line, "LuapadEditor", width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] or cell[2] )
                 end
             else
                 offset = offset + #cell[1]
