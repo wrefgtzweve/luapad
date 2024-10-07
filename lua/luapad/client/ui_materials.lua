@@ -79,7 +79,7 @@ createIcon( "luapadShared", function()
     render.SetStencilReferenceValue( 9 )
     render.SetStencilFailOperation( STENCILOPERATION_REPLACE )
 
-    surface.SetDrawColor( Color( 255, 0, 0 ) )
+    surface.SetDrawColor( 255, 0, 0, 255 )
     surface.DrawTexturedRectRotated( ICON_SIZE, 0, ICON_SIZE + ICON_SIZE * 0.41, ICON_SIZE * 2, 45 )
 
     render.SetStencilFailOperation( STENCILOPERATION_KEEP )
