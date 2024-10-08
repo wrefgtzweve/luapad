@@ -14,10 +14,14 @@ function luapad.ToggleSettingsMenu()
     themeLabel:SetText( "Editor Theme" )
     
     local theme = vgui.Create( "DComboBox", frame )
+    local currentTheme = luapad.Themes[editorTheme:GetString()] or luapad.Themes.light
+
     theme:Dock( TOP )
-    theme:SetValue( editorTheme:GetString() == "dark" and "Dark Theme" or "Light Theme" )
-    theme:AddChoice( "Light Theme", "light" )
-    theme:AddChoice( "Dark Theme", "dark" )
+    theme:SetValue( currentTheme.Name )
+
+    for k, tab in pairs(luapad.Themes) do
+        theme:AddChoice( tab.Name, k )
+    end
 
     theme.OnSelect = function( self, index, value, data )
         editorTheme:SetString( data )

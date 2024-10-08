@@ -27,6 +27,7 @@ include_shared( "luapad/shared/code_execution.lua" )
 include_shared( "luapad/shared/net.lua" )
 
 include_client( "luapad/client/ui_materials.lua" )
+include_client( "luapad/client/luapad_theme.lua" )
 include_client( "luapad/client/luapad_editorpanel.lua" )
 include_client( "luapad/client/luapad_consolepanel.lua" )
 include_client( "luapad/client/auth.lua" )

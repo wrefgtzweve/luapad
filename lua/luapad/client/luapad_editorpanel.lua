@@ -25,76 +25,37 @@ cvars.AddChangeCallback( "luapad_font_name", setupFonts, "LuapadEditor" )
 cvars.AddChangeCallback( "luapad_font_weight", setupFonts, "LuapadEditor" )
 setupFonts()
 
-local colorTheme = {
-    ["linebar"] = { Color( 215, 215, 215, 255 ), Color( 15, 15, 15, 255 ) },
-    ["currentline"] = { Color( 220, 220, 220, 255 ), Color( 20, 20, 20, 255 ) },
-    ["selection"] = { Color( 170, 170, 170, 255 ), Color( 70, 70, 70, 255 ) },
-    ["background"] = { Color( 250, 250, 250, 255 ), Color( 50, 50, 50, 255 ) },
-    ["text"] = { Color( 0, 0, 0, 255), Color( 255, 255, 255, 255 ) },
-    ["caret"] = { Color( 72, 61, 139, 255 ), Color( 255, 255, 255, 255) },
-    ["operator"] = { Color( 0, 0, 128, 255 ), Color( 0, 255, 255, 255 ) },
-    ["string"] = { Color( 120, 120, 120, 255 ), Color( 206, 145, 120, 255 ) },
-    ["keyword"] = { Color( 0, 0, 255, 255 ), Color( 197, 134, 192, 255 ) },
-    ["metatable"] = { Color( 140, 100, 90, 255), Color( 0, 255, 125, 255), },
-    ["func"] = { Color( 100, 100, 255, 255 ), Color( 220, 220, 170, 255 ) },
-    ["comment"] = { Color( 0, 120, 0, 255), Color( 0, 200, 0, 255) }
-}
+local colors = {}
 
-local colors = {
-    ["none"] = { colorTheme.text[1], false },
-    ["number"] = { Color( 218, 165, 32, 255 ), false },
-    ["function"] = { colorTheme.func[1], false },
-    ["enumeration"] = { Color( 184, 134, 11, 255 ), false },
-    ["metatable"] = { colorTheme.metatable[1], false },
-    ["string"] = { colorTheme.string[1], false },
-    ["keyword"] = { colorTheme.keyword[1], false },
-    ["operator"] = { colorTheme.operator[1], false },
-    ["comment"] = { colorTheme.comment[1], false },
-}
-
-local lineCountBarColor = colorTheme.linebar[1]
-local currentLineColor = colorTheme.currentline[1]
-local selectionColor = colorTheme.selection[1]
-local backgroundColor = colorTheme.background[1]
-local caretColor = colorTheme.caret[1]
-
-local lineNumbersColor = Color( 128, 128, 128, 255 )
+local lineCountBarColor
+local currentLineColor
+local selectionColor
+local backgroundColor
+local caretColor
+local lineNumbersColor
 
 local function setTheme(theme)
-    if theme == "dark" then
-        lineCountBarColor = colorTheme.linebar[2]
-        currentLineColor = colorTheme.currentline[2]
-        selectionColor = colorTheme.selection[2]
-        backgroundColor = colorTheme.background[2]
-        caretColor = colorTheme.caret[2]
+    local lightTheme = luapad.Themes.light -- fallback
+    local theme = luapad.Themes[theme] or lightTheme
 
-        colors.none = colorTheme.text[2]
-        colors.operator = colorTheme.operator[2]
-        colors.string = colorTheme.string[2]
-        colors.keyword = colorTheme.keyword[2]
-        colors.metatable = colorTheme.metatable[2]
-        colors.comment = colorTheme.comment[2]
-        colors["function"] = colorTheme.func[2]
+    lineCountBarColor = theme.linebar or lightTheme.linebar
+    lineNumbersColor = theme.linenumber or lightTheme.linenumber
+    currentLineColor = theme.currentline or lightTheme.currentline
+    selectionColor = theme.selection or lightTheme.selection
+    backgroundColor = theme.background or lightTheme.background
+    caretColor = theme.caret or lightTheme.caret
 
-        return
-    end
+    colors.none = theme.text or lightTheme.text
+    colors.number = theme.number or lightTheme.number
+    colors.enumeration = theme.enumeration or lightTheme.enumeration
+    colors.metatable = theme.metatable or lightTheme.metatable
+    colors.string = theme.string or lightTheme.string
+    colors.keyword = theme.keyword or lightTheme.keyword
+    colors.operator = theme.operator or lightTheme.operator
+    colors.comment = theme.comment or lightTheme.comment
 
-    lineCountBarColor = colorTheme.linebar[1]
-    currentLineColor = colorTheme.currentline[1]
-    selectionColor = colorTheme.selection[1]
-    backgroundColor = colorTheme.background[1]
-    caretColor = colorTheme.caret[1]
-
-    colors.none = colorTheme.text[1]
-    colors.operator = colorTheme.operator[1]
-    colors.metatable = colorTheme.metatable[1]
-    colors.string = colorTheme.string[1]
-    colors.keyword = colorTheme.keyword[1]
-    colors.comment = colorTheme.comment[1]
-    colors["function"] = colorTheme.func[1]
+    colors['function'] = theme['function'] or lightTheme['function']
 end
-
-setTheme(editorTheme:GetString())
 
 cvars.AddChangeCallback( "luapad_theme", function(name, old, new)
     setTheme(new)
@@ -145,6 +106,8 @@ local draw_SimpleText = draw.SimpleText
 
 local PANEL = {}
 function PANEL:Init()
+    setTheme(editorTheme:GetString())
+
     self:SetCursor( "beam" )
     surface.SetFont( "LuapadEditor" )
     self.FontWidth, self.FontHeight = surface.GetTextSize( " " )
