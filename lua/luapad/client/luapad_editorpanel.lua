@@ -57,6 +57,8 @@ local function setTheme(theme)
     colors['function'] = theme['function'] or lightTheme['function']
 end
 
+setTheme(editorTheme:GetString())
+
 cvars.AddChangeCallback( "luapad_theme", function(name, old, new)
     setTheme(new)
 
