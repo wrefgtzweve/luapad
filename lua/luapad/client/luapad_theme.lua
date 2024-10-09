@@ -37,7 +37,9 @@ luapad.Themes = {
 }
 
 function luapad.GetThemeColor(name, themeName)
-    local theme = luapad.Themes[themeName] or luapad.Themes.light
+    local lightTheme = luapad.Themes.light -- fallback
+    local theme = luapad.Themes[themeName] or lightTheme
+
     local color = theme[name]
 
     if color then 
@@ -49,14 +51,10 @@ function luapad.GetThemeColor(name, themeName)
     while true do
         if not baseName then break end
 
-        local baseTheme = luapad.Themes[baseName]
-        if not baseTheme then break end
-
+        local baseTheme = luapad.Themes[baseName] or lightTheme
         color = baseTheme[name]
-
-        if color then 
-            return color 
-        end
+        
+        if color then break end
 
         baseName = baseTheme.Base
     end
