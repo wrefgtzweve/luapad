@@ -4,6 +4,10 @@ on:
   push:
     files:
       - 'lua/**'
+  pull_request:
+    files:
+      - 'lua/**'
+    
 
 jobs:
   Lint:

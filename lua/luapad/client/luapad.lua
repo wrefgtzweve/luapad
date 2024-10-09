@@ -150,6 +150,7 @@ local function setupToolbar()
         luapad.SaveTabs()
         luapad.RunScriptClient()
     end )
+
     if isSVUser then
         addToolbarItem( "Run Serverside", "!luapadRunServer", function()
             luapad.SaveTabs()
@@ -180,6 +181,8 @@ local function setupToolbar()
             for _, v in pairs( players ) do
                 if v == LocalPlayer() then continue end
                 menu:AddOption( v:Nick(), function()
+                    if not IsValid( v ) then return end
+
                     luapad.RunScriptOnClient( v )
                 end )
             end
