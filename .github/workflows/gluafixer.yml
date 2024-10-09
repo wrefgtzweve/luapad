@@ -1,0 +1,12 @@
+name: GLuaFixer
+
+on:
+  push:
+    files:
+      - 'lua/**'
+
+jobs:
+  Lint:
+    uses: FPtje/GLuaFixer/.github/workflows/glualint.yml@master
+    with:
+      config: "https://cfc.gg/configs/gluafixer/glualint.json"
