@@ -189,13 +189,6 @@ local function setupToolbar()
             menu:Open()
         end )
     end
-
-    addToolbarSpacer()
-    addToolbarItem( "Clear Console", "!luapadConsoleClear", function()
-        if IsValid( luapad.Frame ) and IsValid( luapad.Frame.Console ) then
-            luapad.Frame.Console:ClearConsoleText()
-        end
-    end )
 end
 
 function luapad.Toggle()

@@ -124,6 +124,7 @@ function PANEL:Init()
     self.EnlargeButton:SetTooltip( "Enlarge Console" )
     self.EnlargeButton:SetSize( 16, 16 )
 
+
     function self.EnlargeButton:DoClick()
         if luapad.ConsoleMode then
             luapad.Frame.Console:Dock( NODOCK )
@@ -148,6 +149,25 @@ function PANEL:Init()
         performLayout( pnl, w, h )
 
         self.EnlargeButton:SetPos( self.Input:GetWide() - 21, 4 )
+    end
+
+    self.ClearButton = vgui.Create( "DImageButton", self.Input )
+    self.ClearButton:SetImage( "icon16/application_delete.png" )
+    self.ClearButton:SetTooltip( "Clear Console" )
+    self.ClearButton:SetSize( 16, 16 )
+
+    function self.ClearButton:DoClick()
+        if IsValid(luapad.Frame.Console) then
+            luapad.Frame.Console:ClearConsoleText()
+        end
+    end
+
+    local performLayout = self.ClearButton.PerformLayout
+
+    self.ClearButton.PerformLayout = function( pnl, w, h )
+        performLayout( pnl, w, h )
+
+        self.ClearButton:SetPos( self.Input:GetWide() - 42, 4 )
     end
 
     function self.Display:PerformLayout()
