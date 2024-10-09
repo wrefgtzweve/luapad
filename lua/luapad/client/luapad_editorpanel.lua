@@ -1,3 +1,4 @@
+local editorTheme = CreateClientConVar( "luapad_theme", "light", true, false, "Determines the theme for the Luapad editor." )
 local fontSizeCvar = CreateClientConVar( "luapad_font_size", 16, true, false, "The font size of the Luapad editor." )
 local fontNameCvar = CreateClientConVar( "luapad_font_name", "Courier New", true, false, "The font name of the Luapad editor." )
 local fontWeightCvar = CreateClientConVar( "luapad_font_weight", 400, true, false, "The weight of the luapad editor font." )
@@ -24,24 +25,46 @@ cvars.AddChangeCallback( "luapad_font_name", setupFonts, "LuapadEditor" )
 cvars.AddChangeCallback( "luapad_font_weight", setupFonts, "LuapadEditor" )
 setupFonts()
 
-local lineNumbersColor = Color( 128, 128, 128, 255 )
-local lineCountBarColor = Color( 215, 215, 215, 255 )
-local backgroundColor = Color( 250, 250, 250, 255 )
-local currentLineColor = Color( 220, 220, 220, 255 )
-local selectionColor = Color( 170, 170, 170, 255 )
-local caretColor = Color( 72, 61, 139, 255 )
+local colors = {}
 
-local colors = {
-    ["none"] = { Color( 0, 0, 0, 255 ), false },
-    ["number"] = { Color( 218, 165, 32, 255 ), false },
-    ["function"] = { Color( 100, 100, 255, 255 ), false },
-    ["enumeration"] = { Color( 184, 134, 11, 255 ), false },
-    ["metatable"] = { Color( 140, 100, 90, 255 ), false },
-    ["string"] = { Color( 120, 120, 120, 255 ), false },
-    ["keyword"] = { Color( 0, 0, 255, 255 ), false },
-    ["operator"] = { Color( 0, 0, 128, 255 ), false },
-    ["comment"] = { Color( 0, 120, 0, 255 ), false },
-}
+local lineCountBarColor
+local currentLineColor
+local selectionColor
+local backgroundColor
+local caretColor
+local lineNumbersColor
+
+local function setTheme(theme)
+    -- Main colors
+    lineCountBarColor = luapad.GetThemeColor('linebar', theme)
+    lineNumbersColor = luapad.GetThemeColor('linenumber', theme)
+    currentLineColor = luapad.GetThemeColor('currentline', theme)
+    selectionColor = luapad.GetThemeColor('selection', theme)
+    backgroundColor = luapad.GetThemeColor('background', theme)
+    caretColor = luapad.GetThemeColor('caret', theme)
+
+    -- Syntax highlight colors
+    colors.none = luapad.GetThemeColor('text', theme)
+    colors.number = luapad.GetThemeColor('number', theme)
+    colors.enumeration = luapad.GetThemeColor('enumeration', theme)
+    colors.metatable = luapad.GetThemeColor('metatable', theme)
+    colors.string = luapad.GetThemeColor('string', theme)
+    colors.keyword = luapad.GetThemeColor('keyword', theme)
+    colors.operator = luapad.GetThemeColor('operator', theme)
+    colors.comment = luapad.GetThemeColor('comment', theme)
+
+    colors['function'] = luapad.GetThemeColor('func', theme)
+end
+
+cvars.AddChangeCallback( "luapad_theme", function(name, old, new)
+    setTheme(new)
+
+    for k, panel in ipairs(vgui.GetAll()) do
+        if panel.ClassName == "LuapadEditor" then
+            panel.PaintRows = {} -- so it refreshes the text color
+        end
+    end
+end)
 
 local keywordTable = {
     ["if"] = true,
@@ -82,6 +105,8 @@ local draw_SimpleText = draw.SimpleText
 
 local PANEL = {}
 function PANEL:Init()
+    setTheme(editorTheme:GetString())
+
     self:SetCursor( "beam" )
     surface.SetFont( "LuapadEditor" )
     self.FontWidth, self.FontHeight = surface.GetTextSize( " " )
@@ -410,7 +435,7 @@ function PANEL:PaintLine( row )
     local width, height = self.FontWidth, self.FontHeight
 
     if row == self.Caret[1] and self.TextEntry:HasFocus() then
-        surface.SetDrawColor( currentLineColor )
+        surface.SetDrawColor( currentLineColor.r, currentLineColor.g, currentLineColor.b, currentLineColor.a )
         surface.DrawRect( width * 3 + 5, ( row - self.Scroll[1] ) * height, self:GetWide() - ( width * 3 + 5 ), height )
     end
 
@@ -418,7 +443,7 @@ function PANEL:PaintLine( row )
         local start, stop = self:MakeSelection( self:Selection() )
         local line, char = start[1], start[2]
         local endline, endchar = stop[1], stop[2]
-        surface.SetDrawColor( selectionColor )
+        surface.SetDrawColor( selectionColor.r, selectionColor.g, selectionColor.b, selectionColor.a )
         local length = #self.Rows[row] - self.Scroll[2] + 1
         char = char - self.Scroll[2]
         endchar = endchar - self.Scroll[2]
@@ -452,18 +477,18 @@ function PANEL:PaintLine( row )
                 offset = #line
 
                 if cell[2][2] then
-                    draw_SimpleText( line, "LuapadEditorBold", width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] )
+                    draw_SimpleText( line, "LuapadEditorBold", width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] or cell[2] )
                 else
-                    draw_SimpleText( line, "LuapadEditor", width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] )
+                    draw_SimpleText( line, "LuapadEditor", width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] or cell[2] )
                 end
             else
                 offset = offset + #cell[1]
             end
         else
             if cell[2][2] then
-                draw_SimpleText( cell[1], "LuapadEditorBold", offset * width + width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] )
+                draw_SimpleText( cell[1], "LuapadEditorBold", offset * width + width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] or cell[2] )
             else
-                draw_SimpleText( cell[1], "LuapadEditor", offset * width + width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] )
+                draw_SimpleText( cell[1], "LuapadEditor", offset * width + width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] or cell[2] )
             end
 
             offset = offset + #cell[1]
@@ -471,7 +496,7 @@ function PANEL:PaintLine( row )
     end
 
     if row == self.Caret[1] and self.TextEntry:HasFocus() and ( RealTime() - self.Blink ) % 0.8 < 0.4 and self.Caret[2] - self.Scroll[2] >= 0 then
-        surface.SetDrawColor( caretColor )
+        surface.SetDrawColor( caretColor.r, caretColor.g, caretColor.b, caretColor.a )
         surface.DrawRect( ( self.Caret[2] - self.Scroll[2] ) * width + width * 3 + 6, ( self.Caret[1] - self.Scroll[1] ) * height, 1, height )
     end
 end
@@ -497,9 +522,9 @@ function PANEL:Paint()
         self.Caret = self:CursorToCaret()
     end
 
-    surface.SetDrawColor( lineCountBarColor )
+    surface.SetDrawColor( lineCountBarColor.r, lineCountBarColor.g, lineCountBarColor.b, lineCountBarColor.a )
     surface.DrawRect( 0, 0, self.FontWidth * 3 + 4, self:GetTall() )
-    surface.SetDrawColor( backgroundColor )
+    surface.SetDrawColor( backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a )
     surface.DrawRect( self.FontWidth * 3 + 5, 0, self:GetWide() - ( self.FontWidth * 3 + 5 ), self:GetTall() )
     self.Scroll[1] = math.floor( self.ScrollBar:GetScroll() + 1 )
 
