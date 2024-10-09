@@ -35,3 +35,31 @@ luapad.Themes = {
         ["comment"] = Color( 0, 200, 0, 255)
     }
 }
+
+function luapad.GetThemeColor(name, themeName)
+    local theme = luapad.Themes[themeName] or luapad.Themes.light
+    local color = theme[name]
+
+    if color then 
+        return color 
+    end
+
+    local baseName = theme.Base
+
+    while true do
+        if not baseName then break end
+
+        local baseTheme = luapad.Themes[baseName]
+        if not baseTheme then break end
+
+        color = baseTheme[name]
+
+        if color then 
+            return color 
+        end
+
+        baseName = baseTheme.Base
+    end
+
+    return color
+end
