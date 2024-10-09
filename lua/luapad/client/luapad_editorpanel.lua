@@ -34,37 +34,37 @@ local backgroundColor
 local caretColor
 local lineNumbersColor
 
-local function setTheme(theme)
+local function setTheme( theme )
     -- Main colors
-    lineCountBarColor = luapad.GetThemeColor('linebar', theme)
-    lineNumbersColor = luapad.GetThemeColor('linenumber', theme)
-    currentLineColor = luapad.GetThemeColor('currentline', theme)
-    selectionColor = luapad.GetThemeColor('selection', theme)
-    backgroundColor = luapad.GetThemeColor('background', theme)
-    caretColor = luapad.GetThemeColor('caret', theme)
+    lineCountBarColor = luapad.GetThemeColor( "linebar", theme )
+    lineNumbersColor = luapad.GetThemeColor( "linenumber", theme )
+    currentLineColor = luapad.GetThemeColor( "currentline", theme )
+    selectionColor = luapad.GetThemeColor( "selection", theme )
+    backgroundColor = luapad.GetThemeColor( "background", theme )
+    caretColor = luapad.GetThemeColor( "caret", theme )
 
     -- Syntax highlight colors
-    colors.none = luapad.GetThemeColor('text', theme)
-    colors.number = luapad.GetThemeColor('number', theme)
-    colors.enumeration = luapad.GetThemeColor('enumeration', theme)
-    colors.metatable = luapad.GetThemeColor('metatable', theme)
-    colors.string = luapad.GetThemeColor('string', theme)
-    colors.keyword = luapad.GetThemeColor('keyword', theme)
-    colors.operator = luapad.GetThemeColor('operator', theme)
-    colors.comment = luapad.GetThemeColor('comment', theme)
+    colors.none = luapad.GetThemeColor( "text", theme )
+    colors.number = luapad.GetThemeColor( "number", theme )
+    colors.enumeration = luapad.GetThemeColor( "enumeration", theme )
+    colors.metatable = luapad.GetThemeColor( "metatable", theme )
+    colors.string = luapad.GetThemeColor( "string", theme )
+    colors.keyword = luapad.GetThemeColor( "keyword", theme )
+    colors.operator = luapad.GetThemeColor( "operator", theme )
+    colors.comment = luapad.GetThemeColor( "comment", theme )
 
-    colors['function'] = luapad.GetThemeColor('func', theme)
+    colors["function"] = luapad.GetThemeColor( "func", theme )
 end
 
-cvars.AddChangeCallback( "luapad_theme", function(name, old, new)
-    setTheme(new)
+cvars.AddChangeCallback( "luapad_theme", function( _, _, new )
+    setTheme( new )
 
-    for k, panel in ipairs(vgui.GetAll()) do
+    for _, panel in ipairs( vgui.GetAll() ) do
         if panel.ClassName == "LuapadEditor" then
             panel.PaintRows = {} -- so it refreshes the text color
         end
     end
-end)
+end )
 
 local keywordTable = {
     ["if"] = true,
@@ -105,7 +105,7 @@ local draw_SimpleText = draw.SimpleText
 
 local PANEL = {}
 function PANEL:Init()
-    setTheme(editorTheme:GetString())
+    setTheme( editorTheme:GetString() )
 
     self:SetCursor( "beam" )
     surface.SetFont( "LuapadEditor" )
