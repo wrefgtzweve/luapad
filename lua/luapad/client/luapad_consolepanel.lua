@@ -143,10 +143,9 @@ function PANEL:Init()
         end
     end
 
-    local performLayout = self.EnlargeButton.PerformLayout
-
+    local performLayoutEnlargeButton = self.EnlargeButton.PerformLayout
     self.EnlargeButton.PerformLayout = function( pnl, w, h )
-        performLayout( pnl, w, h )
+        performLayoutEnlargeButton( pnl, w, h )
 
         self.EnlargeButton:SetPos( self.Input:GetWide() - 21, 4 )
     end
@@ -157,15 +156,14 @@ function PANEL:Init()
     self.ClearButton:SetSize( 16, 16 )
 
     function self.ClearButton:DoClick()
-        if IsValid(luapad.Frame.Console) then
+        if IsValid( luapad.Frame.Console ) then
             luapad.Frame.Console:ClearConsoleText()
         end
     end
 
-    local performLayout = self.ClearButton.PerformLayout
-
+    local performLayoutClearButton = self.ClearButton.PerformLayout
     self.ClearButton.PerformLayout = function( pnl, w, h )
-        performLayout( pnl, w, h )
+        performLayoutClearButton( pnl, w, h )
 
         self.ClearButton:SetPos( self.Input:GetWide() - 42, 4 )
     end
