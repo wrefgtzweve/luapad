@@ -144,10 +144,10 @@ function PANEL:Init()
 
     local performLayout = self.EnlargeButton.PerformLayout
 
-    self.EnlargeButton.PerformLayout = function(pnl, w, h)
-        performLayout(pnl, w, h)
+    self.EnlargeButton.PerformLayout = function( pnl, w, h )
+        performLayout( pnl, w, h )
 
-        self.EnlargeButton:SetPos(self.Input:GetWide() - 21, 4)
+        self.EnlargeButton:SetPos( self.Input:GetWide() - 21, 4 )
     end
 
     function self.Display:PerformLayout()
