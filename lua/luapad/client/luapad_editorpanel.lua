@@ -35,26 +35,30 @@ local caretColor
 local lineNumbersColor
 
 local function setTheme(theme)
-    local lightTheme = luapad.Themes.light -- fallback
-    local theme = luapad.Themes[theme] or lightTheme
+    local theme = luapad.Themes[theme] or luapad.Themes.light
+    local fallbackTheme = theme.Base and luapad.Themes[theme.Base]
 
-    lineCountBarColor = theme.linebar or lightTheme.linebar
-    lineNumbersColor = theme.linenumber or lightTheme.linenumber
-    currentLineColor = theme.currentline or lightTheme.currentline
-    selectionColor = theme.selection or lightTheme.selection
-    backgroundColor = theme.background or lightTheme.background
-    caretColor = theme.caret or lightTheme.caret
+    if not fallbackTheme then
+        fallbackTheme = luapad.Themes.light
+    end
 
-    colors.none = theme.text or lightTheme.text
-    colors.number = theme.number or lightTheme.number
-    colors.enumeration = theme.enumeration or lightTheme.enumeration
-    colors.metatable = theme.metatable or lightTheme.metatable
-    colors.string = theme.string or lightTheme.string
-    colors.keyword = theme.keyword or lightTheme.keyword
-    colors.operator = theme.operator or lightTheme.operator
-    colors.comment = theme.comment or lightTheme.comment
+    lineCountBarColor = theme.linebar or fallbackTheme.linebar
+    lineNumbersColor = theme.linenumber or fallbackTheme.linenumber
+    currentLineColor = theme.currentline or fallbackTheme.currentline
+    selectionColor = theme.selection or fallbackTheme.selection
+    backgroundColor = theme.background or fallbackTheme.background
+    caretColor = theme.caret or fallbackTheme.caret
 
-    colors['function'] = theme.func or lightTheme.func
+    colors.none = theme.text or fallbackTheme.text
+    colors.number = theme.number or fallbackTheme.number
+    colors.enumeration = theme.enumeration or fallbackTheme.enumeration
+    colors.metatable = theme.metatable or fallbackTheme.metatable
+    colors.string = theme.string or fallbackTheme.string
+    colors.keyword = theme.keyword or fallbackTheme.keyword
+    colors.operator = theme.operator or fallbackTheme.operator
+    colors.comment = theme.comment or fallbackTheme.comment
+
+    colors['function'] = theme.func or fallbackTheme.func
 end
 
 cvars.AddChangeCallback( "luapad_theme", function(name, old, new)

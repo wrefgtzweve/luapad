@@ -20,6 +20,7 @@ luapad.Themes = {
 
     dark = {
         ["Name"] = "Dark",
+        ["Base"] = "light",
         ["linebar"] = Color( 15, 15, 15, 255 ),
         ["currentline"] = Color( 20, 20, 20, 255 ),
         ["selection"] = Color( 70, 70, 70, 255 ),
