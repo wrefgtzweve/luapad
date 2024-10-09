@@ -12,18 +12,18 @@ function luapad.ToggleSettingsMenu()
     local themeLabel = vgui.Create( "DLabel", frame )
     themeLabel:Dock( TOP )
     themeLabel:SetText( "Editor Theme" )
-    
+
     local theme = vgui.Create( "DComboBox", frame )
     local currentTheme = luapad.Themes[editorTheme:GetString()] or luapad.Themes.light
 
     theme:Dock( TOP )
     theme:SetValue( currentTheme.Name )
 
-    for k, tab in pairs(luapad.Themes) do
+    for k, tab in pairs( luapad.Themes ) do
         theme:AddChoice( tab.Name, k )
     end
 
-    theme.OnSelect = function( self, index, value, data )
+    theme.OnSelect = function( _, _, _, data )
         editorTheme:SetString( data )
     end
 
@@ -49,7 +49,7 @@ function luapad.ToggleSettingsMenu()
 
     local realm = vgui.Create( "DCheckBoxLabel", frame )
     realm:Dock( TOP )
-    realm:SetText ("Left-handed realm selector" )
+    realm:SetText( "Left-handed realm selector" )
     realm:SetConVar( "luapad_console_realm_left" )
 
     local button = vgui.Create( "DButton", frame )
