@@ -126,13 +126,6 @@ createIcon( "luapadClientSpecific", function()
     surface.DrawTexturedRect( 8, 8, ICON_SIZE - 16, ICON_SIZE - 16 )
 end )
 
-createIcon( "luapadConsoleClear", function()
-    draw.NoTexture()
-    surface.SetDrawColor( 255, 255, 255, 255 )
-    surface.SetMaterial( Material( "icon16/application_delete.png", "ignorez" ) )
-    surface.DrawTexturedRect( 8, 8, ICON_SIZE - 16, ICON_SIZE - 16 )
-end )
-
 renderIcons()
 -- This hook runs for all graphic changes, including resolution changes.
 hook.Add( "OnScreenSizeChanged", "Luapad_RecreateIcons", function()
