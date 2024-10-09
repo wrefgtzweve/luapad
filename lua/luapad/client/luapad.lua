@@ -293,15 +293,27 @@ function luapad.AddTab( name, content, path )
         menu:AddSpacer()
 
         menu:AddOption( "Close all but this", function()
-            for _, v in pairs( luapad.PropertySheet.Items ) do
-                if v["Tab"] == self then continue end
-                luapad.PropertySheet:CloseTab( v["Tab"], true )
+            local itemsCopy = table.Copy( luapad.PropertySheet.Items )
+            for _, item in ipairs( itemsCopy ) do
+                if item["Tab"] == self then continue end
+                luapad.PropertySheet:CloseTab( item["Tab"], true )
             end
         end ):SetIcon( "icon16/cross.png" )
 
         menu:AddOption( "Close all", function()
-            for _, v in pairs( luapad.PropertySheet.Items ) do
-                luapad.PropertySheet:CloseTab( v["Tab"], true )
+            local tabCount = table.Count( luapad.PropertySheet.Items )
+            if tabCount == 1 then
+                luapad.NewTab()
+                luapad.PropertySheet:CloseTab( self, true )
+                return
+            end
+
+            local itemsCopy = table.Copy( luapad.PropertySheet.Items )
+            for i, item in ipairs( itemsCopy ) do
+                if i == tabCount then
+                    luapad.NewTab()
+                end
+                luapad.PropertySheet:CloseTab( item.Tab, true )
             end
         end ):SetIcon( "icon16/cross.png" )
 
