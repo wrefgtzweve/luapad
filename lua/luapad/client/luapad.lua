@@ -16,7 +16,7 @@ local function saveAsScript()
         file.Write( filePath, contents )
 
         if file.Exists( filePath, "DATA" ) then
-            luapad.AddConsoleText( "File succesfully saved!", Color( 72, 205, 72, 255 ) )
+            luapad.AddConsoleText( "File successfully saved!", Color( 72, 205, 72, 255 ) )
             luapad.PropertySheet:GetActiveTab():GetPanel().name = filename
             luapad.PropertySheet:GetActiveTab():SetText( filename )
             luapad.PropertySheet:SetActiveTab( luapad.PropertySheet:GetActiveTab() )
@@ -41,7 +41,7 @@ function luapad.SaveCurrentScript()
         file.Write( path, contents )
 
         if file.Time( path, "DATA" ) == os.time() then
-            luapad.AddConsoleText( "File succesfully saved!", Color( 72, 205, 72, 255 ) )
+            luapad.AddConsoleText( "File successfully saved!", Color( 72, 205, 72, 255 ) )
         else
             luapad.AddConsoleText( "Save failed! (check your filename for illegal characters)", Color( 205, 72, 72, 255 ) )
         end

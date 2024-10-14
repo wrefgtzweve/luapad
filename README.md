@@ -4,7 +4,7 @@ A simple lua run tool for Garry's Mod.
 
 ## Features:
 - Run client and server code.
-- Code runs in a enviroment with extra utilities.
+- Code runs in a environment with extra utilities.
 - Prints on client are automatically forwarded back to the original code runner allow you to debug on other players.
 - Running code on client and server can be independently allowed to specific players using a hook.
 - Customization, custom fonts and more.

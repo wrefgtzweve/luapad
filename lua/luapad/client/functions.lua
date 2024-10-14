@@ -22,7 +22,7 @@ function luapad.RunScriptClient()
     if not luapad.CanUseCL( LocalPlayer() ) then return end
     local success, ret = luapad.Execute( LocalPlayer(), luapad.getCurrentScript() )
     if success then
-        luapad.AddConsoleText( "Code ran sucessfully!", Color( 72, 205, 72, 255 ) )
+        luapad.AddConsoleText( "Code ran successfully!", Color( 72, 205, 72, 255 ) )
     end
 
     if ret ~= nil then
@@ -55,7 +55,7 @@ end
 net.Receive( "luapad_runserver", function()
     local success = net.ReadBool()
     if success then
-        luapad.AddConsoleText( "Code executed on server succesfully.", Color( 92, 205, 92, 255 ) )
+        luapad.AddConsoleText( "Code executed on server successfully.", Color( 92, 205, 92, 255 ) )
     end
 
     local ret = luapad.ReadCompressed()
