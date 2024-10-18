@@ -881,36 +881,59 @@ function PANEL:_OnKeyCodeTyped( code )
             self:DoUndo()
         elseif code == KEY_Y then
             self:DoRedo()
-        elseif code == KEY_X then
+        elseif code == KEY_X then -- Cut
             if self:HasSelection() then
                 self.clipboard = self:GetSelection()
                 self.clipboard = string.Replace( self.clipboard, "\n", "\r\n" )
                 SetClipboardText( self.clipboard )
                 self:SetSelection()
             end
-        elseif code == KEY_C then
+        elseif code == KEY_C then -- Copy
             if self:HasSelection() then
                 self.clipboard = self:GetSelection()
                 self.clipboard = string.Replace( self.clipboard, "\n", "\r\n" )
                 SetClipboardText( self.clipboard )
             end
-        elseif code == KEY_W then
+        elseif code == KEY_W then -- Close tab
             luapad.PropertySheet:CloseTab( self.dtab, true )
-        elseif code == KEY_S then
+        elseif code == KEY_S then -- Save
             luapad.SaveCurrentScript()
-        elseif code == KEY_O then
+        elseif code == KEY_O then -- Open
             luapad.OpenScript()
-        elseif code == KEY_N then
+        elseif code == KEY_N then -- New tab
             luapad.NewTab()
-        elseif code == KEY_UP then
+        elseif code == KEY_SLASH then -- Toggle comment selected lines
+            local start, stop = self:MakeSelection( self:Selection() )
+
+            local before = self:GetArea( self:Selection() )
+            for i = start[1], stop[1] do
+                local line = self.Rows[i]
+
+                if line:sub( 1, 2 ) == "--" then
+                    self.Rows[i] = line:sub( 3 )
+                else
+                    if line ~= "" then
+                        self.Rows[i] = "--" .. line
+                    end
+                end
+            end
+
+            self.Undo[#self.Undo + 1] = {
+                { self:CopyPosition( start ), self:CopyPosition( stop ) },
+                before, self:CopyPosition( start ), self:CopyPosition( stop )
+            }
+
+            self.PaintRows = {}
+            self:OnTextChanged()
+        elseif code == KEY_UP then -- Move line up
             self.Scroll[1] = self.Scroll[1] - 1
 
             if self.Scroll[1] < 1 then
                 self.Scroll[1] = 1
             end
-        elseif code == KEY_DOWN then
+        elseif code == KEY_DOWN then -- Move line down
             self.Scroll[1] = self.Scroll[1] + 1
-        elseif code == KEY_LEFT then
+        elseif code == KEY_LEFT then -- Unindent
             if self:HasSelection() and not shift then
                 self.Start = self:CopyPosition( self.Caret )
             else
@@ -922,7 +945,7 @@ function PANEL:_OnKeyCodeTyped( code )
             if not shift then
                 self.Start = self:CopyPosition( self.Caret )
             end
-        elseif code == KEY_RIGHT then
+        elseif code == KEY_RIGHT then -- Indent
             if self:HasSelection() and not shift then
                 self.Start = self:CopyPosition( self.Caret )
             else
@@ -934,7 +957,7 @@ function PANEL:_OnKeyCodeTyped( code )
             if not shift then
                 self.Start = self:CopyPosition( self.Caret )
             end
-        elseif code == KEY_HOME then
+        elseif code == KEY_HOME then -- Move to start of file
             self.Caret[1] = 1
             self.Caret[2] = 1
             self:ScrollCaret()
@@ -942,7 +965,7 @@ function PANEL:_OnKeyCodeTyped( code )
             if not shift then
                 self.Start = self:CopyPosition( self.Caret )
             end
-        elseif code == KEY_END then
+        elseif code == KEY_END then -- Move to end of file
             self.Caret[1] = #self.Rows
             self.Caret[2] = 1
             self:ScrollCaret()
@@ -950,11 +973,11 @@ function PANEL:_OnKeyCodeTyped( code )
             if not shift then
                 self.Start = self:CopyPosition( self.Caret )
             end
-        elseif code == KEY_T then
+        elseif code == KEY_T then -- Run script on server
             luapad.RunScriptServer( luapad.getCurrentScript() )
-        elseif code == KEY_G then
+        elseif code == KEY_G then -- Run script on client
             luapad.RunScriptClient()
-        elseif code == KEY_B then
+        elseif code == KEY_B then -- Run script on both
             luapad.RunScriptServer( luapad.getCurrentScript() )
             luapad.RunScriptClient()
         end
