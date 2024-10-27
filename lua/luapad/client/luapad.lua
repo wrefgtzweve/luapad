@@ -3,6 +3,8 @@ if IsValid( luapad.Frame ) then
     luapad.Frame:Remove()
 end
 
+file.CreateDir( "luapad" )
+
 local function saveAsScript()
     local name = luapad.PropertySheet:GetActiveTab():GetPanel().name
     Derma_StringRequest( "Luapad", "You are about to save a file, please enter the desired filename.", name, function( filename )
@@ -191,9 +193,11 @@ local function setupToolbar()
     end
 end
 
-function luapad.Toggle()
+function luapad.Toggle( path )
     if IsValid( luapad.Frame ) then
         luapad.Frame:SetVisible( not luapad.Frame:IsVisible() )
+        luapad.OpenFile( path )
+
         return
     end
 
@@ -250,12 +254,14 @@ function luapad.Toggle()
     hdiv:SetTopHeight( luapad.Frame:GetTall() - 200 )
 
     luapad.Frame.Divider = hdiv
-
     luapad.PropertySheet:InvalidateLayout()
-
 
     setupToolbar()
     loadSavedTabs()
+
+    if path then
+        return luapad.OpenFile( path )
+    end
 
     if table.Count( luapad.PropertySheet.Items ) == 0 then
         luapad.NewTab()
@@ -276,6 +282,8 @@ function luapad.AddTab( name, content, path )
 
     local sheet = luapad.PropertySheet:AddSheet( name, editor, "icon16/page_white.png", false, false )
     local dtab = sheet.Tab
+
+    dtab.FilePath = path .. name
     editor.dtab = dtab
 
     function dtab:DoRightClick()
@@ -336,6 +344,30 @@ function luapad.NewTab( content )
     luapad.AddTab( "untitled" .. newTabNum .. ".txt", content, "data/luapad/" )
 
     newTabNum = newTabNum + 1
+end
+
+function luapad.OpenFile( path )
+    if not path then return end
+    
+    local content = file.Read( path, "GAME" )
+    if not content then return end
+
+    local fileName = string.GetFileFromFilename( path )
+    local pathNoName = string.GetPathFromFilename( path )
+
+    for k, item in pairs( luapad.PropertySheet.Items ) do
+        local tab = item.Tab
+
+        if tab.FilePath == path then
+            tab:RequestFocus()
+
+            luapad.PropertySheet:SetActiveTab( tab )
+
+            return
+        end
+    end
+
+    luapad.AddTab( fileName, content, pathNoName )
 end
 
 function luapad.OpenScript()

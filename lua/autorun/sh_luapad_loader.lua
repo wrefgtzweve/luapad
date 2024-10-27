@@ -34,6 +34,7 @@ include_client( "luapad/client/auth.lua" )
 include_client( "luapad/client/functions.lua" )
 include_client( "luapad/client/luapad.lua" )
 include_client( "luapad/client/settings.lua" )
+include_client( "luapad/client/spawnmenu.lua" )
 
 include_server( "luapad/server/auth.lua" )
 include_server( "luapad/server/code_execution.lua" )
