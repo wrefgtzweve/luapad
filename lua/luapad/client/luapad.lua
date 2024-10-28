@@ -227,7 +227,7 @@ function luapad.Toggle( noNewTab )
     luapad.PropertySheet.tabScroller:DockMargin( 0, 0, 0, 0 )
     luapad.PropertySheet.tabScroller:SetOverlap( 0 )
     luapad.PropertySheet.____SetActiveTab = luapad.PropertySheet.SetActiveTab
-    
+
     function luapad.PropertySheet:SetActiveTab( ... )
         luapad.PropertySheet:____SetActiveTab( ... )
 
@@ -351,7 +351,7 @@ function luapad.OpenFile( path )
     local fileName = string.GetFileFromFilename( path )
     local pathNoName = string.GetPathFromFilename( path )
 
-    for k, item in pairs( luapad.PropertySheet.Items ) do
+    for _, item in pairs( luapad.PropertySheet.Items ) do
         local tab = item.Tab
 
         if tab.FilePath == path then

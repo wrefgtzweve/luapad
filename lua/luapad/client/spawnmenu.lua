@@ -8,11 +8,11 @@ local function onNodeSelected( self, node )
 
     local files = file.Find( path .. "/*", self.SearchPath )
 
-    for k, fileName in ipairs( files ) do
-        spawnmenu.CreateContentIcon( "gamefile", viewPanel, { 
+    for _, fileName in ipairs( files ) do
+        spawnmenu.CreateContentIcon( "gamefile", viewPanel, {
             fileName = fileName,
             filePath = path .. "/" .. fileName
-        })
+        } )
     end
 
     self.pnlContent:SwitchPanel( viewPanel )
@@ -34,7 +34,7 @@ end
 local function recursiveAddLua( mainNode, node, path, searchPath )
     local _, dirs = file.Find( path .. "*", searchPath )
 
-    for k, dir in ipairs( dirs ) do
+    for _, dir in ipairs( dirs ) do
         local folderPath = path .. dir
         local folder = addFolderNode( mainNode, node, dir, "icon16/folder.png", folderPath, searchPath )
 
@@ -58,7 +58,7 @@ local function refreshGModLua( node )
 end
 
 local function refreshAddonLuaFiles( node )
-    for k, addon in SortedPairsByMemberValue( engine.GetAddons(), "title" ) do
+    for _, addon in SortedPairsByMemberValue( engine.GetAddons(), "title" ) do
         if addon.downloaded and addon.mounted then
             local title = addon.title
 
@@ -80,11 +80,11 @@ local function refreshLegacyAddonLuaFiles( node )
     local legacyAddons = {}
     local _, dirs = file.Find( "addons/*", "GAME" )
 
-    if not dirs[1] then 
+    if not dirs[1] then
         return node:Remove()
     end
 
-    for k, addon in ipairs( dirs ) do
+    for _, addon in ipairs( dirs ) do
         table.insert( legacyAddons, addon )
     end
 
