@@ -95,9 +95,9 @@ local function refreshLegacyAddonLuaFiles( node )
         local hasLua = files[1] or dirs[1]
 
         if hasLua then
-            local luaFiles = addFolderNode( node, node, addon, "icon16/bricks.png", "addons/" .. addon .. "/lua" )
+            local luaFiles = addFolderNode( node, node, addon, "icon16/bricks.png", "addons/" .. addon .. "/lua", "GAME" )
 
-            recursiveAddLua( node, luaFiles, "addons/" .. addon .. "/", "GAME" )
+            recursiveAddLua( node, luaFiles, "addons/" .. addon .. "/lua/", "GAME" )
         end
     end
 
@@ -152,10 +152,11 @@ spawnmenu.AddContentType( "gamefile", function( container, obj )
         local function openFile()
             if IsValid( luapad.Frame ) then
                 luapad.Frame:SetVisible( true )
-                luapad.OpenFile( obj.filePath )
             else
-                luapad.Toggle( obj.filePath )
+                luapad.Toggle( true )
             end
+
+            luapad.OpenFile( obj.filePath )
 
             local spawnMenu = g_SpawnMenu
 

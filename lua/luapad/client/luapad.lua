@@ -193,11 +193,9 @@ local function setupToolbar()
     end
 end
 
-function luapad.Toggle( path )
+function luapad.Toggle( noNewTab )
     if IsValid( luapad.Frame ) then
         luapad.Frame:SetVisible( not luapad.Frame:IsVisible() )
-        luapad.OpenFile( path )
-
         return
     end
 
@@ -229,6 +227,7 @@ function luapad.Toggle( path )
     luapad.PropertySheet.tabScroller:DockMargin( 0, 0, 0, 0 )
     luapad.PropertySheet.tabScroller:SetOverlap( 0 )
     luapad.PropertySheet.____SetActiveTab = luapad.PropertySheet.SetActiveTab
+    
     function luapad.PropertySheet:SetActiveTab( ... )
         luapad.PropertySheet:____SetActiveTab( ... )
 
@@ -237,6 +236,7 @@ function luapad.Toggle( path )
             luapad.Frame:SetTitle( "Luapad - " .. panel.path .. panel.name )
         end
     end
+
     luapad.PropertySheet.tabScroller:SetTall( 22 )
     luapad.PropertySheet.tabScroller.SetTall = function() end
     luapad.PropertySheet.Paint = function() end
@@ -259,11 +259,7 @@ function luapad.Toggle( path )
     setupToolbar()
     loadSavedTabs()
 
-    if path then
-        return luapad.OpenFile( path )
-    end
-
-    if table.Count( luapad.PropertySheet.Items ) == 0 then
+    if not noNewTab and table.Count( luapad.PropertySheet.Items ) == 0 then
         luapad.NewTab()
     end
 end
