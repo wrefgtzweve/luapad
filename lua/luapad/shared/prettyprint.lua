@@ -46,13 +46,11 @@ local function prettyTable( t, str, indent, depth, done )
         key = ( type( key ) == "string" ) and "[\"" .. key .. "\"]" or "[" .. varToStr( key ) .. "]"
         str = str .. string.rep( "  ", indent )
 
-        if  istable( value ) and not done[value] then
-
+        if istable( value ) and not done[value] then
             done[value] = true
             str = str .. key .. ":\n"
-            str = str .. prettyTable( value, str, indent + 2, depth, done )
+            str = prettyTable( value, str, indent + 2, depth, done )
             done[value] = nil
-
         else
             str = str .. key .. "\t=\t" .. varToStr( value ) .. "\n"
         end
