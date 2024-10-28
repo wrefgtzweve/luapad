@@ -52,11 +52,6 @@ local function deleteIfEmpty( node )
     end
 end
 
-local function refreshGModLua( node )
-    recursiveAddLua( node, node, "lua/", "MOD" )
-    deleteIfEmpty( node )
-end
-
 local function refreshAddonLuaFiles( node )
     for _, addon in SortedPairsByMemberValue( engine.GetAddons(), "title" ) do
         if addon.downloaded and addon.mounted then
@@ -133,7 +128,8 @@ hook.Add( "PopulateContent", "SpawnmenuLuapadBrowse", function( panelContent, tr
 
         refreshAddonLuaFiles( browseAddonLua )
         refreshLegacyAddonLuaFiles( browseLegacyLua )
-        refreshGModLua( browseGmodLua )
+        
+        recursiveAddLua( browseGmodLua, browseGmodLua, "lua/", "MOD" )
     end)
 end)
 
