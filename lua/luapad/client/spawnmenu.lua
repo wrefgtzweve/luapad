@@ -72,20 +72,15 @@ local function refreshAddonLuaFiles( node )
 end
 
 local function refreshLegacyAddonLuaFiles( node )
-    local legacyAddons = {}
-    local _, dirs = file.Find( "addons/*", "GAME" )
+    local _, legacyAddons = file.Find( "addons/*", "GAME" )
 
-    if not dirs[1] then
+    if not legacyAddons[1] then
         return node:Remove()
-    end
-
-    for _, addon in ipairs( dirs ) do
-        table.insert( legacyAddons, addon )
     end
 
     table.sort( legacyAddons )
 
-    for k, addon in ipairs( legacyAddons ) do
+    for _, addon in ipairs( legacyAddons ) do
         local files, dirs = file.Find( "addons/" .. addon .. "/lua/*", "GAME" )
         local hasLua = files[1] or dirs[1]
 
@@ -109,10 +104,10 @@ hook.Add( "PopulateContent", "SpawnmenuLuapadBrowse", function( panelContent, tr
             parent = parent or tree
 
             local newTree = parent:AddNode( name, icon )
-        
+
             newTree.pnlContent = panelContent
             newTree.ViewPanel = viewPanel
-        
+
             return newTree
         end
 
@@ -130,15 +125,15 @@ hook.Add( "PopulateContent", "SpawnmenuLuapadBrowse", function( panelContent, tr
         refreshLegacyAddonLuaFiles( browseLegacyLua )
         
         recursiveAddLua( browseGmodLua, browseGmodLua, "lua/", "MOD" )
-    end)
-end)
+    end )
+end )
 
 language.Add( "spawnmenu.category.browselua", "Browse Lua" )
 language.Add( "spawnmenu.category.luapadlua", "Luapad Storage" )
 
 spawnmenu.AddContentType( "gamefile", function( container, obj )
 	local icon = vgui.Create( "ContentIcon", container )
-    
+
 	icon:SetContentType( "gamefile" )
 	icon:SetSpawnName( obj.filePath )
 	icon:SetName( obj.fileName )
@@ -164,7 +159,7 @@ spawnmenu.AddContentType( "gamefile", function( container, obj )
         if luapad.CanUseCL() then
             return openFile()
         end
-    
+
         luapad.RequestCLAuth( openFile )
 	end
 
