@@ -176,7 +176,7 @@ spawnmenu.AddContentType( "gamefile", function( container, obj )
 		menu:Open()
 	end
 
-	if ( IsValid( container ) ) then
+	if IsValid( container ) then
 		container:Add( icon )
 	end
 

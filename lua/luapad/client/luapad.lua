@@ -344,7 +344,7 @@ end
 
 function luapad.OpenFile( path )
     if not path then return end
-    
+
     local content = file.Read( path, "GAME" )
     if not content then return end
 
