@@ -1,6 +1,6 @@
 -- Browse Lua Files for the Sandbox Spawn Menu
 
-local function onNodeSelected( self, node )
+local function onNodeSelected( self )
     local viewPanel = self.ViewPanel
     local path = self.Path
 
