@@ -88,14 +88,15 @@ function PANEL:Init()
             return
         end
 
-        local exists = table.KeyFromValue( self.Input.History, text )
-        if not exists then
+        if self.Input.History[#self.Input.History] ~= text then
             table.insert( self.Input.History, text )
 
             if #self.Input.History > 10 then
                 table.remove( self.Input.History, 1 )
             end
         end
+
+        self.Input.HistoryPos = 0
 
         local isClient = self.Realm:GetValue() == "Client"
         local isServer = self.Realm:GetValue() == "Server"
