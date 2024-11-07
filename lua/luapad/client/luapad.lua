@@ -115,7 +115,7 @@ local function setupToolbar()
 
     addToolbarItem( "New (CTRL + N)", "icon16/page_white_add.png", luapad.NewTab )
     addToolbarItem( "Open (CTRL + O)", "icon16/folder_page_white.png", luapad.OpenScript )
-    addToolbarItem( "Save (CTRL + S)", "icon16/disk.png", SaveCurrentScript )
+    addToolbarItem( "Save (CTRL + S)", "icon16/disk.png", luapad.SaveCurrentScript )
     addToolbarItem( "Save As (CTRL + ALT + S)", "icon16/disk_multiple.png", saveAsScript )
     addToolbarItem( "Paste large text without lag", "icon16/paste_plain.png", function()
         local dframe = vgui.Create( "DFrame" )
