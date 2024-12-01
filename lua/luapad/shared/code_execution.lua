@@ -86,6 +86,15 @@ local function setEnvFunctions( ply, env )
             env.__send( str )
         end
     end
+
+    env.randombot = function()
+        local bots = player.GetBots()
+        if #bots == 0 then
+            env.error( "No bots found." )
+        end
+
+        return table.Random( bots )
+    end
 end
 
 local function setEnvVariables( ply, env )

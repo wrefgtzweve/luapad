@@ -25,6 +25,7 @@ _G.this -- The entity the code runner is looking at
 _G.there -- The hitpos of the code runner eyetrace
 _G.here -- The current position of the code runner
 _G.bot -- player.GetBots()[1]
+_G.randombot() -- Returns a random bot
 ```
 
 #### SV Hooks
