@@ -3,6 +3,8 @@ if IsValid( luapad.Frame ) then
     luapad.Frame:Remove()
 end
 
+file.CreateDir( "luapad" )
+
 local function saveAsScript()
     local name = luapad.PropertySheet:GetActiveTab():GetPanel().name
     Derma_StringRequest( "Luapad", "You are about to save a file, please enter the desired filename.", name, function( filename )
