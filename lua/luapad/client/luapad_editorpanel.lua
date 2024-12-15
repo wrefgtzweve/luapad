@@ -160,7 +160,7 @@ end
 
 function PANEL:CursorToCaret()
     local x, y = self:CursorPos()
-    x = x - ( self.FontWidth * 3 + 6 )
+    x = x - ( self.FontWidth * lineNumberWidth + 6 )
 
     if x < 0 then
         x = 0
@@ -506,7 +506,7 @@ function PANEL:PerformLayout()
     self.ScrollBar:SetSize( 16, self:GetTall() )
     self.ScrollBar:SetPos( self:GetWide() - 16, 0 )
     self.Size[1] = math.floor( self:GetTall() / self.FontHeight ) - 1
-    self.Size[2] = math.floor( ( self:GetWide() - ( self.FontWidth * 3 + 6 ) - 16 ) / self.FontWidth ) - 1
+    self.Size[2] = math.floor( ( self:GetWide() - ( self.FontWidth * lineNumberWidth + 6 ) - 16 ) / self.FontWidth ) - 1
     self.ScrollBar:SetUp( self.Size[1], #self.Rows - 1 )
 end
 
@@ -526,7 +526,7 @@ function PANEL:Paint()
     surface.SetDrawColor( lineCountBarColor.r, lineCountBarColor.g, lineCountBarColor.b, lineCountBarColor.a )
     surface.DrawRect( 0, 0, self.FontWidth * lineNumberWidth + 4, self:GetTall() )
     surface.SetDrawColor( backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a )
-    surface.DrawRect( self.FontWidth * lineNumberWidth + 5, 0, self:GetWide() - ( self.FontWidth * 3 + 5 ), self:GetTall() )
+    surface.DrawRect( self.FontWidth * lineNumberWidth + 5, 0, self:GetWide() - ( self.FontWidth * lineNumberWidth + 5 ), self:GetTall() )
     self.Scroll[1] = math.floor( self.ScrollBar:GetScroll() + 1 )
 
     for i = self.Scroll[1], self.Scroll[1] + self.Size[1] + 1 do
