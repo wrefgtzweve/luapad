@@ -102,6 +102,7 @@ local string_sub = string.sub
 local table_insert = table.insert
 local input_IsKeyDown = input.IsKeyDown
 local draw_SimpleText = draw.SimpleText
+local lineNumberWidth = 4
 
 local PANEL = {}
 function PANEL:Init()
@@ -436,7 +437,7 @@ function PANEL:PaintLine( row )
 
     if row == self.Caret[1] and self.TextEntry:HasFocus() then
         surface.SetDrawColor( currentLineColor.r, currentLineColor.g, currentLineColor.b, currentLineColor.a )
-        surface.DrawRect( width * 3 + 5, ( row - self.Scroll[1] ) * height, self:GetWide() - ( width * 3 + 5 ), height )
+        surface.DrawRect( width * lineNumberWidth + 5, ( row - self.Scroll[1] ) * height, self:GetWide() - ( width * 4 + 5 ), height )
     end
 
     if self:HasSelection() then
@@ -457,17 +458,17 @@ function PANEL:PaintLine( row )
         end
 
         if row == line and line == endline then
-            surface.DrawRect( char * width + width * 3 + 6, ( row - self.Scroll[1] ) * height, width * ( endchar - char ), height )
+            surface.DrawRect( char * width + width * lineNumberWidth + 6, ( row - self.Scroll[1] ) * height, width * ( endchar - char ), height )
         elseif row == line then
-            surface.DrawRect( char * width + width * 3 + 6, ( row - self.Scroll[1] ) * height, width * ( length - char + 1 ), height )
+            surface.DrawRect( char * width + width * lineNumberWidth + 6, ( row - self.Scroll[1] ) * height, width * ( length - char + 1 ), height )
         elseif row == endline then
-            surface.DrawRect( width * 3 + 6, ( row - self.Scroll[1] ) * height, width * endchar, height )
+            surface.DrawRect( width * lineNumberWidth + 6, ( row - self.Scroll[1] ) * height, width * endchar, height )
         elseif row > line and row < endline then
-            surface.DrawRect( width * 3 + 6, ( row - self.Scroll[1] ) * height, width * ( length + 1 ), height )
+            surface.DrawRect( width * lineNumberWidth + 6, ( row - self.Scroll[1] ) * height, width * ( length + 1 ), height )
         end
     end
 
-    draw_SimpleText( tostring( row ), "LuapadEditor", width * 3, ( row - self.Scroll[1] ) * height, lineNumbersColor, TEXT_ALIGN_RIGHT )
+    draw_SimpleText( tostring( row ), "LuapadEditor", width * lineNumberWidth, ( row - self.Scroll[1] ) * height, lineNumbersColor, TEXT_ALIGN_RIGHT )
     local offset = -self.Scroll[2] + 1
 
     for _, cell in ipairs( self.PaintRows[row] ) do
@@ -477,18 +478,18 @@ function PANEL:PaintLine( row )
                 offset = #line
 
                 if cell[2][2] then
-                    draw_SimpleText( line, "LuapadEditorBold", width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] or cell[2] )
+                    draw_SimpleText( line, "LuapadEditorBold", width * lineNumberWidth + 6, ( row - self.Scroll[1] ) * height, cell[2][1] or cell[2] )
                 else
-                    draw_SimpleText( line, "LuapadEditor", width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] or cell[2] )
+                    draw_SimpleText( line, "LuapadEditor", width * lineNumberWidth + 6, ( row - self.Scroll[1] ) * height, cell[2][1] or cell[2] )
                 end
             else
                 offset = offset + #cell[1]
             end
         else
             if cell[2][2] then
-                draw_SimpleText( cell[1], "LuapadEditorBold", offset * width + width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] or cell[2] )
+                draw_SimpleText( cell[1], "LuapadEditorBold", offset * width + width * lineNumberWidth + 6, ( row - self.Scroll[1] ) * height, cell[2][1] or cell[2] )
             else
-                draw_SimpleText( cell[1], "LuapadEditor", offset * width + width * 3 + 6, ( row - self.Scroll[1] ) * height, cell[2][1] or cell[2] )
+                draw_SimpleText( cell[1], "LuapadEditor", offset * width + width * lineNumberWidth + 6, ( row - self.Scroll[1] ) * height, cell[2][1] or cell[2] )
             end
 
             offset = offset + #cell[1]
@@ -497,7 +498,7 @@ function PANEL:PaintLine( row )
 
     if row == self.Caret[1] and self.TextEntry:HasFocus() and ( RealTime() - self.Blink ) % 0.8 < 0.4 and self.Caret[2] - self.Scroll[2] >= 0 then
         surface.SetDrawColor( caretColor.r, caretColor.g, caretColor.b, caretColor.a )
-        surface.DrawRect( ( self.Caret[2] - self.Scroll[2] ) * width + width * 3 + 6, ( self.Caret[1] - self.Scroll[1] ) * height, 1, height )
+        surface.DrawRect( ( self.Caret[2] - self.Scroll[2] ) * width + width * lineNumberWidth + 6, ( self.Caret[1] - self.Scroll[1] ) * height, 1, height )
     end
 end
 
@@ -523,9 +524,9 @@ function PANEL:Paint()
     end
 
     surface.SetDrawColor( lineCountBarColor.r, lineCountBarColor.g, lineCountBarColor.b, lineCountBarColor.a )
-    surface.DrawRect( 0, 0, self.FontWidth * 3 + 4, self:GetTall() )
+    surface.DrawRect( 0, 0, self.FontWidth * lineNumberWidth + 4, self:GetTall() )
     surface.SetDrawColor( backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a )
-    surface.DrawRect( self.FontWidth * 3 + 5, 0, self:GetWide() - ( self.FontWidth * 3 + 5 ), self:GetTall() )
+    surface.DrawRect( self.FontWidth * lineNumberWidth + 5, 0, self:GetWide() - ( self.FontWidth * 3 + 5 ), self:GetTall() )
     self.Scroll[1] = math.floor( self.ScrollBar:GetScroll() + 1 )
 
     for i = self.Scroll[1], self.Scroll[1] + self.Size[1] + 1 do
