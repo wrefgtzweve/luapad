@@ -89,21 +89,37 @@ local function getConsole()
     return luapad.Frame.Console
 end
 
-function luapad.AddConsoleText( str, clr )
+function luapad.AddConsoleText( str, clr, newline )
     local console = getConsole()
     if not console then return end
 
-    console:AddConsoleText( str, clr )
+    console:AddConsoleText( str, clr, newline )
 end
 
 net.Receive( "luapad_prints_cl", function()
     local ply = net.ReadPlayer()
     local str = luapad.ReadCompressed()
+
+    local color = luapad.Colors.clientConsole
+    local hasColor = net.ReadBool()
+    if hasColor then
+        color = net.ReadColor()
+    end
+    local newline = net.ReadBool()
+
     str = "[" .. ply:SteamID() .. "]" .. ply:Nick() .. ": " .. str
-    luapad.AddConsoleText( str, luapad.Colors.clientConsole )
+    luapad.AddConsoleText( str, color, newline )
 end )
 
 net.Receive( "luapad_prints_sv", function()
     local str = luapad.ReadCompressed()
-    luapad.AddConsoleText( str, luapad.Colors.serverConsole )
+
+    local color = luapad.Colors.serverConsole
+    local hasColor = net.ReadBool()
+    if hasColor then
+        color = net.ReadColor()
+    end
+    local newline = net.ReadBool()
+
+    luapad.AddConsoleText( str, color, newline )
 end )

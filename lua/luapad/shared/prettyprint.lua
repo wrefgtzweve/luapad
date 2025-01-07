@@ -66,7 +66,7 @@ end
 
 function luapad.PrettyPrint( obj )
     if obj == nil then
-        return "nil"
+        return ""
     end
 
     if istable( obj ) then

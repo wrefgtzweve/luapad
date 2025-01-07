@@ -1,17 +1,32 @@
 local function setEnvFunctions( ply, env )
-    env.__send = function( str )
+    env.__send = function( str, color, newline )
+        newline = newline == nil and true or newline
         if CLIENT then
             if LocalPlayer() == ply then
-                luapad.AddConsoleText( str, luapad.Colors.clientConsole )
+                luapad.AddConsoleText( str, color or luapad.Colors.clientConsole, newline )
             else
                 net.Start( "luapad_prints_cl" )
                     net.WritePlayer( ply )
                     luapad.WriteCompressed( str )
+                    if color then
+                        net.WriteBool( true )
+                        net.WriteColor( color )
+                    else
+                        net.WriteBool( false )
+                    end
+                    net.WriteBool( newline )
                 net.SendToServer()
             end
         else
             net.Start( "luapad_prints_sv" )
                 luapad.WriteCompressed( str )
+                if color then
+                    net.WriteBool( true )
+                    net.WriteColor( color )
+                else
+                    net.WriteBool( false )
+                end
+                net.WriteBool( newline )
             net.Send( ply )
         end
     end
@@ -57,17 +72,15 @@ local function setEnvFunctions( ply, env )
     env.MsgC = function( ... )
         MsgC( ... )
 
-        local str = ""
+        local lastColor
         for i = 1, select( "#", ... ) do
             local arg = select( i, ... )
             if IsColor( arg ) then
-                str = str .. string.format( "Color( %i, %i, %i, %i ) ", arg.r, arg.g, arg.b, arg.a )
+                lastColor = arg
             else
-                str = str .. tostring( arg )
+                env.__send( tostring( arg ), lastColor, false )
             end
         end
-
-        env.__send( str )
     end
 
     env.error = function( str )

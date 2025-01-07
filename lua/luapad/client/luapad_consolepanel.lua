@@ -166,10 +166,15 @@ function PANEL:Init()
     end
 end
 
-function PANEL:AddConsoleText( str, color )
+function PANEL:AddConsoleText( str, color, newline )
+    newline = newline == nil and true or newline
     color = color or Color( 255, 255, 255 )
     self.Display:InsertColorChange( color.r, color.g, color.b, color.a )
-    self.Display:AppendText( str .. "\n" )
+
+    if newline then
+        str = str .. "\n"
+    end
+    self.Display:AppendText( str )
     if color then
         self.Display:InsertColorChange( 50, 50, 50, 255 )
     end
