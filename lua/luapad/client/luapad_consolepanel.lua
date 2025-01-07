@@ -23,6 +23,7 @@ function PANEL:Init()
 
     self.Display = vgui.Create( "RichText", self )
     self.Display:Dock( FILL )
+    self.Display:SetTextSelectionColors( Color( 255, 255, 255 ), Color( 32, 156, 233 ) )
 
     self.Bottombar = vgui.Create( "DPanel", self )
     self.Bottombar:DockMargin( 0, 5, 0, 0 )
