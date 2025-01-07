@@ -22,9 +22,20 @@ net.Receive( "luapad_runserver", function( _, ply )
         return
     end
 
+    local pretty = luapad.PrettyPrint( ret )
+    local compressed = util.Compress( pretty )
+    if #compressed > 60000 then -- Output too large, shorten it
+        local shortened = pretty:sub( 1, 60000 )
+        net.Start( "luapad_runserver" )
+        net.WriteBool( false )
+        luapad.WriteCompressed( shortened .. "\nOutput too large, shortened." )
+        net.Send( ply )
+        return
+    end
+
     net.Start( "luapad_runserver" )
     net.WriteBool( true )
-    luapad.WriteCompressed( luapad.PrettyPrint( ret ) )
+    luapad.WriteCompressed( pretty )
     net.Send( ply )
 end )
 
