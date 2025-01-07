@@ -65,8 +65,8 @@ local function prettyTable( t, str, indent, depth, done )
 end
 
 function luapad.PrettyPrint( obj )
-    if not obj then
-        return ""
+    if obj == nil then
+        return "nil"
     end
 
     if istable( obj ) then
