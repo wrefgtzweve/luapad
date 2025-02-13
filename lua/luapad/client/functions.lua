@@ -93,6 +93,7 @@ function luapad.AddConsoleText( str, clr, newline )
     local console = getConsole()
     if not console then return end
 
+    luapad.AddHudConsoleText( str, clr, newline )
     console:AddConsoleText( str, clr, newline )
 end
 
