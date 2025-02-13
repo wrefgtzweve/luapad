@@ -21,17 +21,8 @@ local function addLog( text, color )
     end
 end
 
-function luapad.AddHudConsoleText( text, color, newline )
-    if not newline then
-        addLog( text, color )
-    else
-        local lastLog = activeLogs[#activeLogs]
-        if lastLog then
-            lastLog.text = lastLog.text .. text
-        else
-            addLog( text, color )
-        end
-    end
+function luapad.AddHudConsoleText( text, color )
+    addLog( text, color )
 end
 
 local function logsDraw()
