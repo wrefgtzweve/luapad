@@ -22,7 +22,7 @@ local function addLog( text, color )
 end
 
 function luapad.AddHudConsoleText( text, color, newline )
-    if newline or newline == nil then
+    if not newline then
         addLog( text, color )
     else
         local lastLog = activeLogs[#activeLogs]
@@ -71,4 +71,3 @@ local function logsDraw()
 end
 
 hook.Add( "HUDPaint", "Luapad_DrawConsole", logsDraw )
-    
