@@ -67,6 +67,7 @@ end )
 
 net.Receive( "luapad_prints_cl", function( _, ply )
     local target = net.ReadPlayer()
+    if not target.LuapadCanReceivePrintsFrom then return end
     if not target.LuapadCanReceivePrintsFrom[ply] then return end
 
     local str = luapad.ReadCompressed()
