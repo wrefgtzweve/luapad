@@ -27,6 +27,7 @@ When executing code, Luapad provides a custom environment with several useful gl
 - **`_G.here`**: The current position of the code runner.
 - **`_G.bot`**: The first bot player (`player.GetBots()[1]`).
 - **`_G.randombot()`**: Returns a random bot player.
+- **`_G.GM`**: The current game mode (Same as `GAMEMODE` but for ease of use in gamemode development).
 
 These variables are designed to enhance your coding experience by providing quick access to commonly used entities and positions.
 

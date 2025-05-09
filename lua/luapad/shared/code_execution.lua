@@ -119,6 +119,7 @@ local function setEnvVariables( ply, env )
     env.there = tr.HitPos
     env.here = ply:GetPos()
     env.bot = player.GetBots()[1]
+    env.GM = GM or GAMEMODE
 end
 
 local function createEnv( ply, func )
