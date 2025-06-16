@@ -8,6 +8,7 @@ local logBoxColor = Color( 30, 30, 30, 200 )
 local headerColor = Color( 200, 200, 200 )
 
 local function addLog( text, color )
+    text = tostring( text )
     if #text > 256 then
         text = string.sub( text, 1, 256 ) .. "..."
     end
