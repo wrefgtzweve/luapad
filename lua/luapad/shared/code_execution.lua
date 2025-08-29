@@ -45,6 +45,18 @@ local function setEnvFunctions( ply, env )
         env.__send( str )
     end
 
+    env.lpprint = function( ... )
+        local str = ""
+        for i = 1, select( "#", ... ) do
+            local arg = select( i, ... )
+            str = str .. tostring( arg ) .. "\t"
+        end
+
+        str = str:sub( 1, -2 )
+
+        env.__send( str )
+    end
+
     env.Msg = function( ... )
         Msg( ... )
 
