@@ -22,9 +22,9 @@ local function createIcon( name, drawFunc )
     icons[name] = iconMaterial
 end
 
-local function renderIcons()
+function luapad.RenderIcons()
     for name, drawFunc in pairs( iconsToCreate ) do
-        local rt = GetRenderTarget( name .. "RT", ICON_SIZE, ICON_SIZE, RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_SEPARATE, 2, 0, IMAGE_FORMAT_BGRA8888 )
+        local rt = GetRenderTarget( name .. "_luapad_rt", ICON_SIZE, ICON_SIZE, RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_SEPARATE, 2, 0, IMAGE_FORMAT_BGRA8888 )
 
         render.PushRenderTarget( rt )
             render.Clear( 0, 0, 0, 0 )
@@ -40,6 +40,10 @@ local function renderIcons()
 
         icons[name] = iconMaterial
     end
+
+    hook.Add( "OnScreenSizeChanged", "Luapad_RecreateIcons", function()
+        timer.Simple( 0, luapad.RenderIcons )
+    end )
 end
 
 -- hook.Add( "HUDPaint", "DrawIconsTest", function()
@@ -124,10 +128,4 @@ createIcon( "luapadClientSpecific", function()
     surface.SetDrawColor( 255, 255, 255, 255 )
     surface.SetMaterial( Material( "icon16/user_go.png", "ignorez" ) )
     surface.DrawTexturedRect( 8, 8, ICON_SIZE - 16, ICON_SIZE - 16 )
-end )
-
-renderIcons()
--- This hook runs for all graphic changes, including resolution changes.
-hook.Add( "OnScreenSizeChanged", "Luapad_RecreateIcons", function()
-    timer.Simple( 0, renderIcons )
 end )

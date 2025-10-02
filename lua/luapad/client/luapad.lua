@@ -199,6 +199,7 @@ function luapad.Toggle()
         return
     end
 
+    luapad.RenderIcons()
     include( "luapad/client/server_globals.lua" )
 
     -- Build it, if it doesn't exist
