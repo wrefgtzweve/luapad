@@ -13,6 +13,10 @@ local function addLog( text, color )
         text = string.sub( text, 1, 256 ) .. "..."
     end
 
+    -- Replace tabs and newlines
+    text = string.gsub( text, "\t", " " )
+    text = string.gsub( text, "\n", " " )
+
     local log = {
         text = text,
         color = color,
