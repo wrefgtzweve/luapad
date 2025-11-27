@@ -2,6 +2,8 @@ util.AddNetworkString( "luapad_runserver" )
 util.AddNetworkString( "luapad_runclient" )
 util.AddNetworkString( "luapad_prints_cl" )
 util.AddNetworkString( "luapad_prints_sv" )
+util.AddNetworkString( "luapad_clear_hooks" )
+
 
 net.Receive( "luapad_runserver", function( _, ply )
     if not luapad.CanUseSV( ply ) then
@@ -79,3 +81,10 @@ net.Receive( "luapad_prints_cl", function( _, ply )
     net.WriteBool( true )
     net.Send( target )
 end )
+
+net.Receive( "luapad_clear_hooks", function( _, ply ) 
+    if not luapad.CanUseSV( ply ) then return end
+    luapad.ClearAllHooks( ply )
+    net.Start( "luapad_clear_hooks" )
+    net.SendOmit( ply )
+end)

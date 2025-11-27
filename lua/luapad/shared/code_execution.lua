@@ -1,3 +1,31 @@
+luapad.createdHooks = luapad.createdHooks or {}
+local AboutToCleanup = false
+
+local function addHook( ply, hookname, hookID )
+    luapad.createdHooks[ply] = luapad.createdHooks[ply] or {}
+    luapad.createdHooks[ply][hookname] = luapad.createdHooks[ply][hookname] or {}
+    luapad.createdHooks[ply][hookname][hookID] = true
+end
+
+local function recursiveCleanupTables( t )
+    for k, v in pairs(t) do
+        if type(v) == "table" then
+            recursiveCleanupTables(v)
+            if next(v) == nil then
+                t[k] = nil
+            end
+        end
+    end
+end
+
+local function removeHook( ply, hookname, hookID )
+    if not luapad.createdHooks[ply] then return end
+    if not luapad.createdHooks[ply][hookname] then return end
+    if luapad.createdHooks[ply][hookname][hookID] then
+        luapad.createdHooks[ply][hookname][hookID] = nil
+    end
+end
+
 local function setEnvFunctions( ply, env )
     env.__send = function( str, color, newline )
         newline = newline == nil and true or newline
@@ -120,6 +148,18 @@ local function setEnvFunctions( ply, env )
 
         return table.Random( bots )
     end
+
+    env.hook = {}
+
+    env.hook.Add = function( hookname, hookID, func )
+        addHook(CLIENT and LocalPlayer():SteamID() or ply:SteamID(), hookname, hookID)
+        hook.Add( hookname, hookID , func)
+    end
+
+    env.hook.Remove = function( hookname, hookID )
+        removeHook(CLIENT and LocalPlayer():SteamID() or ply:SteamID(), hookname, hookID)
+        hook.Remove( hookname, hookID )
+    end
 end
 
 local function setEnvVariables( ply, env )
@@ -167,8 +207,26 @@ local function gettraceback( err )
     return trace
 end
 
+function luapad.ClearAllHooks( tply )
+    local padhooks = luapad.createdHooks
+    local ply = tply:SteamID()
+    if padhooks[ply] then
+        for hookname,IDs in pairs(padhooks[ply]) do
+            for ID,_ in pairs(IDs) do
+                hook.Remove(hookname,ID)
+            end
+        end
+        padhooks[ply] = {}
+    end
+    recursiveCleanupTables(padhooks)
+end
+
+function luapad.GetIdentifier( owner )
+    return "Luapad[" .. owner:SteamID() .. "]" .. owner:Nick()
+end
+
 function luapad.Execute( owner, code )
-    local src = "Luapad[" .. owner:SteamID() .. "]" .. owner:Nick() .. ".lua"
+    local src = luapad.GetIdentifier( owner ) .. ".lua"
     local func = CompileString( "return " .. code, src, false )
     if not isfunction( func ) then
         func = CompileString( code, src, false )
@@ -181,6 +239,7 @@ function luapad.Execute( owner, code )
     createEnv( owner, func )
 
     local status, ret = xpcall( func, gettraceback )
+    recursiveCleanupTables(luapad.createdHooks)
     if not status then
         return false, ret
     end
