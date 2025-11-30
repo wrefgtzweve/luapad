@@ -82,9 +82,9 @@ net.Receive( "luapad_prints_cl", function( _, ply )
     net.Send( target )
 end )
 
-net.Receive( "luapad_clear_hooks", function( _, ply ) 
+net.Receive( "luapad_clear_hooks", function( _, ply )
     if not luapad.CanUseSV( ply ) then return end
     luapad.ClearAllHooks( ply )
     net.Start( "luapad_clear_hooks" )
     net.SendOmit( ply )
-end)
+end )
