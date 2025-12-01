@@ -129,3 +129,21 @@ createIcon( "luapadClientSpecific", function()
     surface.SetMaterial( Material( "icon16/user_go.png", "ignorez" ) )
     surface.DrawTexturedRect( 8, 8, ICON_SIZE - 16, ICON_SIZE - 16 )
 end )
+
+createIcon( "luapadClearHooksSelf", function()
+    drawRealmSquare( luapad.Colors.clientWiki )
+
+    draw.NoTexture()
+    surface.SetDrawColor( 255, 255, 255, 255 )
+    surface.SetMaterial( Material( "icon16/bin.png", "ignorez" ) )
+    surface.DrawTexturedRect( 8, 8, ICON_SIZE - 16, ICON_SIZE - 16 )
+end )
+
+createIcon( "luapadClearHooksAll", function()
+    drawRealmSquare( luapad.Colors.serverWiki )
+
+    draw.NoTexture()
+    surface.SetDrawColor( 255, 255, 255, 255 )
+    surface.SetMaterial( Material( "icon16/bin.png", "ignorez" ) )
+    surface.DrawTexturedRect( 8, 8, ICON_SIZE - 16, ICON_SIZE - 16 )
+end )

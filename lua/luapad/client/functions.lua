@@ -124,3 +124,20 @@ net.Receive( "luapad_prints_sv", function()
 
     luapad.AddConsoleText( str, color, newline )
 end )
+
+net.Receive( "luapad_clear_hooks", function()
+    luapad.ClearAllHooks( LocalPlayer() )
+end )
+
+concommand.Add( "luapad_clearhooks", function()
+    if not luapad.CanUseCL( LocalPlayer() ) then return end
+    luapad.ClearAllHooks( LocalPlayer() )
+end, nil, "Clear YOUR luapad clientside hooks. (Requires Clientside Luapad access)" )
+
+concommand.Add( "luapad_clearallhooks", function()
+    if not luapad.CanUseSV( LocalPlayer() ) then return end
+
+    luapad.ClearAllHooks( LocalPlayer() )
+    net.Start( "luapad_clear_hooks" )
+    net.SendToServer()
+end, nil, "Clears all (client/server/other players) created hooks. (Requires Serverside Luapad access)" )

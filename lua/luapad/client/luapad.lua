@@ -191,6 +191,18 @@ local function setupToolbar()
             menu:Open()
         end )
     end
+
+    addToolbarSpacer()
+
+    addToolbarItem( "Clear luapad hooks on own client", "!luapadClearHooksSelf", function()
+        RunConsoleCommand( "luapad_clearhooks" )
+    end )
+
+    if isSVUser then
+        addToolbarItem( "Clear all luapad hooks on server & client(s)", "!luapadClearHooksAll", function()
+            RunConsoleCommand( "luapad_clearallhooks" )
+        end )
+    end
 end
 
 function luapad.Toggle()
