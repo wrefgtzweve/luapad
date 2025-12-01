@@ -199,7 +199,7 @@ local function setupToolbar()
     end )
 
     if isSVUser then
-        addToolbarItem( "Clear all luapad hooks on server & client", "!luapadClearHooksAll", function()
+        addToolbarItem( "Clear all luapad hooks on server & client(s)", "!luapadClearHooksAll", function()
             RunConsoleCommand( "luapad_clearallhooks" )
         end )
     end
