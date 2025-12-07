@@ -148,12 +148,11 @@ local function setEnvFunctions( ply, env )
         return table.Random( bots )
     end
 
-    env.hook = _G.hook or {}
+    env.hook = setmetatable( {}, { __index = _G.hook } )
     env.hook.Add = function( hookname, hookID, func )
         addHook( CLIENT and LocalPlayer():SteamID() or ply:SteamID(), hookname, hookID )
         _G.hook.Add( hookname, hookID, func )
     end
-
     env.hook.Remove = function( hookname, hookID )
         removeHook( CLIENT and LocalPlayer():SteamID() or ply:SteamID(), hookname, hookID )
         _G.hook.Remove( hookname, hookID )
