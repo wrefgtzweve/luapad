@@ -141,3 +141,8 @@ concommand.Add( "luapad_clearallhooks", function()
     net.Start( "luapad_clear_hooks" )
     net.SendToServer()
 end, nil, "Clears all (client/server/other players) created hooks. (Requires Serverside Luapad access)" )
+
+concommand.Add( "luapad_clearpanels", function()
+    if not luapad.CanUseCL( LocalPlayer() ) then return end
+    luapad.ClearPanels()
+end, nil, "Clears all luapad-created derma/vgui panels on your client. (Requires Clientide Luapad Access)" )

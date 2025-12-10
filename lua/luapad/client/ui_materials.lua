@@ -130,18 +130,29 @@ createIcon( "luapadClientSpecific", function()
     surface.DrawTexturedRect( 8, 8, ICON_SIZE - 16, ICON_SIZE - 16 )
 end )
 
-createIcon( "luapadClearHooksSelf", function()
+createIcon( "luapadClearStuff", function()
     drawRealmSquare( luapad.Colors.clientWiki )
 
-    draw.NoTexture()
-    surface.SetDrawColor( 255, 255, 255, 255 )
-    surface.SetMaterial( Material( "icon16/bin.png", "ignorez" ) )
-    surface.DrawTexturedRect( 8, 8, ICON_SIZE - 16, ICON_SIZE - 16 )
-end )
+    render.SetStencilEnable( true )
 
-createIcon( "luapadClearHooksAll", function()
+    render.SetStencilTestMask( 255 )
+    render.SetStencilWriteMask( 255 )
+
+    render.SetStencilPassOperation( STENCILOPERATION_KEEP )
+    render.SetStencilZFailOperation( STENCILOPERATION_KEEP )
+    render.SetStencilCompareFunction( STENCILCOMPARISONFUNCTION_NEVER )
+    render.SetStencilReferenceValue( 9 )
+    render.SetStencilFailOperation( STENCILOPERATION_REPLACE )
+
+    surface.SetDrawColor( 255, 0, 0, 255 )
+    surface.DrawTexturedRectRotated( ICON_SIZE, 0, ICON_SIZE + ICON_SIZE * 0.41, ICON_SIZE * 2, 45 )
+
+    render.SetStencilFailOperation( STENCILOPERATION_KEEP )
+    render.SetStencilCompareFunction( STENCILCOMPARISONFUNCTION_EQUAL )
+
     drawRealmSquare( luapad.Colors.serverWiki )
 
+    render.SetStencilEnable( false )
     draw.NoTexture()
     surface.SetDrawColor( 255, 255, 255, 255 )
     surface.SetMaterial( Material( "icon16/bin.png", "ignorez" ) )
