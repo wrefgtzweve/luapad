@@ -1,9 +1,38 @@
 luapad.createdHooks = luapad.createdHooks or {}
+if CLIENT then
+    luapad.createdPanels = luapad.createdPanels or {}
+end
 
 local function addHook( ply, hookname, hookID )
     luapad.createdHooks[ply] = luapad.createdHooks[ply] or {}
     luapad.createdHooks[ply][hookname] = luapad.createdHooks[ply][hookname] or {}
     luapad.createdHooks[ply][hookname][hookID] = true
+end
+
+local function removeHook( ply, hookname, hookID )
+    if not luapad.createdHooks[ply] then return end
+    if not luapad.createdHooks[ply][hookname] then return end
+    if luapad.createdHooks[ply][hookname][hookID] then
+        luapad.createdHooks[ply][hookname][hookID] = nil
+    end
+end
+
+local function addPanel( panel )
+    table.insert( luapad.createdPanels, panel )
+end
+
+local function cleanupPanels()
+    local panels = luapad.createdPanels
+    local toremove = {}
+    if #panels == 0 then return end
+    for k, panel in ipairs( panels ) do
+        if not IsValid( panel ) then
+            table.insert( toremove, k )
+        end
+    end
+    for I = #toremove, 1, -1 do
+        table.remove( panels, toremove[I] )
+    end
 end
 
 local function recursiveCleanupTables( t )
@@ -14,14 +43,6 @@ local function recursiveCleanupTables( t )
                 t[k] = nil
             end
         end
-    end
-end
-
-local function removeHook( ply, hookname, hookID )
-    if not luapad.createdHooks[ply] then return end
-    if not luapad.createdHooks[ply][hookname] then return end
-    if luapad.createdHooks[ply][hookname][hookID] then
-        luapad.createdHooks[ply][hookname][hookID] = nil
     end
 end
 
@@ -149,14 +170,27 @@ local function setEnvFunctions( ply, env )
     end
 
     env.hook = setmetatable( {}, { __index = _G.hook } )
+
     env.hook.Add = function( hookname, hookID, func )
         addHook( CLIENT and LocalPlayer():SteamID() or ply:SteamID(), hookname, hookID )
         _G.hook.Add( hookname, hookID, func )
     end
+
     env.hook.Remove = function( hookname, hookID )
         removeHook( CLIENT and LocalPlayer():SteamID() or ply:SteamID(), hookname, hookID )
         _G.hook.Remove( hookname, hookID )
     end
+
+    if CLIENT and ply == LocalPlayer() then
+        env.vgui = setmetatable( {}, { __index = _G.vgui } )
+
+        env.vgui.Create = function( classname, parent, name )
+            local panel = vgui.Create( classname, parent, name )
+            addPanel( panel )
+            return panel
+        end
+    end
+
 end
 
 local function setEnvVariables( ply, env )
@@ -218,6 +252,17 @@ function luapad.ClearAllHooks( tply )
     recursiveCleanupTables( padhooks )
 end
 
+function luapad.ClearPanels()
+    local panels = luapad.createdPanels
+    if next( panels ) == nil then return end
+    for _, v in ipairs( panels ) do
+        if IsValid( v ) then
+            v:Remove()
+        end
+    end
+    cleanupPanels()
+end
+
 function luapad.GetIdentifier( owner )
     return "Luapad[" .. owner:SteamID() .. "]" .. owner:Nick()
 end
@@ -237,6 +282,9 @@ function luapad.Execute( owner, code )
 
     local status, ret = xpcall( func, gettraceback )
     recursiveCleanupTables( luapad.createdHooks )
+    if CLIENT and owner == LocalPlayer() then
+        cleanupPanels()
+    end
     if not status then
         return false, ret
     end
