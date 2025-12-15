@@ -34,10 +34,16 @@ function luapad.AddHudConsoleText( text, color )
     addLog( text, color )
 end
 
+surface.CreateFont( "LuapadConsoleFont", {
+    font = "Trebuchet18",
+    antialias = true,
+    outline = true,
+} )
+
 local function logsDraw()
     if #activeLogs == 0 then return end
 
-    surface.SetFont( "Trebuchet18" )
+    surface.SetFont( "LuapadConsoleFont" )
 
     -- Header
     local header = "Luapad Console"
@@ -47,22 +53,22 @@ local function logsDraw()
 
     surface.SetDrawColor( logBoxColor )
     surface.DrawRect( startX, startY, headerWidth, 30 )
-    draw.SimpleTextOutlined( header, "Trebuchet18", startX + headerWidth / 2, startY + 15, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, outlineColor )
+    draw.SimpleText( header, "LuapadConsoleFont", startX + headerWidth / 2, startY + 15, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, outlineColor )
 
     -- Logs
     for i, log in ipairs( activeLogs ) do
         local baseY = startY + i * 20 + 15
 
-        surface.SetFont( "Trebuchet18" )
+        surface.SetFont( "LuapadConsoleFont" )
         local textWidth = surface.GetTextSize( log.text )
         surface.SetDrawColor( logBoxColor )
         surface.DrawRect( startX, baseY, textWidth + 75, 20 )
 
         -- Draw timestamp
-        draw.SimpleTextOutlined( log.createTime, "Trebuchet18", startX + 5, baseY + 10, headerColor, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 1, outlineColor )
+        draw.SimpleText( log.createTime, "LuapadConsoleFont", startX + 5, baseY + 10, headerColor, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 1, outlineColor )
 
         -- Draw log text
-        draw.SimpleTextOutlined( log.text, "Trebuchet18", startX + 70, baseY + 10, log.color, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 1, outlineColor )
+        draw.SimpleText( log.text, "LuapadConsoleFont", startX + 70, baseY + 10, log.color, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 1, outlineColor )
 
         if log.removeTime < SysTime() then
             table.remove( activeLogs, i )
