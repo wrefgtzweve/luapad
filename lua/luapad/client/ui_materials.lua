@@ -2,28 +2,13 @@ local ICON_SIZE = 64
 local icons = {}
 luapad.Icons = icons
 
-local iconsToCreate = {}
-local function createIcon( name, drawFunc )
-    iconsToCreate[name] = drawFunc
-    local rt = GetRenderTarget( name .. "RT", ICON_SIZE, ICON_SIZE, RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_SEPARATE, 2, 0, IMAGE_FORMAT_BGRA8888 )
-
-    render.PushRenderTarget( rt )
-        render.Clear( 0, 0, 0, 0 )
-        cam.Start2D()
-        drawFunc()
-        cam.End2D()
-    render.PopRenderTarget()
-
-    local iconMaterial = CreateMaterial( name, "UnlitGeneric", {
-        ["$basetexture"] = rt:GetName(),
-        ["$translucent"] = "1"
-    } )
-
-    icons[name] = iconMaterial
+local iconsToRender = {}
+local function registerIcon( name, drawFunc )
+    iconsToRender[name] = drawFunc
 end
 
 function luapad.RenderIcons()
-    for name, drawFunc in pairs( iconsToCreate ) do
+    for name, drawFunc in pairs( iconsToRender ) do
         local rt = GetRenderTarget( name .. "_luapad_rt", ICON_SIZE, ICON_SIZE, RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_SEPARATE, 2, 0, IMAGE_FORMAT_BGRA8888 )
 
         render.PushRenderTarget( rt )
@@ -61,15 +46,15 @@ local function drawRealmSquare( color )
     draw.RoundedBox( ICON_SIZE * 0.3, 0, 0, ICON_SIZE, ICON_SIZE, color )
 end
 
-createIcon( "luapadClient", function()
+registerIcon( "luapadClient", function()
     drawRealmSquare( luapad.Colors.clientWiki )
 end )
 
-createIcon( "luapadServer", function()
+registerIcon( "luapadServer", function()
     drawRealmSquare( luapad.Colors.serverWiki )
 end )
 
-createIcon( "luapadShared", function()
+registerIcon( "luapadShared", function()
     drawRealmSquare( luapad.Colors.clientWiki )
 
     render.SetStencilEnable( true )
@@ -94,7 +79,7 @@ createIcon( "luapadShared", function()
     render.SetStencilEnable( false )
 end )
 
-createIcon( "luapadRunClient", function()
+registerIcon( "luapadRunClient", function()
     drawRealmSquare( luapad.Colors.clientWiki )
 
     draw.NoTexture()
@@ -103,7 +88,7 @@ createIcon( "luapadRunClient", function()
     surface.DrawTexturedRect( 8, 8, ICON_SIZE - 16, ICON_SIZE - 16 )
 end )
 
-createIcon( "luapadRunServer", function()
+registerIcon( "luapadRunServer", function()
     drawRealmSquare( luapad.Colors.serverWiki )
 
     draw.NoTexture()
@@ -112,7 +97,7 @@ createIcon( "luapadRunServer", function()
     surface.DrawTexturedRect( 8, 8, ICON_SIZE - 16, ICON_SIZE - 16 )
 end )
 
-createIcon( "luapadClientAll", function()
+registerIcon( "luapadClientAll", function()
     drawRealmSquare( luapad.Colors.clientWiki )
 
     draw.NoTexture()
@@ -121,7 +106,7 @@ createIcon( "luapadClientAll", function()
     surface.DrawTexturedRect( 8, 8, ICON_SIZE - 16, ICON_SIZE - 16 )
 end )
 
-createIcon( "luapadClientSpecific", function()
+registerIcon( "luapadClientSpecific", function()
     drawRealmSquare( luapad.Colors.clientWiki )
 
     draw.NoTexture()
@@ -130,7 +115,7 @@ createIcon( "luapadClientSpecific", function()
     surface.DrawTexturedRect( 8, 8, ICON_SIZE - 16, ICON_SIZE - 16 )
 end )
 
-createIcon( "luapadClearStuff", function()
+registerIcon( "luapadClearStuff", function()
     drawRealmSquare( luapad.Colors.clientWiki )
 
     render.SetStencilEnable( true )
