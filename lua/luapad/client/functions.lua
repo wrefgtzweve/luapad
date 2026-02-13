@@ -36,7 +36,7 @@ net.Receive( "luapad_runclient", function()
 
     local script = luapad.ReadCompressed()
     local success, err = luapad.Execute( runner, script )
-    if not success then
+    if not success or err then
         net.Start( "luapad_prints_cl" )
             net.WritePlayer( runner )
             luapad.WriteCompressed( err )
