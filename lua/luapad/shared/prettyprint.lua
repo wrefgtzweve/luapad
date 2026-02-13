@@ -80,3 +80,26 @@ function luapad.PrettyPrint( obj )
 
     return tostring( obj )
 end
+
+function luapad.PrettyStack( err, stack )
+    if not stack then
+        stack = {}
+        for i = 2, 1024 do
+            local info = debug.getinfo( i )
+            if not info then break end
+            if info.name == "xpcall" then break end
+
+            table.insert( stack, { Function = info.name, File = info.short_src, Line = info.currentline } )
+        end
+    end
+
+    local niceError = err
+    niceError = string.Replace( niceError, "\t", ( " " ):rep( 12 ) )
+    for i, t in pairs( stack ) do
+        if ( not t.Function or t.Function == "" ) then t.Function = "unknown" end
+
+        niceError = niceError .. "\n" .. ( " " ):rep( i ) .. i .. ". " .. t.Function .. " - " .. t.File .. ":" .. t.Line
+    end
+
+    return niceError
+end

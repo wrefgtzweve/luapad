@@ -38,5 +38,6 @@ include_client( "luapad/client/console_hud.lua" )
 
 include_server( "luapad/server/auth.lua" )
 include_server( "luapad/server/code_execution.lua" )
+include_server( "luapad/server/catch_async_errors.lua" )
 
 AddCSLuaFile( "luapad/client/server_globals.lua" ) -- Special case, only gets included when luapad is being used.
