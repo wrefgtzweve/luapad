@@ -52,6 +52,11 @@ function luapad.ToggleSettingsMenu()
     realm:SetText( "Left-handed realm selector" )
     realm:SetConVar( "luapad_console_realm_left" )
 
+    local hud = vgui.Create( "DCheckBoxLabel", frame )
+    hud:Dock( TOP )
+    hud:SetText( "Enable console HUD" )
+    hud:SetConVar( "luapad_console_hud_enabled" )
+
     local button = vgui.Create( "DButton", frame )
     button:Dock( BOTTOM )
     button:SetText( "Reload luapad" )

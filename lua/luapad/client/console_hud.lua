@@ -7,7 +7,11 @@ local outlineColor = Color( 0, 0, 0 )
 local logBoxColor = Color( 30, 30, 30, 200 )
 local headerColor = Color( 200, 200, 200 )
 
+local enabledCvar = CreateClientConVar( "luapad_console_hud_enabled", 1, true, false, "Whether the console HUD is enabled." )
+
 local function addLog( text, color )
+    if not enabledCvar:GetBool() then return end
+
     text = tostring( text )
     if #text > 256 then
         text = string.sub( text, 1, 256 ) .. "..."
