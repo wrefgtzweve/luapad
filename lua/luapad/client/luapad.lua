@@ -154,7 +154,7 @@ local function setupToolbar()
             [ "_G.bot" ] = "The first bot player (player.GetBots()[1])",
             [ "_G.randombot()" ] = "Returns a random bot player",
             [ "_G.GM" ] = "The current game mode (Same as GAMEMODE but for ease of use in gamemode development)",
-            [ "_G.lpprint(...)" ] = "A custom print function that forwards output to the original code runner's luapad console, unlike regular print this does not print to base gmod console"
+            [ "_G.lpprint(...)" ] = "A custom print function that forwards output to the original code runner's luapad console, unlike regular print this does not print to the Garry's Mod console"
         }
 
         for variable, description in pairs( variables ) do
