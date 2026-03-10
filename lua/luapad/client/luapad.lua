@@ -146,19 +146,19 @@ local function setupToolbar()
 
         message = message .. "Environment Variables:"
         local variables = {
-            [ "_G.me" ] = "The player entity running the code",
-            [ "_G.tr" ] = "The eyetrace of the code runner",
-            [ "_G.this" ] = "The entity the code runner is looking at",
-            [ "_G.there" ] = "The hit position of the code runner's eyetrace",
-            [ "_G.here" ] = "The current position of the code runner",
-            [ "_G.bot" ] = "The first bot player (player.GetBots()[1])",
-            [ "_G.randombot()" ] = "Returns a random bot player",
-            [ "_G.GM" ] = "The current game mode (Same as GAMEMODE but for ease of use in gamemode development)",
-            [ "_G.lpprint(...)" ] = "A custom print function that forwards output to the original code runner's luapad console, unlike regular print this does not print to the Garry's Mod console"
+            { name = "_G.me", description = "The player entity running the code" },
+            { name = "_G.tr", description = "The eyetrace of the code runner" },
+            { name = "_G.this", description = "The entity the code runner is looking at" },
+            { name = "_G.there", description = "The hit position of the code runner's eyetrace" },
+            { name = "_G.here", description = "The current position of the code runner" },
+            { name = "_G.bot", description = "The first bot player (player.GetBots()[1])" },
+            { name = "_G.randombot()", description = "Returns a random bot player" },
+            { name = "_G.GM", description = "The current game mode (Same as GAMEMODE but for ease of use in gamemode development)" },
+            { name = "_G.lpprint(...)", description = "A custom print function that forwards output to the original code runner's luapad console, unlike regular print this does not print to base gmod console" }
         }
 
-        for variable, description in pairs( variables ) do
-            message = message .. "\n" .. variable .. " - " .. description
+        for _, variableInfo in ipairs( variables ) do
+            message = message .. "\n" .. variableInfo.name .. " - " .. variableInfo.description
         end
 
 
