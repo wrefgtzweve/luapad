@@ -158,9 +158,8 @@ local function setupToolbar()
         }
 
         for _, variableInfo in ipairs( variables ) do
-            message = message .. "\n" .. variableInfo.name .. " - " .. variableInfo.description
+            message = message .. "\n    " .. variableInfo.name .. " - " .. variableInfo.description
         end
-
 
         Derma_Message(message, "Luapad Information")
     end )
