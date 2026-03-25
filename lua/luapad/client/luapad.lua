@@ -140,6 +140,30 @@ local function setupToolbar()
             dframe:Remove()
         end )
     end )
+
+    addToolbarItem( "Information", "icon16/information.png", function()
+        local message = "Luapad is a simple tool to run lua code on the client and server in Garry's Mod.\n\n"
+
+        message = message .. "Environment Variables:"
+        local variables = {
+            { name = "_G.me", description = "The player entity running the code" },
+            { name = "_G.tr", description = "The eyetrace of the code runner" },
+            { name = "_G.this", description = "The entity the code runner is looking at" },
+            { name = "_G.there", description = "The hit position of the code runner's eyetrace" },
+            { name = "_G.here", description = "The current position of the code runner" },
+            { name = "_G.bot", description = "The first bot player (player.GetBots()[1])" },
+            { name = "_G.randombot()", description = "Returns a random bot player" },
+            { name = "_G.GM", description = "The current game mode (Same as GAMEMODE but for ease of use in gamemode development)" },
+            { name = "_G.lpprint(...)", description = "A custom print function that forwards output to the original code runner's luapad console, unlike regular print this does not print to base gmod console" }
+        }
+
+        for _, variableInfo in ipairs( variables ) do
+            message = message .. "\n    " .. variableInfo.name .. " - " .. variableInfo.description
+        end
+
+        Derma_Message(message, "Luapad Information")
+    end )
+
     addToolbarItem( "Settings", "icon16/cog.png", function()
         luapad.ToggleSettingsMenu()
     end )
