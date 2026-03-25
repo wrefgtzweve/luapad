@@ -161,7 +161,7 @@ local function setupToolbar()
             message = message .. "\n    " .. variableInfo.name .. " - " .. variableInfo.description
         end
 
-        Derma_Message(message, "Luapad Information")
+        Derma_Message( message, "Luapad Information" )
     end )
 
     addToolbarItem( "Settings", "icon16/cog.png", function()
