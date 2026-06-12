@@ -3,17 +3,17 @@ if CLIENT then
     luapad.createdPanels = luapad.createdPanels or {}
 end
 
-local function addHook( ply, hookname, hookID )
-    luapad.createdHooks[ply] = luapad.createdHooks[ply] or {}
-    luapad.createdHooks[ply][hookname] = luapad.createdHooks[ply][hookname] or {}
-    luapad.createdHooks[ply][hookname][hookID] = true
+local function addHook( plyID, hookname, hookID )
+    luapad.createdHooks[plyID] = luapad.createdHooks[plyID] or {}
+    luapad.createdHooks[plyID][hookname] = luapad.createdHooks[plyID][hookname] or {}
+    luapad.createdHooks[plyID][hookname][hookID] = true
 end
 
-local function removeHook( ply, hookname, hookID )
-    if not luapad.createdHooks[ply] then return end
-    if not luapad.createdHooks[ply][hookname] then return end
-    if luapad.createdHooks[ply][hookname][hookID] then
-        luapad.createdHooks[ply][hookname][hookID] = nil
+local function removeHook( plyID, hookname, hookID )
+    if not luapad.createdHooks[plyID] then return end
+    if not luapad.createdHooks[plyID][hookname] then return end
+    if luapad.createdHooks[plyID][hookname][hookID] then
+        luapad.createdHooks[plyID][hookname][hookID] = nil
     end
 end
 
@@ -171,13 +171,14 @@ local function setEnvFunctions( ply, env )
 
     env.hook = setmetatable( {}, { __index = _G.hook } )
 
+    local playerID = ply:SteamID()
     env.hook.Add = function( hookname, hookID, func )
-        addHook( CLIENT and LocalPlayer():SteamID() or ply:SteamID(), hookname, hookID )
+        addHook( playerID, hookname, hookID )
         _G.hook.Add( hookname, hookID, func )
     end
 
     env.hook.Remove = function( hookname, hookID )
-        removeHook( CLIENT and LocalPlayer():SteamID() or ply:SteamID(), hookname, hookID )
+        removeHook( playerID, hookname, hookID )
         _G.hook.Remove( hookname, hookID )
     end
 
