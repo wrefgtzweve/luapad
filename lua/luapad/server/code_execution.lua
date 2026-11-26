@@ -50,6 +50,8 @@ net.Receive( "luapad_runclient", function( _, ply )
     ply.LuapadCanReceivePrintsFrom = ply.LuapadCanReceivePrintsFrom or {}
 
     local str = luapad.ReadCompressed()
+    if not str then return end
+
     local targeted = net.ReadBool()
     local target = net.ReadPlayer()
 
@@ -73,6 +75,7 @@ net.Receive( "luapad_prints_cl", function( _, ply )
     if not target.LuapadCanReceivePrintsFrom[ply] then return end
 
     local str = luapad.ReadCompressed()
+    if not str then return end
 
     net.Start( "luapad_prints_cl" )
     net.WritePlayer( ply )
